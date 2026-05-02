@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kit Premium">
+<meta name="theme-color" content="#d4af37">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230f1419'/%3E%3Ctext x='90' y='115' font-size='100' text-anchor='middle' fill='%23d4af37' font-family='Arial' font-weight='bold'%3EKP%3C/text%3E%3C/svg%3E">
+<title>Kit Premium</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+  color: #fff; min-height: 100vh; padding-bottom: 80px;
+  -webkit-user-select: none; user-select: none;
+}
+input, textarea, select { -webkit-user-select: text; user-select: text; }
+.header {
+  background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+  padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  position: sticky; top: 0; z-index: 100;
+  padding-top: max(20px, env(safe-area-inset-top));
+}
+.header h1 { font-size: 24px; color: #0f1419; font-weight: 800; letter-spacing: 1px; }
+.header p { font-size: 12px; color: #0f1419; opacity: 0.8; margin-top: 4px; }
+
+.user-bar {
+background: rgba(0,0,0,0.3); padding: 10px 20px;
+display: flex; justify-content: space-between; align-items: center;
+border-bottom: 1px solid rgba(212,175,55,0.2); gap: 10px;
+}
+.user-bar select {
+background: #1a1f2e; color: #d4af37; border: 1px solid #d4af37;
+padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 600;
+}
+.sync-status { font-size: 11px; color: #4ade80; display: flex; align-items: center; gap: 6px; }
+.sync-status.offline { color: #f59e0b; }
+.sync-status .dot { width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.tabs {
+display: flex; background: #1a1f2e; border-bottom: 1px solid rgba(212,175,55,0.2);
+overflow-x: auto; position: sticky; top: 86px; z-index: 99;
+}
+.tab {
+flex: 1; min-width: 90px; padding: 14px 8px; text-align: center;
+font-size: 13px; font-weight: 600; color: #888; cursor: pointer;
+border-bottom: 3px solid transparent; transition: all 0.2s;
+}
+.tab.active { color: #d4af37; border-bottom-color: #d4af37; background: rgba(212,175,55,0.05); }
+
+.content { padding: 16px; }
+.section { display: none; }
+.section.active { display: block; }
+
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.stat-card {
+background: linear-gradient(135deg, #1e2536 0%, #252d42 100%);
+padding: 16px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);
+}
+.stat-card.full { grid-column: 1 / -1; background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%); color: #0f1419; }
+.stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.stat-card.full .stat-label { color: rgba(15,20,25,0.7); }
+.stat-value { font-size: 24px; font-weight: 800; color: #d4af37; }
+.stat-card.full .stat-value { color: #0f1419; font-size: 28px; }
+
+.btn {
+background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+color: #0f1419; border: none; padding: 14px 20px; border-radius: 10px;
+font-size: 15px; font-weight: 700; cursor: pointer; width: 100%;
+margin-bottom: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3);
+}
+.btn:active { transform: scale(0.98); }
+.btn-secondary { background: #2a3245; color: #d4af37; border: 1px solid #d4af37; box-shadow: none; }
+.btn-danger { background: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
+.btn-small { padding: 8px 12px; font-size: 13px; width: auto; margin: 0; }
+
+.team-card {
+background: #1e2536; border-radius: 12px; padding: 16px; margin-bottom: 12px;
+border: 1px solid rgba(212,175,55,0.2);
+}
+.team-header {
+display: flex; justify-content: space-between; align-items: center;
+margin-bottom: 12px; cursor: pointer;
+}
+.team-name { font-size: 17px; font-weight: 700; color: #d4af37; }
+.team-stock { font-size: 13px; color: #888; }
+.team-toggle { font-size: 18px; color: #d4af37; transition: transform 0.2s; }
+.team-card.expanded .team-toggle { transform: rotate(180deg); }
+
+.sizes-grid {
+display: none; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(212,175,55,0.1);
+}
+.team-card.expanded .sizes-grid { display: grid; }
+.size-item {
+background: #0f1419; border: 1px solid rgba(212,175,55,0.3); border-radius: 8px;
+padding: 8px; text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.size-item.empty { opacity: 0.4; }
+.size-item.low { border-color: #f59e0b; }
+.size-item:active { transform: scale(0.95); }
+.size-label { font-size: 11px; color: #888; }
+.size-qty { font-size: 18px; font-weight: 800; color: #d4af37; margin-top: 2px; }
+
+.modal {
+display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
+padding: 20px;
+}
+.modal.active { display: flex; }
+.modal-content {
+background: #1a1f2e; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px;
+max-height: 90vh; overflow-y: auto; border: 1px solid rgba(212,175,55,0.3);
+}
+.modal-title { font-size: 20px; font-weight: 700; color: #d4af37; margin-bottom: 16px; }
+
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select, .form-group textarea {
+width: 100%; padding: 12px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+border-radius: 8px; color: #fff; font-size: 16px;
+}
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #d4af37; }
+
+.sale-item {
+background: #1e2536; border-radius: 10px; padding: 12px; margin-bottom: 10px;
+border-left: 3px solid #d4af37;
+}
+.sale-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.sale-team { font-weight: 700; color: #d4af37; font-size: 15px; }
+.sale-price { font-weight: 800; color: #4ade80; font-size: 16px; }
+.sale-details { font-size: 12px; color: #888; }
+.sale-actions { display: flex; gap: 8px; margin-top: 8px; }
+
+.empty-state { text-align: center; padding: 40px 20px; color: #666; }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
+.filter-chip {
+padding: 8px 14px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+border-radius: 20px; font-size: 13px; color: #888; cursor: pointer; white-space: nowrap;
+}
+.filter-chip.active { background: #d4af37; color: #0f1419; border-color: #d4af37; font-weight: 700; }
+
+.size-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+.size-btn {
+padding: 10px 4px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+border-radius: 8px; color: #fff; cursor: pointer; font-size: 12px; text-align: center;
+}
+.size-btn.selected { background: #d4af37; color: #0f1419; font-weight: 700; }
+.size-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.size-btn .stock-info { display: block; font-size: 10px; opacity: 0.7; margin-top: 2px; }
+
+.category-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.cat-tab {
+flex: 1; padding: 10px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; color: #888;
+}
+.cat-tab.active { background: #d4af37; color: #0f1419; font-weight: 700; }
+
+.toast {
+position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+background: #1e2536; color: #fff; padding: 12px 20px; border-radius: 10px;
+border: 1px solid #d4af37; z-index: 2000; opacity: 0; transition: opacity 0.3s;
+font-size: 14px; max-width: 90%; text-align: center;
+}
+.toast.show { opacity: 1; }
+.toast.error { border-color: #dc2626; }
+.toast.success { border-color: #4ade80; }
+
+.search-bar {
+width: 100%; padding: 12px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+border-radius: 10px; color: #fff; margin-bottom: 12px; font-size: 14px;
+}
+
+.export-section { background: #1e2536; padding: 16px; border-radius: 12px; margin-top: 20px; }
+.divider { height: 1px; background: rgba(212,175,55,0.2); margin: 16px 0; }
+
+.totals-row {
+display: flex; justify-content: space-between; padding: 12px;
+background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 12px;
+font-weight: 700;
+}
+
+.loading-screen {
+position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+background: #0f1419; display: flex; align-items: center; justify-content: center;
+z-index: 9999; flex-direction: column;
+}
+.loading-screen .spinner {
+width: 50px; height: 50px; border: 4px solid #1e2536;
+border-top-color: #d4af37; border-radius: 50%;
+animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-screen p { color: #d4af37; margin-top: 20px; font-weight: 600; }
+</style>
+
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <p>⚽ KIT PREMIUM</p>
+  <p style="color:#888; font-size:12px; margin-top:8px;">Connexion au cloud...</p>
+</div>
+
+<div class="header">
+  <h1>⚽ KIT PREMIUM</h1>
+  <p>Gestion Stock & Ventes</p>
+</div>
+
+<div class="user-bar">
+  <select id="currentUser" onchange="changeUser()">
+    <option value="">-- Choisir vendeur --</option>
+    <option value="Hugo">Hugo</option>
+    <option value="Clément">Clément</option>
+  </select>
+  <div class="sync-status" id="syncStatus"><span class="dot"></span><span id="syncText">Sync activée</span></div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab(event, 'dashboard')">📊 Tableau</div>
+  <div class="tab" onclick="switchTab(event, 'stock')">📦 Stock</div>
+  <div class="tab" onclick="switchTab(event, 'sales')">💰 Ventes</div>
+  <div class="tab" onclick="switchTab(event, 'manage')">⚙️ Gérer</div>
+</div>
+
+<div class="content">
+
+  <div id="dashboard" class="section active">
+    <div class="stats-grid">
+      <div class="stat-card full">
+        <div class="stat-label">💵 Chiffre d'affaires total</div>
+        <div class="stat-value" id="totalRevenue">0 €</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ventes</div>
+        <div class="stat-value" id="totalSales">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Stock total</div>
+        <div class="stat-value" id="totalStock">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">CA Aujourd'hui</div>
+        <div class="stat-value" id="todayRevenue">0 €</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ventes aujourd'hui</div>
+        <div class="stat-value" id="todaySales">0</div>
+      </div>
+    </div>
+
+```
+<h3 style="color:#d4af37; margin-bottom:12px;">🏆 Top équipes vendues</h3>
+<div id="topTeams"></div>
+
+<h3 style="color:#d4af37; margin: 20px 0 12px;">👥 Ventes par vendeur</h3>
+<div id="salesBySeller"></div>
+
+<h3 style="color:#d4af37; margin: 20px 0 12px;">⚠️ Stock faible (≤ 2)</h3>
+<div id="lowStock"></div>
+```
+
+  </div>
+
+  <div id="stock" class="section">
+    <input type="text" class="search-bar" id="searchStock" placeholder="🔍 Rechercher une équipe..." oninput="renderStock()">
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="filterStock('all', this)">Tout</div>
+      <div class="filter-chip" onclick="filterStock('enfant', this)">👶 Enfant</div>
+      <div class="filter-chip" onclick="filterStock('homme', this)">👨 Homme</div>
+    </div>
+    <button class="btn" onclick="openModal('addProductModal')">➕ Ajouter une équipe / produit</button>
+    <div id="stockList"></div>
+  </div>
+
+  <div id="sales" class="section">
+    <button class="btn" onclick="openModal('saleModal')">💰 Enregistrer une vente</button>
+    <input type="text" class="search-bar" id="searchSales" placeholder="🔍 Rechercher (équipe, client...)" oninput="renderSales()">
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="filterSales('all', this)">Toutes</div>
+      <div class="filter-chip" onclick="filterSales('today', this)">Aujourd'hui</div>
+      <div class="filter-chip" onclick="filterSales('week', this)">7 jours</div>
+      <div class="filter-chip" onclick="filterSales('month', this)">30 jours</div>
+    </div>
+    <div class="totals-row">
+      <span>Total filtré :</span>
+      <span id="filteredTotal">0 €</span>
+    </div>
+    <div id="salesList"></div>
+  </div>
+
+  <div id="manage" class="section">
+    <h3 style="color:#d4af37; margin-bottom:12px;">⚙️ Gestion</h3>
+    <button class="btn" onclick="exportData()">📤 Exporter les ventes (CSV)</button>
+    <div class="divider"></div>
+    <h4 style="color:#d4af37; margin-bottom:12px;">📏 Tailles disponibles</h4>
+    <div class="export-section">
+      <p style="font-size:13px; line-height:1.8;">
+        <strong style="color:#d4af37;">👶 Enfant :</strong><br>
+        16 = 2/3/4 ans • 18 = 4/5 ans • 20 = 5/6 ans<br>
+        22 = 7/8 ans • 24 = 9/10 ans • 26 = 10/11 ans • 28 = 12/14 ans<br><br>
+        <strong style="color:#d4af37;">👨 Homme :</strong><br>
+        M • L • XL • 2XL • 3XL
+      </p>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-danger" onclick="confirmReset()">🗑️ Tout réinitialiser</button>
+    <p style="text-align:center; color:#666; font-size:11px; margin-top:30px;">
+      Kit Premium v1.0 • Synchro temps réel ☁️<br>
+      Hugo & Clément
+    </p>
+  </div>
+
+</div>
+
+<!-- MODAL: Ajouter produit -->
+
+<div class="modal" id="addProductModal">
+  <div class="modal-content">
+    <div class="modal-title">➕ Nouvelle équipe / produit</div>
+    <div class="form-group">
+      <label>Catégorie</label>
+      <div class="category-tabs">
+        <div class="cat-tab active" data-cat="enfant" onclick="selectCategory('enfant', this)">👶 Enfant</div>
+        <div class="cat-tab" data-cat="homme" onclick="selectCategory('homme', this)">👨 Homme</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Nom (ex: PSG, Real Madrid, Nike...)</label>
+      <input type="text" id="newTeamName" placeholder="Nom de l'équipe ou marque">
+    </div>
+    <div class="form-group">
+      <label>Prix de vente par défaut (€)</label>
+      <input type="number" id="newTeamPrice" placeholder="Ex: 35" step="0.01">
+    </div>
+    <div class="form-group">
+      <label>Stock initial par taille</label>
+      <div id="sizeStockInputs"></div>
+    </div>
+    <button class="btn" onclick="addProduct()">✅ Ajouter</button>
+    <button class="btn btn-secondary" onclick="closeModal('addProductModal')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL: Vente -->
+
+<div class="modal" id="saleModal">
+  <div class="modal-content">
+    <div class="modal-title">💰 Nouvelle vente</div>
+    <div class="form-group">
+      <label>Équipe / Produit</label>
+      <select id="saleTeam" onchange="updateSizesForSale()">
+        <option value="">-- Choisir --</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Taille vendue</label>
+      <div class="size-selector" id="saleSizes"></div>
+    </div>
+    <div class="form-group">
+      <label>Prix de vente (€)</label>
+      <input type="number" id="salePrice" step="0.01" placeholder="Prix">
+    </div>
+    <div class="form-group">
+      <label>Quantité</label>
+      <input type="number" id="saleQty" value="1" min="1">
+    </div>
+    <div class="form-group">
+      <label>Nom client (optionnel)</label>
+      <input type="text" id="saleCustomer" placeholder="Ex: Karim">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="saleNote" placeholder="Ex: payé espèces, livraison...">
+    </div>
+    <button class="btn" onclick="recordSale()">✅ Valider la vente</button>
+    <button class="btn btn-secondary" onclick="closeModal('saleModal')">Annuler</button>
+  </div>
+</div>
+
+<!-- MODAL: Ajuster stock -->
+
+<div class="modal" id="adjustStockModal">
+  <div class="modal-content">
+    <div class="modal-title">📦 Ajuster le stock</div>
+    <div id="adjustStockContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot,
+  runTransaction, getDocs, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCrSO9EjN32Df15KPWL0x1PWi8kpImuPfo",
+  authDomain: "kit-premium.firebaseapp.com",
+  projectId: "kit-premium",
+  storageBucket: "kit-premium.firebasestorage.app",
+  messagingSenderId: "852610924039",
+  appId: "1:852610924039:web:e42489eb4bf01daa8a74a2",
+  measurementId: "G-SF4N6614ME"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.fb = { db, doc, setDoc, deleteDoc, onSnapshot, collection, runTransaction, getDocs, writeBatch };
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<script>
+const SIZES_KIDS = ['16', '18', '20', '22', '24', '26', '28'];
+const SIZES_KIDS_LABELS = {'16':'2/3/4a','18':'4/5a','20':'5/6a','22':'7/8a','24':'9/10a','26':'10/11a','28':'12/14a'};
+const SIZES_MEN = ['M', 'L', 'XL', '2XL', '3XL'];
+
+let products = {};
+let sales = [];
+let currentCategory = 'enfant';
+let currentStockFilter = 'all';
+let currentSalesFilter = 'all';
+let selectedSize = null;
+let firebaseReady = false;
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function setSyncStatus(online) {
+  const el = document.getElementById('syncStatus');
+  const txt = document.getElementById('syncText');
+  if (online) {
+    el.classList.remove('offline');
+    txt.textContent = 'Sync en direct ☁️';
+  } else {
+    el.classList.add('offline');
+    txt.textContent = 'Hors ligne';
+  }
+}
+
+window.addEventListener('firebase-ready', () => {
+  firebaseReady = true;
+  initSync();
+});
+
+window.addEventListener('online', () => setSyncStatus(true));
+window.addEventListener('offline', () => setSyncStatus(false));
+
+function initSync() {
+  const { db, collection, onSnapshot } = window.fb;
+
+  // Listen products
+  onSnapshot(collection(db, 'products'), (snap) => {
+    products = {};
+    snap.forEach(d => { products[d.id] = d.data(); });
+    document.getElementById('loadingScreen').style.display = 'none';
+    setSyncStatus(true);
+    renderAll();
+  }, (err) => {
+    console.error('Products sync error:', err);
+    showToast('Erreur sync produits', 'error');
+    document.getElementById('loadingScreen').style.display = 'none';
+  });
+
+  // Listen sales
+  onSnapshot(collection(db, 'sales'), (snap) => {
+    sales = [];
+    snap.forEach(d => { sales.push({ id: d.id, ...d.data() }); });
+    sales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    renderAll();
+  }, (err) => {
+    console.error('Sales sync error:', err);
+  });
+}
+
+function changeUser() {
+  const u = document.getElementById('currentUser').value;
+  if (u) localStorage.setItem('kp:user', u);
+}
+
+function switchTab(e, name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(name).classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'stock') renderStock();
+  if (name === 'sales') renderSales();
+}
+
+function openModal(id) {
+  if (id === 'saleModal') {
+    populateSaleTeams();
+    document.getElementById('salePrice').value = '';
+    document.getElementById('saleQty').value = '1';
+    document.getElementById('saleCustomer').value = '';
+    document.getElementById('saleNote').value = '';
+    document.getElementById('saleSizes').innerHTML = '';
+    selectedSize = null;
+  }
+  if (id === 'addProductModal') {
+    document.getElementById('newTeamName').value = '';
+    document.getElementById('newTeamPrice').value = '';
+    currentCategory = 'enfant';
+    document.querySelectorAll('.cat-tab').forEach(c => c.classList.toggle('active', c.dataset.cat === 'enfant'));
+    renderSizeStockInputs();
+  }
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function selectCategory(cat, el) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-tab').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderSizeStockInputs();
+}
+
+function renderSizeStockInputs() {
+  const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  const c = document.getElementById('sizeStockInputs');
+  c.innerHTML = sizes.map(s => {
+    const lbl = currentCategory === 'enfant' ? `${s} (${SIZES_KIDS_LABELS[s]})` : s;
+    return `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+      <span style="min-width:80px; font-size:13px; color:#d4af37;">${lbl}</span>
+      <input type="number" min="0" value="0" id="initStock_${s}" style="flex:1;">
+    </div>`;
+  }).join('');
+}
+
+async function addProduct() {
+  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
+  const name = document.getElementById('newTeamName').value.trim();
+  const price = parseFloat(document.getElementById('newTeamPrice').value) || 0;
+  if (!name) return showToast('Nom requis', 'error');
+  const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  const stock = {};
+  sizes.forEach(s => { stock[s] = parseInt(document.getElementById('initStock_' + s).value) || 0; });
+  const id = Date.now().toString();
+  try {
+    const { db, doc, setDoc } = window.fb;
+    await setDoc(doc(db, 'products', id), { name, category: currentCategory, price, stock });
+    closeModal('addProductModal');
+    showToast('✅ ' + name + ' ajouté');
+  } catch (e) {
+    console.error(e); showToast('Erreur ajout', 'error');
+  }
+}
+
+function populateSaleTeams() {
+  const sel = document.getElementById('saleTeam');
+  sel.innerHTML = '<option value="">-- Choisir --</option>';
+  Object.entries(products)
+    .sort((a,b) => a[1].name.localeCompare(b[1].name))
+    .forEach(([id, p]) => {
+      const cat = p.category === 'enfant' ? '👶' : '👨';
+      sel.innerHTML += `<option value="${id}">${cat} ${p.name}</option>`;
+    });
+}
+
+function updateSizesForSale() {
+  const id = document.getElementById('saleTeam').value;
+  const c = document.getElementById('saleSizes');
+  selectedSize = null;
+  if (!id) { c.innerHTML = ''; return; }
+  const p = products[id];
+  document.getElementById('salePrice').value = p.price || '';
+  const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  c.innerHTML = sizes.map(s => {
+    const qty = p.stock[s] || 0;
+    const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
+    return `<button type="button" class="size-btn" ${qty<=0?'disabled':''} onclick="selectSaleSize('${s}', this)">
+      ${lbl}<span class="stock-info">Stock: ${qty}</span>
+    </button>`;
+  }).join('');
+}
+
+function selectSaleSize(s, el) {
+  selectedSize = s;
+  document.querySelectorAll('#saleSizes .size-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function recordSale() {
+  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
+  const user = document.getElementById('currentUser').value;
+  if (!user) return showToast('Choisis un vendeur en haut', 'error');
+  const productId = document.getElementById('saleTeam').value;
+  if (!productId) return showToast('Choisis une équipe', 'error');
+  if (!selectedSize) return showToast('Choisis une taille', 'error');
+  const price = parseFloat(document.getElementById('salePrice').value);
+  const qty = parseInt(document.getElementById('saleQty').value) || 1;
+  if (!price || price <= 0) return showToast('Prix invalide', 'error');
+
+  try {
+    const { db, doc, runTransaction, setDoc } = window.fb;
+    const productRef = doc(db, 'products', productId);
+    const saleId = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    const saleRef = doc(db, 'sales', saleId);
+
+    await runTransaction(db, async (t) => {
+      const snap = await t.get(productRef);
+      if (!snap.exists()) throw new Error('Produit introuvable');
+      const p = snap.data();
+      const current = p.stock[selectedSize] || 0;
+      if (current < qty) throw new Error('Stock insuffisant');
+      const newStock = { ...p.stock, [selectedSize]: current - qty };
+      t.update(productRef, { stock: newStock });
+      t.set(saleRef, {
+        productId,
+        team: p.name,
+        category: p.category,
+        size: selectedSize,
+        price,
+        qty,
+        total: price * qty,
+        customer: document.getElementById('saleCustomer').value.trim(),
+        note: document.getElementById('saleNote').value.trim(),
+        seller: user,
+        date: new Date().toISOString()
+      });
+    });
+
+    closeModal('saleModal');
+    showToast(`✅ Vente : ${(price*qty).toFixed(2)} €`);
+  } catch (e) {
+    console.error(e);
+    showToast(e.message || 'Erreur', 'error');
+  }
+}
+
+async function deleteSale(id) {
+  if (!confirm('Annuler cette vente ? Le stock sera restauré.')) return;
+  try {
+    const { db, doc, runTransaction, deleteDoc } = window.fb;
+    const sale = sales.find(s => s.id === id);
+    if (!sale) return;
+    const productRef = doc(db, 'products', sale.productId);
+    const saleRef = doc(db, 'sales', id);
+    await runTransaction(db, async (t) => {
+      const snap = await t.get(productRef);
+      if (snap.exists()) {
+        const p = snap.data();
+        const current = p.stock[sale.size] || 0;
+        const newStock = { ...p.stock, [sale.size]: current + sale.qty };
+        t.update(productRef, { stock: newStock });
+      }
+      t.delete(saleRef);
+    });
+    showToast('Vente annulée, stock restauré');
+  } catch (e) {
+    console.error(e); showToast('Erreur', 'error');
+  }
+}
+
+function filterStock(f, el) {
+  currentStockFilter = f;
+  document.querySelectorAll('#stock .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderStock();
+}
+
+function filterSales(f, el) {
+  currentSalesFilter = f;
+  document.querySelectorAll('#sales .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderSales();
+}
+
+function renderStock() {
+  const search = (document.getElementById('searchStock')?.value || '').toLowerCase();
+  const list = document.getElementById('stockList');
+  if (!list) return;
+  let entries = Object.entries(products);
+  if (currentStockFilter !== 'all') entries = entries.filter(([_,p]) => p.category === currentStockFilter);
+  if (search) entries = entries.filter(([_,p]) => p.name.toLowerCase().includes(search));
+  entries.sort((a,b) => a[1].name.localeCompare(b[1].name));
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Aucun produit. Ajoute ta première équipe !</div></div>';
+    return;
+  }
+  list.innerHTML = entries.map(([id, p]) => {
+    const total = Object.values(p.stock || {}).reduce((a,b)=>a+(b||0), 0);
+    const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+    const cat = p.category === 'enfant' ? '👶' : '👨';
+    return `
+      <div class="team-card" id="card_${id}">
+        <div class="team-header" onclick="toggleCard('${id}')">
+          <div>
+            <div class="team-name">${cat} ${p.name}</div>
+            <div class="team-stock">${total} pièces • ${p.price}€ </div>
+          </div>
+          <div class="team-toggle">▼</div>
+        </div>
+        <div class="sizes-grid">
+          ${sizes.map(s => {
+            const q = (p.stock || {})[s] || 0;
+            const cls = q === 0 ? 'empty' : (q <= 2 ? 'low' : '');
+            const lbl = p.category === 'enfant' ? `${s}<br><span style="font-size:9px">${SIZES_KIDS_LABELS[s]}</span>` : s;
+            return `<div class="size-item ${cls}" onclick="event.stopPropagation(); openAdjust('${id}','${s}')">
+              <div class="size-label">${lbl}</div>
+              <div class="size-qty">${q}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="card-actions" style="margin-top:12px; display:none; gap:8px;">
+          <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editPrice('${id}')">💵 Prix</button>
+          <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteProduct('${id}')">🗑️ Suppr.</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleCard(id) {
+  const c = document.getElementById('card_' + id);
+  c.classList.toggle('expanded');
+  const a = c.querySelector('.card-actions');
+  if (a) a.style.display = c.classList.contains('expanded') ? 'flex' : 'none';
+}
+
+function openAdjust(productId, size) {
+  const p = products[productId];
+  const current = (p.stock || {})[size] || 0;
+  const lbl = p.category === 'enfant' ? `${size} (${SIZES_KIDS_LABELS[size]})` : size;
+  document.getElementById('adjustStockContent').innerHTML = `
+    <p style="margin-bottom:12px;"><strong style="color:#d4af37;">${p.name}</strong> - Taille ${lbl}</p>
+    <p style="margin-bottom:16px;">Stock actuel : <strong>${current}</strong></p>
+    <div class="form-group">
+      <label>Nouveau stock</label>
+      <input type="number" id="newStockVal" value="${current}" min="0">
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+      <button class="btn btn-small btn-secondary" onclick="adjustQuick(-1)">-1</button>
+      <button class="btn btn-small btn-secondary" onclick="adjustQuick(1)">+1</button>
+      <button class="btn btn-small btn-secondary" onclick="adjustQuick(5)">+5</button>
+      <button class="btn btn-small btn-secondary" onclick="adjustQuick(10)">+10</button>
+    </div>
+    <button class="btn" onclick="saveAdjust('${productId}','${size}')">✅ Enregistrer</button>
+    <button class="btn btn-secondary" onclick="closeModal('adjustStockModal')">Annuler</button>
+  `;
+  openModal('adjustStockModal');
+}
+
+function adjustQuick(delta) {
+  const inp = document.getElementById('newStockVal');
+  inp.value = Math.max(0, (parseInt(inp.value)||0) + delta);
+}
+
+async function saveAdjust(productId, size) {
+  const v = parseInt(document.getElementById('newStockVal').value) || 0;
+  try {
+    const { db, doc, runTransaction } = window.fb;
+    const ref = doc(db, 'products', productId);
+    await runTransaction(db, async (t) => {
+      const snap = await t.get(ref);
+      if (!snap.exists()) throw new Error('Introuvable');
+      const p = snap.data();
+      const newStock = { ...p.stock, [size]: v };
+      t.update(ref, { stock: newStock });
+    });
+    closeModal('adjustStockModal');
+    showToast('Stock mis à jour');
+  } catch (e) {
+    console.error(e); showToast('Erreur', 'error');
+  }
+}
+
+async function editPrice(id) {
+  const p = products[id];
+  const np = prompt('Nouveau prix pour ' + p.name + ' :', p.price);
+  if (np === null) return;
+  const v = parseFloat(np);
+  if (isNaN(v) || v < 0) return showToast('Prix invalide','error');
+  try {
+    const { db, doc, setDoc } = window.fb;
+    await setDoc(doc(db, 'products', id), { ...p, price: v });
+    showToast('Prix mis à jour');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Supprimer ' + products[id].name + ' ? Les ventes existantes seront conservées.')) return;
+  try {
+    const { db, doc, deleteDoc } = window.fb;
+    await deleteDoc(doc(db, 'products', id));
+    showToast('Produit supprimé');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+function renderSales() {
+  const search = (document.getElementById('searchSales')?.value || '').toLowerCase();
+  const list = document.getElementById('salesList');
+  if (!list) return;
+  let filtered = [...sales];
+  const now = new Date();
+  if (currentSalesFilter === 'today') {
+    filtered = filtered.filter(s => new Date(s.date).toDateString() === now.toDateString());
+  } else if (currentSalesFilter === 'week') {
+    const cutoff = new Date(now.getTime() - 7*24*60*60*1000);
+    filtered = filtered.filter(s => new Date(s.date) >= cutoff);
+  } else if (currentSalesFilter === 'month') {
+    const cutoff = new Date(now.getTime() - 30*24*60*60*1000);
+    filtered = filtered.filter(s => new Date(s.date) >= cutoff);
+  }
+  if (search) {
+    filtered = filtered.filter(s =>
+      (s.team||'').toLowerCase().includes(search) ||
+      (s.customer||'').toLowerCase().includes(search) ||
+      (s.seller||'').toLowerCase().includes(search)
+    );
+  }
+  const total = filtered.reduce((a,s) => a + (s.total||0), 0);
+  document.getElementById('filteredTotal').textContent = total.toFixed(2) + ' €';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">💰</div><div>Aucune vente.</div></div>';
+    return;
+  }
+  list.innerHTML = filtered.map(s => {
+    const d = new Date(s.date);
+    const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const cat = s.category === 'enfant' ? '👶' : '👨';
+    const sizeLbl = s.category === 'enfant' && SIZES_KIDS_LABELS[s.size] ? `${s.size} (${SIZES_KIDS_LABELS[s.size]})` : s.size;
+    return `
+      <div class="sale-item">
+        <div class="sale-row">
+          <div class="sale-team">${cat} ${s.team}</div>
+          <div class="sale-price">${(s.total||0).toFixed(2)} €</div>
+        </div>
+        <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${s.qty} • ${s.price}€/u</div>
+        <div class="sale-details">👤 ${s.customer || '—'} • 🧑‍💼 ${s.seller} • 📅 ${dateStr}</div>
+        ${s.note ? `<div class="sale-details">📝 ${s.note}</div>` : ''}
+        <div class="sale-actions">
+          <button class="btn btn-small btn-danger" onclick="deleteSale('${s.id}')">Annuler</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDashboard() {
+  const totalRev = sales.reduce((a,s) => a + (s.total||0), 0);
+  const totalStockCount = Object.values(products).reduce((a,p) => a + Object.values(p.stock||{}).reduce((x,y)=>x+(y||0),0), 0);
+  const today = new Date().toDateString();
+  const todaysSales = sales.filter(s => new Date(s.date).toDateString() === today);
+  const todayRev = todaysSales.reduce((a,s) => a + (s.total||0), 0);
+
+  document.getElementById('totalRevenue').textContent = totalRev.toFixed(2) + ' €';
+  document.getElementById('totalSales').textContent = sales.length;
+  document.getElementById('totalStock').textContent = totalStockCount;
+  document.getElementById('todayRevenue').textContent = todayRev.toFixed(2) + ' €';
+  document.getElementById('todaySales').textContent = todaysSales.length;
+
+  const teamRev = {};
+  sales.forEach(s => { teamRev[s.team] = (teamRev[s.team]||0) + (s.total||0); });
+  const top = Object.entries(teamRev).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('topTeams').innerHTML = top.length === 0
+    ? '<div class="empty-state" style="padding:20px;">Pas encore de ventes</div>'
+    : top.map(([t,v]) => `<div class="totals-row"><span>${t}</span><span>${v.toFixed(2)} €</span></div>`).join('');
+
+  const sellerStats = {};
+  sales.forEach(s => {
+    if (!sellerStats[s.seller]) sellerStats[s.seller] = {count:0, total:0};
+    sellerStats[s.seller].count++;
+    sellerStats[s.seller].total += (s.total||0);
+  });
+  document.getElementById('salesBySeller').innerHTML = Object.keys(sellerStats).length === 0
+    ? '<div class="empty-state" style="padding:20px;">Pas encore de ventes</div>'
+    : Object.entries(sellerStats).map(([n,st]) =>
+        `<div class="totals-row"><span>${n} (${st.count} ventes)</span><span>${st.total.toFixed(2)} €</span></div>`
+      ).join('');
+
+  const low = [];
+  Object.entries(products).forEach(([id,p]) => {
+    Object.entries(p.stock||{}).forEach(([s,q]) => {
+      if (q > 0 && q <= 2) low.push({name: p.name, size: s, qty: q, cat: p.category});
+    });
+  });
+  document.getElementById('lowStock').innerHTML = low.length === 0
+    ? '<div class="empty-state" style="padding:20px;">✅ Tout va bien !</div>'
+    : low.map(l => {
+        const sz = l.cat==='enfant' && SIZES_KIDS_LABELS[l.size] ? `${l.size} (${SIZES_KIDS_LABELS[l.size]})` : l.size;
+        return `<div class="totals-row" style="background:rgba(245,158,11,0.15);"><span>⚠️ ${l.name} - ${sz}</span><span>${l.qty} restant</span></div>`;
+      }).join('');
+}
+
+function renderAll() {
+  renderDashboard();
+  renderStock();
+  renderSales();
+}
+
+function exportData() {
+  let csv = 'Date,Vendeur,Catégorie,Équipe,Taille,Quantité,Prix unitaire,Total,Client,Note\n';
+  sales.forEach(s => {
+    const d = new Date(s.date).toLocaleString('fr-FR');
+    csv += `"${d}","${s.seller}","${s.category}","${s.team}","${s.size}",${s.qty},${s.price},${s.total},"${s.customer||''}","${(s.note||'').replace(/"/g,'""')}"\n`;
+  });
+  const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kit-premium-ventes-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('📤 Exporté');
+}
+
+async function confirmReset() {
+  if (!confirm('⚠️ Tout supprimer ? Cette action est irréversible.')) return;
+  if (!confirm('Vraiment SUR ? Stock + ventes seront effacés DÉFINITIVEMENT.')) return;
+  try {
+    const { db, collection, getDocs, writeBatch } = window.fb;
+    const batch = writeBatch(db);
+    const prods = await getDocs(collection(db, 'products'));
+    prods.forEach(d => batch.delete(d.ref));
+    const sals = await getDocs(collection(db, 'sales'));
+    sals.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    showToast('Tout a été réinitialisé');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+const savedUser = localStorage.getItem('kp:user');
+if (savedUser) document.getElementById('currentUser').value = savedUser;
+
+// expose
+window.switchTab = switchTab;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.changeUser = changeUser;
+window.selectCategory = selectCategory;
+window.addProduct = addProduct;
+window.updateSizesForSale = updateSizesForSale;
+window.selectSaleSize = selectSaleSize;
+window.recordSale = recordSale;
+window.deleteSale = deleteSale;
+window.filterStock = filterStock;
+window.filterSales = filterSales;
+window.toggleCard = toggleCard;
+window.openAdjust = openAdjust;
+window.adjustQuick = adjustQuick;
+window.saveAdjust = saveAdjust;
+window.editPrice = editPrice;
+window.deleteProduct = deleteProduct;
+window.exportData = exportData;
+window.confirmReset = confirmReset;
+window.renderStock = renderStock;
+window.renderSales = renderSales;
+
+// Timeout au cas où Firebase ne répondrait pas
+setTimeout(() => {
+  if (!firebaseReady) {
+    document.getElementById('loadingScreen').style.display = 'none';
+    showToast('⚠️ Connexion cloud lente', 'error');
+  }
+}, 8000);
+</script>
+
+</body>
+</html>

@@ -27,180 +27,176 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 }
 .header h1 { font-size: 24px; color: #0f1419; font-weight: 800; letter-spacing: 1px; }
 .header p { font-size: 12px; color: #0f1419; opacity: 0.8; margin-top: 4px; }
-
 .user-bar {
-background: rgba(0,0,0,0.3); padding: 10px 20px;
-display: flex; justify-content: space-between; align-items: center;
-border-bottom: 1px solid rgba(212,175,55,0.2); gap: 10px;
+  background: rgba(0,0,0,0.3); padding: 10px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(212,175,55,0.2); gap: 10px;
 }
 .user-bar select {
-background: #1a1f2e; color: #d4af37; border: 1px solid #d4af37;
-padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 600;
+  background: #1a1f2e; color: #d4af37; border: 1px solid #d4af37;
+  padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 600;
 }
 .sync-status { font-size: 11px; color: #4ade80; display: flex; align-items: center; gap: 6px; }
 .sync-status.offline { color: #f59e0b; }
 .sync-status .dot { width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-
 .tabs {
-display: flex; background: #1a1f2e; border-bottom: 1px solid rgba(212,175,55,0.2);
-overflow-x: auto; position: sticky; top: 86px; z-index: 99;
+  display: flex; background: #1a1f2e; border-bottom: 1px solid rgba(212,175,55,0.2);
+  overflow-x: auto; position: sticky; top: 86px; z-index: 99;
 }
 .tab {
-flex: 1; min-width: 90px; padding: 14px 8px; text-align: center;
-font-size: 13px; font-weight: 600; color: #888; cursor: pointer;
-border-bottom: 3px solid transparent; transition: all 0.2s;
+  flex: 1; min-width: 80px; padding: 14px 6px; text-align: center;
+  font-size: 12px; font-weight: 600; color: #888; cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap;
 }
 .tab.active { color: #d4af37; border-bottom-color: #d4af37; background: rgba(212,175,55,0.05); }
-
 .content { padding: 16px; }
 .section { display: none; }
 .section.active { display: block; }
-
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
 .stat-card {
-background: linear-gradient(135deg, #1e2536 0%, #252d42 100%);
-padding: 16px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);
+  background: linear-gradient(135deg, #1e2536 0%, #252d42 100%);
+  padding: 16px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);
 }
 .stat-card.full { grid-column: 1 / -1; background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%); color: #0f1419; }
+.stat-card.warning { border-color: #f59e0b; background: linear-gradient(135deg, #2a2010 0%, #3a2a15 100%); }
 .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
 .stat-card.full .stat-label { color: rgba(15,20,25,0.7); }
+.stat-card.warning .stat-label { color: #f59e0b; }
 .stat-value { font-size: 24px; font-weight: 800; color: #d4af37; }
 .stat-card.full .stat-value { color: #0f1419; font-size: 28px; }
-
+.stat-card.warning .stat-value { color: #f59e0b; }
 .btn {
-background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
-color: #0f1419; border: none; padding: 14px 20px; border-radius: 10px;
-font-size: 15px; font-weight: 700; cursor: pointer; width: 100%;
-margin-bottom: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3);
+  background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+  color: #0f1419; border: none; padding: 14px 20px; border-radius: 10px;
+  font-size: 15px; font-weight: 700; cursor: pointer; width: 100%;
+  margin-bottom: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3);
 }
 .btn:active { transform: scale(0.98); }
 .btn-secondary { background: #2a3245; color: #d4af37; border: 1px solid #d4af37; box-shadow: none; }
 .btn-danger { background: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
+.btn-success { background: #16a34a; color: #fff; box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
 .btn-small { padding: 8px 12px; font-size: 13px; width: auto; margin: 0; }
-
 .team-card {
-background: #1e2536; border-radius: 12px; padding: 16px; margin-bottom: 12px;
-border: 1px solid rgba(212,175,55,0.2);
+  background: #1e2536; border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  border: 1px solid rgba(212,175,55,0.2);
 }
-.team-header {
-display: flex; justify-content: space-between; align-items: center;
-margin-bottom: 12px; cursor: pointer;
-}
+.team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer; }
 .team-name { font-size: 17px; font-weight: 700; color: #d4af37; }
 .team-stock { font-size: 13px; color: #888; }
 .team-toggle { font-size: 18px; color: #d4af37; transition: transform 0.2s; }
 .team-card.expanded .team-toggle { transform: rotate(180deg); }
-
 .sizes-grid {
-display: none; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(212,175,55,0.1);
+  display: none; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(212,175,55,0.1);
 }
 .team-card.expanded .sizes-grid { display: grid; }
 .size-item {
-background: #0f1419; border: 1px solid rgba(212,175,55,0.3); border-radius: 8px;
-padding: 8px; text-align: center; cursor: pointer; transition: all 0.2s;
+  background: #0f1419; border: 1px solid rgba(212,175,55,0.3); border-radius: 8px;
+  padding: 8px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative;
 }
 .size-item.empty { opacity: 0.4; }
 .size-item.low { border-color: #f59e0b; }
 .size-item:active { transform: scale(0.95); }
 .size-label { font-size: 11px; color: #888; }
 .size-qty { font-size: 18px; font-weight: 800; color: #d4af37; margin-top: 2px; }
-
+.size-reserved { font-size: 9px; color: #f59e0b; margin-top: 2px; }
 .modal {
-display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;
-padding: 20px;
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
 }
 .modal.active { display: flex; }
 .modal-content {
-background: #1a1f2e; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px;
-max-height: 90vh; overflow-y: auto; border: 1px solid rgba(212,175,55,0.3);
+  background: #1a1f2e; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px;
+  max-height: 90vh; overflow-y: auto; border: 1px solid rgba(212,175,55,0.3);
 }
 .modal-title { font-size: 20px; font-weight: 700; color: #d4af37; margin-bottom: 16px; }
-
 .form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 .form-group input, .form-group select, .form-group textarea {
-width: 100%; padding: 12px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
-border-radius: 8px; color: #fff; font-size: 16px;
+  width: 100%; padding: 12px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px; color: #fff; font-size: 16px;
 }
 .form-group input:focus, .form-group select:focus { outline: none; border-color: #d4af37; }
-
-.sale-item {
-background: #1e2536; border-radius: 10px; padding: 12px; margin-bottom: 10px;
-border-left: 3px solid #d4af37;
+.toggle-group { display: flex; gap: 8px; }
+.toggle-btn {
+  flex: 1; padding: 12px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px; color: #888; cursor: pointer; text-align: center; font-weight: 600; font-size: 14px;
 }
+.toggle-btn.danger.active { background: #dc2626; color: #fff; border-color: #dc2626; }
+.toggle-btn.success.active { background: #16a34a; color: #fff; border-color: #16a34a; }
+.sale-item {
+  background: #1e2536; border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  border-left: 3px solid #d4af37;
+}
+.sale-item.reservation-paid { border-left-color: #16a34a; }
+.sale-item.reservation-unpaid { border-left-color: #dc2626; }
 .sale-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
 .sale-team { font-weight: 700; color: #d4af37; font-size: 15px; }
 .sale-price { font-weight: 800; color: #4ade80; font-size: 16px; }
-.sale-details { font-size: 12px; color: #888; }
-.sale-actions { display: flex; gap: 8px; margin-top: 8px; }
-
+.sale-details { font-size: 12px; color: #888; margin-bottom: 2px; }
+.sale-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+.badge-paid { background: #16a34a; color: #fff; }
+.badge-unpaid { background: #dc2626; color: #fff; }
 .empty-state { text-align: center; padding: 40px 20px; color: #666; }
 .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-
 .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
 .filter-chip {
-padding: 8px 14px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
-border-radius: 20px; font-size: 13px; color: #888; cursor: pointer; white-space: nowrap;
+  padding: 8px 14px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 20px; font-size: 13px; color: #888; cursor: pointer; white-space: nowrap;
 }
 .filter-chip.active { background: #d4af37; color: #0f1419; border-color: #d4af37; font-weight: 700; }
-
 .size-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
 .size-btn {
-padding: 10px 4px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
-border-radius: 8px; color: #fff; cursor: pointer; font-size: 12px; text-align: center;
+  padding: 10px 4px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px; color: #fff; cursor: pointer; font-size: 12px; text-align: center;
 }
 .size-btn.selected { background: #d4af37; color: #0f1419; font-weight: 700; }
 .size-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .size-btn .stock-info { display: block; font-size: 10px; opacity: 0.7; margin-top: 2px; }
-
 .category-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .cat-tab {
-flex: 1; padding: 10px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
-border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; color: #888;
+  flex: 1; padding: 10px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; color: #888;
 }
 .cat-tab.active { background: #d4af37; color: #0f1419; font-weight: 700; }
-
 .toast {
-position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-background: #1e2536; color: #fff; padding: 12px 20px; border-radius: 10px;
-border: 1px solid #d4af37; z-index: 2000; opacity: 0; transition: opacity 0.3s;
-font-size: 14px; max-width: 90%; text-align: center;
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #1e2536; color: #fff; padding: 12px 20px; border-radius: 10px;
+  border: 1px solid #d4af37; z-index: 2000; opacity: 0; transition: opacity 0.3s;
+  font-size: 14px; max-width: 90%; text-align: center;
 }
 .toast.show { opacity: 1; }
 .toast.error { border-color: #dc2626; }
 .toast.success { border-color: #4ade80; }
-
 .search-bar {
-width: 100%; padding: 12px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
-border-radius: 10px; color: #fff; margin-bottom: 12px; font-size: 14px;
+  width: 100%; padding: 12px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 10px; color: #fff; margin-bottom: 12px; font-size: 14px;
 }
-
 .export-section { background: #1e2536; padding: 16px; border-radius: 12px; margin-top: 20px; }
 .divider { height: 1px; background: rgba(212,175,55,0.2); margin: 16px 0; }
-
 .totals-row {
-display: flex; justify-content: space-between; padding: 12px;
-background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 12px;
-font-weight: 700;
+  display: flex; justify-content: space-between; padding: 12px;
+  background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 12px; font-weight: 700;
 }
-
 .loading-screen {
-position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-background: #0f1419; display: flex; align-items: center; justify-content: center;
-z-index: 9999; flex-direction: column;
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: #0f1419; display: flex; align-items: center; justify-content: center;
+  z-index: 9999; flex-direction: column;
 }
 .loading-screen .spinner {
-width: 50px; height: 50px; border: 4px solid #1e2536;
-border-top-color: #d4af37; border-radius: 50%;
-animation: spin 1s linear infinite;
+  width: 50px; height: 50px; border: 4px solid #1e2536;
+  border-top-color: #d4af37; border-radius: 50%; animation: spin 1s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-screen p { color: #d4af37; margin-top: 20px; font-weight: 600; }
+.tab-badge {
+  display: inline-block; background: #dc2626; color: #fff;
+  font-size: 10px; font-weight: 800; padding: 2px 6px;
+  border-radius: 10px; margin-left: 4px; min-width: 18px;
+}
 </style>
-
 </head>
 <body>
 
@@ -212,7 +208,7 @@ animation: spin 1s linear infinite;
 
 <div class="header">
   <h1>⚽ KIT PREMIUM</h1>
-  <p>Gestion Stock & Ventes</p>
+  <p>Stock • Ventes • Réservations</p>
 </div>
 
 <div class="user-bar">
@@ -228,6 +224,7 @@ animation: spin 1s linear infinite;
   <div class="tab active" onclick="switchTab(event, 'dashboard')">📊 Tableau</div>
   <div class="tab" onclick="switchTab(event, 'stock')">📦 Stock</div>
   <div class="tab" onclick="switchTab(event, 'sales')">💰 Ventes</div>
+  <div class="tab" onclick="switchTab(event, 'reservations')">📅 Résa<span class="tab-badge" id="resBadge" style="display:none">0</span></div>
   <div class="tab" onclick="switchTab(event, 'manage')">⚙️ Gérer</div>
 </div>
 
@@ -254,6 +251,14 @@ animation: spin 1s linear infinite;
       <div class="stat-card">
         <div class="stat-label">Ventes aujourd'hui</div>
         <div class="stat-value" id="todaySales">0</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label">📅 Réservations actives</div>
+        <div class="stat-value" id="activeReservations">0</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label">💸 Reste à encaisser</div>
+        <div class="stat-value" id="toCollect">0 €</div>
       </div>
     </div>
 
@@ -297,9 +302,27 @@ animation: spin 1s linear infinite;
     <div id="salesList"></div>
   </div>
 
+  <div id="reservations" class="section">
+    <button class="btn" onclick="openModal('reservationModal')">📅 Nouvelle réservation</button>
+    <input type="text" class="search-bar" id="searchReservations" placeholder="🔍 Rechercher (client, équipe...)" oninput="renderReservations()">
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="filterReservations('active', this)">⏳ En attente</div>
+      <div class="filter-chip" onclick="filterReservations('unpaid', this)">❌ Non payées</div>
+      <div class="filter-chip" onclick="filterReservations('paid', this)">✅ Payées</div>
+      <div class="filter-chip" onclick="filterReservations('done', this)">🏁 Livrées</div>
+      <div class="filter-chip" onclick="filterReservations('all', this)">Tout</div>
+    </div>
+    <div class="totals-row">
+      <span id="resTotalLabel">Reste à encaisser :</span>
+      <span id="resFilteredTotal">0 €</span>
+    </div>
+    <div id="reservationsList"></div>
+  </div>
+
   <div id="manage" class="section">
     <h3 style="color:#d4af37; margin-bottom:12px;">⚙️ Gestion</h3>
-    <button class="btn" onclick="exportData()">📤 Exporter les ventes (CSV)</button>
+    <button class="btn" onclick="exportData()">📤 Exporter ventes (CSV)</button>
+    <button class="btn btn-secondary" onclick="exportReservations()">📤 Exporter réservations (CSV)</button>
     <div class="divider"></div>
     <h4 style="color:#d4af37; margin-bottom:12px;">📏 Tailles disponibles</h4>
     <div class="export-section">
@@ -314,14 +337,12 @@ animation: spin 1s linear infinite;
     <div class="divider"></div>
     <button class="btn btn-danger" onclick="confirmReset()">🗑️ Tout réinitialiser</button>
     <p style="text-align:center; color:#666; font-size:11px; margin-top:30px;">
-      Kit Premium v1.0 • Synchro temps réel ☁️<br>
+      Kit Premium v2.0 • Synchro temps réel ☁️<br>
       Hugo & Clément
     </p>
   </div>
 
 </div>
-
-<!-- MODAL: Ajouter produit -->
 
 <div class="modal" id="addProductModal">
   <div class="modal-content">
@@ -349,8 +370,6 @@ animation: spin 1s linear infinite;
     <button class="btn btn-secondary" onclick="closeModal('addProductModal')">Annuler</button>
   </div>
 </div>
-
-<!-- MODAL: Vente -->
 
 <div class="modal" id="saleModal">
   <div class="modal-content">
@@ -386,7 +405,50 @@ animation: spin 1s linear infinite;
   </div>
 </div>
 
-<!-- MODAL: Ajuster stock -->
+<div class="modal" id="reservationModal">
+  <div class="modal-content">
+    <div class="modal-title">📅 Nouvelle réservation</div>
+    <div class="form-group">
+      <label>Équipe / Produit</label>
+      <select id="resTeam" onchange="updateSizesForReservation()">
+        <option value="">-- Choisir --</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Taille réservée</label>
+      <div class="size-selector" id="resSizes"></div>
+    </div>
+    <div class="form-group">
+      <label>Prix (€)</label>
+      <input type="number" id="resPrice" step="0.01" placeholder="Prix">
+    </div>
+    <div class="form-group">
+      <label>Quantité</label>
+      <input type="number" id="resQty" value="1" min="1">
+    </div>
+    <div class="form-group">
+      <label>👤 Nom du client *</label>
+      <input type="text" id="resCustomer" placeholder="Ex: Karim Benali">
+    </div>
+    <div class="form-group">
+      <label>📞 Téléphone (optionnel)</label>
+      <input type="tel" id="resPhone" placeholder="Ex: 06 12 34 56 78">
+    </div>
+    <div class="form-group">
+      <label>💵 Statut du paiement</label>
+      <div class="toggle-group">
+        <div class="toggle-btn danger active" id="resStatusUnpaid" onclick="toggleResStatus('unpaid')">❌ À payer</div>
+        <div class="toggle-btn success" id="resStatusPaid" onclick="toggleResStatus('paid')">✅ Payé</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>📝 Note (optionnel)</label>
+      <input type="text" id="resNote" placeholder="Ex: livraison samedi, à récupérer...">
+    </div>
+    <button class="btn" onclick="recordReservation()">✅ Valider la réservation</button>
+    <button class="btn btn-secondary" onclick="closeModal('reservationModal')">Annuler</button>
+  </div>
+</div>
 
 <div class="modal" id="adjustStockModal">
   <div class="modal-content">
@@ -397,13 +459,11 @@ animation: spin 1s linear infinite;
 
 <div class="toast" id="toast"></div>
 
-<!-- Firebase SDK -->
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot,
-  runTransaction, getDocs, writeBatch
+  runTransaction, getDocs, writeBatch, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -419,7 +479,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-window.fb = { db, doc, setDoc, deleteDoc, onSnapshot, collection, runTransaction, getDocs, writeBatch };
+window.fb = { db, doc, setDoc, deleteDoc, onSnapshot, collection, runTransaction, getDocs, writeBatch, updateDoc };
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
@@ -430,10 +490,14 @@ const SIZES_MEN = ['M', 'L', 'XL', '2XL', '3XL'];
 
 let products = {};
 let sales = [];
+let reservations = [];
 let currentCategory = 'enfant';
 let currentStockFilter = 'all';
 let currentSalesFilter = 'all';
+let currentResFilter = 'active';
 let selectedSize = null;
+let selectedResSize = null;
+let resPaymentStatus = 'unpaid';
 let firebaseReady = false;
 
 function showToast(msg, type='success') {
@@ -446,47 +510,36 @@ function showToast(msg, type='success') {
 function setSyncStatus(online) {
   const el = document.getElementById('syncStatus');
   const txt = document.getElementById('syncText');
-  if (online) {
-    el.classList.remove('offline');
-    txt.textContent = 'Sync en direct ☁️';
-  } else {
-    el.classList.add('offline');
-    txt.textContent = 'Hors ligne';
-  }
+  if (online) { el.classList.remove('offline'); txt.textContent = 'Sync en direct ☁️'; }
+  else { el.classList.add('offline'); txt.textContent = 'Hors ligne'; }
 }
 
-window.addEventListener('firebase-ready', () => {
-  firebaseReady = true;
-  initSync();
-});
-
+window.addEventListener('firebase-ready', () => { firebaseReady = true; initSync(); });
 window.addEventListener('online', () => setSyncStatus(true));
 window.addEventListener('offline', () => setSyncStatus(false));
 
 function initSync() {
   const { db, collection, onSnapshot } = window.fb;
-
-  // Listen products
   onSnapshot(collection(db, 'products'), (snap) => {
     products = {};
     snap.forEach(d => { products[d.id] = d.data(); });
     document.getElementById('loadingScreen').style.display = 'none';
     setSyncStatus(true);
     renderAll();
-  }, (err) => {
-    console.error('Products sync error:', err);
-    showToast('Erreur sync produits', 'error');
-    document.getElementById('loadingScreen').style.display = 'none';
-  });
+  }, (err) => { console.error(err); showToast('Erreur sync', 'error'); document.getElementById('loadingScreen').style.display = 'none'; });
 
-  // Listen sales
   onSnapshot(collection(db, 'sales'), (snap) => {
     sales = [];
     snap.forEach(d => { sales.push({ id: d.id, ...d.data() }); });
     sales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     renderAll();
-  }, (err) => {
-    console.error('Sales sync error:', err);
+  });
+
+  onSnapshot(collection(db, 'reservations'), (snap) => {
+    reservations = [];
+    snap.forEach(d => { reservations.push({ id: d.id, ...d.data() }); });
+    reservations.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    renderAll();
   });
 }
 
@@ -503,17 +556,31 @@ function switchTab(e, name) {
   if (name === 'dashboard') renderDashboard();
   if (name === 'stock') renderStock();
   if (name === 'sales') renderSales();
+  if (name === 'reservations') renderReservations();
 }
 
 function openModal(id) {
   if (id === 'saleModal') {
-    populateSaleTeams();
+    populateTeams('saleTeam');
     document.getElementById('salePrice').value = '';
     document.getElementById('saleQty').value = '1';
     document.getElementById('saleCustomer').value = '';
     document.getElementById('saleNote').value = '';
     document.getElementById('saleSizes').innerHTML = '';
     selectedSize = null;
+  }
+  if (id === 'reservationModal') {
+    populateTeams('resTeam');
+    document.getElementById('resPrice').value = '';
+    document.getElementById('resQty').value = '1';
+    document.getElementById('resCustomer').value = '';
+    document.getElementById('resPhone').value = '';
+    document.getElementById('resNote').value = '';
+    document.getElementById('resSizes').innerHTML = '';
+    selectedResSize = null;
+    resPaymentStatus = 'unpaid';
+    document.getElementById('resStatusUnpaid').classList.add('active');
+    document.getElementById('resStatusPaid').classList.remove('active');
   }
   if (id === 'addProductModal') {
     document.getElementById('newTeamName').value = '';
@@ -560,13 +627,11 @@ async function addProduct() {
     await setDoc(doc(db, 'products', id), { name, category: currentCategory, price, stock });
     closeModal('addProductModal');
     showToast('✅ ' + name + ' ajouté');
-  } catch (e) {
-    console.error(e); showToast('Erreur ajout', 'error');
-  }
+  } catch (e) { console.error(e); showToast('Erreur ajout', 'error'); }
 }
 
-function populateSaleTeams() {
-  const sel = document.getElementById('saleTeam');
+function populateTeams(selectId) {
+  const sel = document.getElementById(selectId);
   sel.innerHTML = '<option value="">-- Choisir --</option>';
   Object.entries(products)
     .sort((a,b) => a[1].name.localeCompare(b[1].name))
@@ -574,6 +639,12 @@ function populateSaleTeams() {
       const cat = p.category === 'enfant' ? '👶' : '👨';
       sel.innerHTML += `<option value="${id}">${cat} ${p.name}</option>`;
     });
+}
+
+function getReservedQty(productId, size) {
+  return reservations
+    .filter(r => r.productId === productId && r.size === size && r.status === 'active')
+    .reduce((sum, r) => sum + (r.qty || 0), 0);
 }
 
 function updateSizesForSale() {
@@ -586,9 +657,32 @@ function updateSizesForSale() {
   const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
   c.innerHTML = sizes.map(s => {
     const qty = p.stock[s] || 0;
+    const reserved = getReservedQty(id, s);
+    const available = qty - reserved;
     const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
-    return `<button type="button" class="size-btn" ${qty<=0?'disabled':''} onclick="selectSaleSize('${s}', this)">
-      ${lbl}<span class="stock-info">Stock: ${qty}</span>
+    const stockTxt = reserved > 0 ? `Dispo: ${available} (${reserved} rés.)` : `Stock: ${qty}`;
+    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectSaleSize('${s}', this)">
+      ${lbl}<span class="stock-info">${stockTxt}</span>
+    </button>`;
+  }).join('');
+}
+
+function updateSizesForReservation() {
+  const id = document.getElementById('resTeam').value;
+  const c = document.getElementById('resSizes');
+  selectedResSize = null;
+  if (!id) { c.innerHTML = ''; return; }
+  const p = products[id];
+  document.getElementById('resPrice').value = p.price || '';
+  const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  c.innerHTML = sizes.map(s => {
+    const qty = p.stock[s] || 0;
+    const reserved = getReservedQty(id, s);
+    const available = qty - reserved;
+    const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
+    const stockTxt = reserved > 0 ? `Dispo: ${available}` : `Stock: ${qty}`;
+    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectResSize('${s}', this)">
+      ${lbl}<span class="stock-info">${stockTxt}</span>
     </button>`;
   }).join('');
 }
@@ -597,6 +691,18 @@ function selectSaleSize(s, el) {
   selectedSize = s;
   document.querySelectorAll('#saleSizes .size-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
+}
+
+function selectResSize(s, el) {
+  selectedResSize = s;
+  document.querySelectorAll('#resSizes .size-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleResStatus(status) {
+  resPaymentStatus = status;
+  document.getElementById('resStatusUnpaid').classList.toggle('active', status === 'unpaid');
+  document.getElementById('resStatusPaid').classList.toggle('active', status === 'paid');
 }
 
 async function recordSale() {
@@ -611,7 +717,7 @@ async function recordSale() {
   if (!price || price <= 0) return showToast('Prix invalide', 'error');
 
   try {
-    const { db, doc, runTransaction, setDoc } = window.fb;
+    const { db, doc, runTransaction } = window.fb;
     const productRef = doc(db, 'products', productId);
     const saleId = Date.now().toString() + Math.random().toString(36).slice(2,6);
     const saleRef = doc(db, 'sales', saleId);
@@ -621,36 +727,63 @@ async function recordSale() {
       if (!snap.exists()) throw new Error('Produit introuvable');
       const p = snap.data();
       const current = p.stock[selectedSize] || 0;
-      if (current < qty) throw new Error('Stock insuffisant');
+      const reserved = getReservedQty(productId, selectedSize);
+      const available = current - reserved;
+      if (available < qty) throw new Error('Stock insuffisant (réservations en cours)');
       const newStock = { ...p.stock, [selectedSize]: current - qty };
       t.update(productRef, { stock: newStock });
       t.set(saleRef, {
-        productId,
-        team: p.name,
-        category: p.category,
-        size: selectedSize,
-        price,
-        qty,
-        total: price * qty,
+        productId, team: p.name, category: p.category, size: selectedSize,
+        price, qty, total: price * qty,
         customer: document.getElementById('saleCustomer').value.trim(),
         note: document.getElementById('saleNote').value.trim(),
-        seller: user,
-        date: new Date().toISOString()
+        seller: user, date: new Date().toISOString()
       });
     });
-
     closeModal('saleModal');
     showToast(`✅ Vente : ${(price*qty).toFixed(2)} €`);
-  } catch (e) {
-    console.error(e);
-    showToast(e.message || 'Erreur', 'error');
-  }
+  } catch (e) { console.error(e); showToast(e.message || 'Erreur', 'error'); }
+}
+
+async function recordReservation() {
+  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
+  const user = document.getElementById('currentUser').value;
+  if (!user) return showToast('Choisis un vendeur en haut', 'error');
+  const productId = document.getElementById('resTeam').value;
+  if (!productId) return showToast('Choisis une équipe', 'error');
+  if (!selectedResSize) return showToast('Choisis une taille', 'error');
+  const price = parseFloat(document.getElementById('resPrice').value);
+  const qty = parseInt(document.getElementById('resQty').value) || 1;
+  const customer = document.getElementById('resCustomer').value.trim();
+  if (!customer) return showToast('Nom du client requis', 'error');
+  if (!price || price <= 0) return showToast('Prix invalide', 'error');
+
+  const p = products[productId];
+  const current = p.stock[selectedResSize] || 0;
+  const reserved = getReservedQty(productId, selectedResSize);
+  if ((current - reserved) < qty) return showToast('Stock insuffisant', 'error');
+
+  try {
+    const { db, doc, setDoc } = window.fb;
+    const resId = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await setDoc(doc(db, 'reservations', resId), {
+      productId, team: p.name, category: p.category, size: selectedResSize,
+      price, qty, total: price * qty, customer,
+      phone: document.getElementById('resPhone').value.trim(),
+      note: document.getElementById('resNote').value.trim(),
+      paymentStatus: resPaymentStatus, status: 'active',
+      seller: user, date: new Date().toISOString()
+    });
+    closeModal('reservationModal');
+    const statusTxt = resPaymentStatus === 'paid' ? 'PAYÉE' : 'À PAYER';
+    showToast(`📅 Réservation ${statusTxt} : ${customer}`);
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
 async function deleteSale(id) {
   if (!confirm('Annuler cette vente ? Le stock sera restauré.')) return;
   try {
-    const { db, doc, runTransaction, deleteDoc } = window.fb;
+    const { db, doc, runTransaction } = window.fb;
     const sale = sales.find(s => s.id === id);
     if (!sale) return;
     const productRef = doc(db, 'products', sale.productId);
@@ -666,9 +799,68 @@ async function deleteSale(id) {
       t.delete(saleRef);
     });
     showToast('Vente annulée, stock restauré');
-  } catch (e) {
-    console.error(e); showToast('Erreur', 'error');
-  }
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function confirmReservation(id) {
+  const r = reservations.find(x => x.id === id);
+  if (!r) return;
+  const wasPaid = r.paymentStatus === 'paid';
+  const msg = wasPaid
+    ? `Confirmer la livraison de ${r.team} taille ${r.size} pour ${r.customer} ?\n(déjà payé)`
+    : `Confirmer la livraison + paiement de ${r.team} taille ${r.size} pour ${r.customer} ?\nMontant à encaisser : ${r.total.toFixed(2)} €`;
+  if (!confirm(msg)) return;
+
+  try {
+    const { db, doc, runTransaction } = window.fb;
+    const productRef = doc(db, 'products', r.productId);
+    const resRef = doc(db, 'reservations', id);
+    const saleId = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    const saleRef = doc(db, 'sales', saleId);
+
+    await runTransaction(db, async (t) => {
+      const snap = await t.get(productRef);
+      if (snap.exists()) {
+        const p = snap.data();
+        const current = p.stock[r.size] || 0;
+        if (current < r.qty) throw new Error('Stock insuffisant');
+        const newStock = { ...p.stock, [r.size]: current - r.qty };
+        t.update(productRef, { stock: newStock });
+      }
+      t.update(resRef, { status: 'done', completedDate: new Date().toISOString() });
+      t.set(saleRef, {
+        productId: r.productId, team: r.team, category: r.category, size: r.size,
+        price: r.price, qty: r.qty, total: r.total, customer: r.customer,
+        note: 'Issue de réservation' + (r.note ? ' - ' + r.note : ''),
+        seller: r.seller, date: new Date().toISOString(), fromReservation: id
+      });
+    });
+    showToast(`✅ Vente confirmée : ${r.total.toFixed(2)} €`);
+  } catch (e) { console.error(e); showToast(e.message || 'Erreur', 'error'); }
+}
+
+async function togglePaymentStatus(id) {
+  const r = reservations.find(x => x.id === id);
+  if (!r) return;
+  const newStatus = r.paymentStatus === 'paid' ? 'unpaid' : 'paid';
+  const msg = newStatus === 'paid' ? 'Marquer comme PAYÉ ?' : 'Marquer comme À PAYER ?';
+  if (!confirm(msg)) return;
+  try {
+    const { db, doc, updateDoc } = window.fb;
+    await updateDoc(doc(db, 'reservations', id), { paymentStatus: newStatus });
+    showToast(newStatus === 'paid' ? '✅ Marqué payé' : '❌ Marqué à payer');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+async function cancelReservation(id) {
+  const r = reservations.find(x => x.id === id);
+  if (!r) return;
+  if (!confirm(`Annuler la réservation de ${r.customer} ?\nLe stock sera libéré.`)) return;
+  try {
+    const { db, doc, deleteDoc } = window.fb;
+    await deleteDoc(doc(db, 'reservations', id));
+    showToast('Réservation annulée');
+  } catch (e) { showToast('Erreur', 'error'); }
 }
 
 function filterStock(f, el) {
@@ -683,6 +875,13 @@ function filterSales(f, el) {
   document.querySelectorAll('#sales .filter-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   renderSales();
+}
+
+function filterReservations(f, el) {
+  currentResFilter = f;
+  document.querySelectorAll('#reservations .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderReservations();
 }
 
 function renderStock() {
@@ -713,11 +912,14 @@ function renderStock() {
         <div class="sizes-grid">
           ${sizes.map(s => {
             const q = (p.stock || {})[s] || 0;
+            const reserved = getReservedQty(id, s);
             const cls = q === 0 ? 'empty' : (q <= 2 ? 'low' : '');
             const lbl = p.category === 'enfant' ? `${s}<br><span style="font-size:9px">${SIZES_KIDS_LABELS[s]}</span>` : s;
+            const resBadge = reserved > 0 ? `<div class="size-reserved">${reserved} rés.</div>` : '';
             return `<div class="size-item ${cls}" onclick="event.stopPropagation(); openAdjust('${id}','${s}')">
               <div class="size-label">${lbl}</div>
               <div class="size-qty">${q}</div>
+              ${resBadge}
             </div>`;
           }).join('')}
         </div>
@@ -740,10 +942,13 @@ function toggleCard(id) {
 function openAdjust(productId, size) {
   const p = products[productId];
   const current = (p.stock || {})[size] || 0;
+  const reserved = getReservedQty(productId, size);
   const lbl = p.category === 'enfant' ? `${size} (${SIZES_KIDS_LABELS[size]})` : size;
+  const resInfo = reserved > 0 ? `<p style="color:#f59e0b; margin-bottom:8px; font-size:13px;">⚠️ ${reserved} pièce(s) réservée(s)</p>` : '';
   document.getElementById('adjustStockContent').innerHTML = `
     <p style="margin-bottom:12px;"><strong style="color:#d4af37;">${p.name}</strong> - Taille ${lbl}</p>
-    <p style="margin-bottom:16px;">Stock actuel : <strong>${current}</strong></p>
+    <p style="margin-bottom:8px;">Stock actuel : <strong>${current}</strong></p>
+    ${resInfo}
     <div class="form-group">
       <label>Nouveau stock</label>
       <input type="number" id="newStockVal" value="${current}" min="0">
@@ -779,9 +984,7 @@ async function saveAdjust(productId, size) {
     });
     closeModal('adjustStockModal');
     showToast('Stock mis à jour');
-  } catch (e) {
-    console.error(e); showToast('Erreur', 'error');
-  }
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
 async function editPrice(id) {
@@ -857,6 +1060,80 @@ function renderSales() {
   }).join('');
 }
 
+function renderReservations() {
+  const search = (document.getElementById('searchReservations')?.value || '').toLowerCase();
+  const list = document.getElementById('reservationsList');
+  if (!list) return;
+  let filtered = [...reservations];
+
+  if (currentResFilter === 'active') filtered = filtered.filter(r => r.status === 'active');
+  else if (currentResFilter === 'unpaid') filtered = filtered.filter(r => r.status === 'active' && r.paymentStatus === 'unpaid');
+  else if (currentResFilter === 'paid') filtered = filtered.filter(r => r.status === 'active' && r.paymentStatus === 'paid');
+  else if (currentResFilter === 'done') filtered = filtered.filter(r => r.status === 'done');
+
+  if (search) {
+    filtered = filtered.filter(r =>
+      (r.team||'').toLowerCase().includes(search) ||
+      (r.customer||'').toLowerCase().includes(search) ||
+      (r.phone||'').toLowerCase().includes(search) ||
+      (r.seller||'').toLowerCase().includes(search)
+    );
+  }
+
+  let totalLabel = 'Total :';
+  let total = 0;
+  if (currentResFilter === 'unpaid' || currentResFilter === 'active') {
+    totalLabel = 'Reste à encaisser :';
+    total = filtered.filter(r => r.paymentStatus === 'unpaid' && r.status === 'active').reduce((a,r) => a + (r.total||0), 0);
+  } else {
+    total = filtered.reduce((a,r) => a + (r.total||0), 0);
+  }
+  document.getElementById('resTotalLabel').textContent = totalLabel;
+  document.getElementById('resFilteredTotal').textContent = total.toFixed(2) + ' €';
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📅</div><div>Aucune réservation.</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(r => {
+    const d = new Date(r.date);
+    const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const cat = r.category === 'enfant' ? '👶' : '👨';
+    const sizeLbl = r.category === 'enfant' && SIZES_KIDS_LABELS[r.size] ? `${r.size} (${SIZES_KIDS_LABELS[r.size]})` : r.size;
+    const isDone = r.status === 'done';
+    const isPaid = r.paymentStatus === 'paid';
+    const cls = isDone ? '' : (isPaid ? 'reservation-paid' : 'reservation-unpaid');
+    const badge = isDone
+      ? '<span class="badge badge-paid">🏁 LIVRÉ</span>'
+      : (isPaid ? '<span class="badge badge-paid">✅ PAYÉ</span>' : '<span class="badge badge-unpaid">❌ À PAYER</span>');
+    const phoneLink = r.phone ? `<a href="tel:${r.phone}" style="color:#4ade80; text-decoration:none;">📞 ${r.phone}</a>` : '';
+
+    let actions = '';
+    if (!isDone) {
+      actions = `
+        <button class="btn btn-small btn-success" onclick="confirmReservation('${r.id}')">✅ ${isPaid ? 'Livrer' : 'Livrer + encaisser'}</button>
+        <button class="btn btn-small btn-secondary" onclick="togglePaymentStatus('${r.id}')">${isPaid ? '↩️ À payer' : '💵 Marquer payé'}</button>
+        <button class="btn btn-small btn-danger" onclick="cancelReservation('${r.id}')">❌ Annuler</button>
+      `;
+    }
+
+    return `
+      <div class="sale-item ${cls}">
+        <div class="sale-row">
+          <div class="sale-team">${cat} ${r.team} ${badge}</div>
+          <div class="sale-price">${(r.total||0).toFixed(2)} €</div>
+        </div>
+        <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${r.qty} • ${r.price}€/u</div>
+        <div class="sale-details"><strong style="color:#d4af37;">👤 ${r.customer}</strong> ${phoneLink ? '• ' + phoneLink : ''}</div>
+        <div class="sale-details">🧑‍💼 ${r.seller} • 📅 ${dateStr}</div>
+        ${r.note ? `<div class="sale-details">📝 ${r.note}</div>` : ''}
+        <div class="sale-actions">${actions}</div>
+      </div>
+    `;
+  }).join('');
+}
+
 function renderDashboard() {
   const totalRev = sales.reduce((a,s) => a + (s.total||0), 0);
   const totalStockCount = Object.values(products).reduce((a,p) => a + Object.values(p.stock||{}).reduce((x,y)=>x+(y||0),0), 0);
@@ -864,11 +1141,20 @@ function renderDashboard() {
   const todaysSales = sales.filter(s => new Date(s.date).toDateString() === today);
   const todayRev = todaysSales.reduce((a,s) => a + (s.total||0), 0);
 
+  const activeRes = reservations.filter(r => r.status === 'active');
+  const toCollect = activeRes.filter(r => r.paymentStatus === 'unpaid').reduce((a,r) => a + (r.total||0), 0);
+
   document.getElementById('totalRevenue').textContent = totalRev.toFixed(2) + ' €';
   document.getElementById('totalSales').textContent = sales.length;
   document.getElementById('totalStock').textContent = totalStockCount;
   document.getElementById('todayRevenue').textContent = todayRev.toFixed(2) + ' €';
   document.getElementById('todaySales').textContent = todaysSales.length;
+  document.getElementById('activeReservations').textContent = activeRes.length;
+  document.getElementById('toCollect').textContent = toCollect.toFixed(2) + ' €';
+
+  const badge = document.getElementById('resBadge');
+  if (activeRes.length > 0) { badge.style.display = 'inline-block'; badge.textContent = activeRes.length; }
+  else { badge.style.display = 'none'; }
 
   const teamRev = {};
   sales.forEach(s => { teamRev[s.team] = (teamRev[s.team]||0) + (s.total||0); });
@@ -907,6 +1193,7 @@ function renderAll() {
   renderDashboard();
   renderStock();
   renderSales();
+  renderReservations();
 }
 
 function exportData() {
@@ -924,9 +1211,26 @@ function exportData() {
   showToast('📤 Exporté');
 }
 
+function exportReservations() {
+  let csv = 'Date,Vendeur,Statut,Paiement,Catégorie,Équipe,Taille,Quantité,Prix unitaire,Total,Client,Téléphone,Note\n';
+  reservations.forEach(r => {
+    const d = new Date(r.date).toLocaleString('fr-FR');
+    const statut = r.status === 'done' ? 'Livrée' : 'Active';
+    const paiement = r.paymentStatus === 'paid' ? 'Payé' : 'À payer';
+    csv += `"${d}","${r.seller}","${statut}","${paiement}","${r.category}","${r.team}","${r.size}",${r.qty},${r.price},${r.total},"${r.customer||''}","${r.phone||''}","${(r.note||'').replace(/"/g,'""')}"\n`;
+  });
+  const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kit-premium-reservations-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('📤 Exporté');
+}
+
 async function confirmReset() {
   if (!confirm('⚠️ Tout supprimer ? Cette action est irréversible.')) return;
-  if (!confirm('Vraiment SUR ? Stock + ventes seront effacés DÉFINITIVEMENT.')) return;
+  if (!confirm('Vraiment SUR ? Stock + ventes + réservations seront effacés DÉFINITIVEMENT.')) return;
   try {
     const { db, collection, getDocs, writeBatch } = window.fb;
     const batch = writeBatch(db);
@@ -934,6 +1238,8 @@ async function confirmReset() {
     prods.forEach(d => batch.delete(d.ref));
     const sals = await getDocs(collection(db, 'sales'));
     sals.forEach(d => batch.delete(d.ref));
+    const res = await getDocs(collection(db, 'reservations'));
+    res.forEach(d => batch.delete(d.ref));
     await batch.commit();
     showToast('Tout a été réinitialisé');
   } catch (e) { showToast('Erreur', 'error'); }
@@ -942,7 +1248,6 @@ async function confirmReset() {
 const savedUser = localStorage.getItem('kp:user');
 if (savedUser) document.getElementById('currentUser').value = savedUser;
 
-// expose
 window.switchTab = switchTab;
 window.openModal = openModal;
 window.closeModal = closeModal;
@@ -950,11 +1255,19 @@ window.changeUser = changeUser;
 window.selectCategory = selectCategory;
 window.addProduct = addProduct;
 window.updateSizesForSale = updateSizesForSale;
+window.updateSizesForReservation = updateSizesForReservation;
 window.selectSaleSize = selectSaleSize;
+window.selectResSize = selectResSize;
+window.toggleResStatus = toggleResStatus;
 window.recordSale = recordSale;
+window.recordReservation = recordReservation;
+window.confirmReservation = confirmReservation;
+window.togglePaymentStatus = togglePaymentStatus;
+window.cancelReservation = cancelReservation;
 window.deleteSale = deleteSale;
 window.filterStock = filterStock;
 window.filterSales = filterSales;
+window.filterReservations = filterReservations;
 window.toggleCard = toggleCard;
 window.openAdjust = openAdjust;
 window.adjustQuick = adjustQuick;
@@ -962,11 +1275,12 @@ window.saveAdjust = saveAdjust;
 window.editPrice = editPrice;
 window.deleteProduct = deleteProduct;
 window.exportData = exportData;
+window.exportReservations = exportReservations;
 window.confirmReset = confirmReset;
 window.renderStock = renderStock;
 window.renderSales = renderSales;
+window.renderReservations = renderReservations;
 
-// Timeout au cas où Firebase ne répondrait pas
 setTimeout(() => {
   if (!firebaseReady) {
     document.getElementById('loadingScreen').style.display = 'none';

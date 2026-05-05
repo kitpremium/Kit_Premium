@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -7,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kit Premium">
 <meta name="theme-color" content="#d4af37">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230f1419'/%3E%3Ctext x='90' y='115' font-size='100' text-anchor='middle' fill='%23d4af37' font-family='Arial' font-weight='bold'%3EKP%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230f1419'/%3E%3Ctext x='90' y='115' font-size='100' text-anchor='middle' fill='%23d4af37' font-family='Arial' font-weight='bold'%3EKP%3C/text%3E%3C/svg%3E">
 <title>Kit Premium</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -208,14 +209,17 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
       </div>
     </div>
 
-    <h3 class="section-title">🏆 Top équipes vendues</h3>
-    <div id="topTeams"></div>
+```
+<h3 class="section-title">🏆 Top équipes vendues</h3>
+<div id="topTeams"></div>
 
-    <h3 class="section-title" style="margin-top:20px;">👥 Ventes par vendeur</h3>
-    <div id="salesBySeller"></div>
+<h3 class="section-title" style="margin-top:20px;">👥 Ventes par vendeur</h3>
+<div id="salesBySeller"></div>
 
-    <h3 class="section-title" style="margin-top:20px;">⚠️ Stock faible (≤ 2)</h3>
-    <div id="lowStock"></div>
+<h3 class="section-title" style="margin-top:20px;">⚠️ Stock faible (≤ 2)</h3>
+<div id="lowStock"></div>
+```
+
   </div>
 
   <div id="stock" class="section">
@@ -301,44 +305,47 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
       </div>
     </div>
 
-    <div class="subtabs">
-      <div class="subtab active" onclick="switchSubtab('comptaApports', this)">💵 Apports</div>
-      <div class="subtab" onclick="switchSubtab('comptaAchats', this)">🛒 Achats stock</div>
-      <div class="subtab" onclick="switchSubtab('comptaDepenses', this)">📋 Autres dépenses</div>
-      <div class="subtab" onclick="switchSubtab('comptaMarges', this)">📊 Marges</div>
-    </div>
+```
+<div class="subtabs">
+  <div class="subtab active" onclick="switchSubtab('comptaApports', this)">💵 Apports</div>
+  <div class="subtab" onclick="switchSubtab('comptaAchats', this)">🛒 Achats stock</div>
+  <div class="subtab" onclick="switchSubtab('comptaDepenses', this)">📋 Autres dépenses</div>
+  <div class="subtab" onclick="switchSubtab('comptaMarges', this)">📊 Marges</div>
+</div>
 
-    <div id="comptaApports" class="compta-subsection">
-      <button class="btn btn-info" onclick="openModal('contributionModal')">➕ Ajouter un apport</button>
-      <div class="totals-row">
-        <span>Total apports :</span>
-        <span id="contribTotal">0 €</span>
-      </div>
-      <div id="contributionsList"></div>
-    </div>
+<div id="comptaApports" class="compta-subsection">
+  <button class="btn btn-info" onclick="openModal('contributionModal')">➕ Ajouter un apport</button>
+  <div class="totals-row">
+    <span>Total apports :</span>
+    <span id="contribTotal">0 €</span>
+  </div>
+  <div id="contributionsList"></div>
+</div>
 
-    <div id="comptaAchats" class="compta-subsection" style="display:none;">
-      <button class="btn btn-danger" onclick="openModal('purchaseModal')">🛒 Nouvel achat de stock</button>
-      <div class="totals-row">
-        <span>Total achats stock :</span>
-        <span id="purchaseTotal">0 €</span>
-      </div>
-      <div id="purchasesList"></div>
-    </div>
+<div id="comptaAchats" class="compta-subsection" style="display:none;">
+  <button class="btn btn-danger" onclick="openModal('purchaseModal')">🛒 Nouvel achat de stock</button>
+  <div class="totals-row">
+    <span>Total achats stock :</span>
+    <span id="purchaseTotal">0 €</span>
+  </div>
+  <div id="purchasesList"></div>
+</div>
 
-    <div id="comptaDepenses" class="compta-subsection" style="display:none;">
-      <button class="btn btn-danger" onclick="openModal('expenseModal')">➕ Autre dépense</button>
-      <div class="totals-row">
-        <span>Total autres dépenses :</span>
-        <span id="expenseTotal">0 €</span>
-      </div>
-      <div id="expensesList"></div>
-    </div>
+<div id="comptaDepenses" class="compta-subsection" style="display:none;">
+  <button class="btn btn-danger" onclick="openModal('expenseModal')">➕ Autre dépense</button>
+  <div class="totals-row">
+    <span>Total autres dépenses :</span>
+    <span id="expenseTotal">0 €</span>
+  </div>
+  <div id="expensesList"></div>
+</div>
 
-    <div id="comptaMarges" class="compta-subsection" style="display:none;">
-      <p style="color:#888;font-size:13px;margin-bottom:12px;">Marge calculée à partir du prix d'achat moyen et du prix de vente moyen.</p>
-      <div id="marginsList"></div>
-    </div>
+<div id="comptaMarges" class="compta-subsection" style="display:none;">
+  <p style="color:#888;font-size:13px;margin-bottom:12px;">Marge calculée à partir du prix d'achat moyen et du prix de vente moyen.</p>
+  <div id="marginsList"></div>
+</div>
+```
+
   </div>
 
   <div id="manage" class="section">
@@ -571,25 +578,24 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script type="module">
-import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js](https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js)";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, runTransaction, getDocs, writeBatch, updateDoc } from "[https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js)";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, runTransaction, getDocs, writeBatch, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCrSO9EjN32Df15KPWL0x1PWi8kpImuPfo",
-  authDomain: "kit-premium.firebaseapp.com",
-  projectId: "kit-premium",
-  storageBucket: "kit-premium.firebasestorage.app",
-  messagingSenderId: "852610924039",
-  appId: "1:852610924039:web:e42489eb4bf01daa8a74a2",
-  measurementId: "G-SF4N6614ME"
+apiKey: “AIzaSyCrSO9EjN32Df15KPWL0x1PWi8kpImuPfo”,
+authDomain: “kit-premium.firebaseapp.com”,
+projectId: “kit-premium”,
+storageBucket: “kit-premium.firebasestorage.app”,
+messagingSenderId: “852610924039”,
+appId: “1:852610924039:web:e42489eb4bf01daa8a74a2”,
+measurementId: “G-SF4N6614ME”
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 window.fb = { db, doc, setDoc, deleteDoc, onSnapshot, collection, runTransaction, getDocs, writeBatch, updateDoc };
-window.dispatchEvent(new Event('firebase-ready'));
+window.dispatchEvent(new Event(‘firebase-ready’));
 </script>
 
 <script>

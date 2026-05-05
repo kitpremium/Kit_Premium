@@ -609,6 +609,7 @@ let reservations = [];
 let contributions = [];
 let purchases = [];
 let expenses = [];
+let allDataLoaded = { products: false, sales: false, reservations: false, contributions: false, purchases: false, expenses: false };
 let currentCategory = 'enfant';
 let currentStockFilter = 'all';
 let currentSalesFilter = 'all';
@@ -1565,11 +1566,11 @@ function renderCompta() {
 }
 
 function renderAll() {
-  renderDashboard();
-  renderStock();
-  renderSales();
-  renderReservations();
-  renderCompta();
+  try { renderDashboard(); } catch(e) { console.error('renderDashboard:', e); }
+  try { renderStock(); } catch(e) { console.error('renderStock:', e); }
+  try { renderSales(); } catch(e) { console.error('renderSales:', e); }
+  try { renderReservations(); } catch(e) { console.error('renderReservations:', e); }
+  try { renderCompta(); } catch(e) { console.error('renderCompta:', e); }
 }
 
 function exportData() {

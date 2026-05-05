@@ -11,160 +11,221 @@
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230f1419'/%3E%3Ctext x='90' y='115' font-size='100' text-anchor='middle' fill='%23d4af37' font-family='Arial' font-weight='bold'%3EKP%3C/text%3E%3C/svg%3E">
 <title>Kit Premium</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#0f1419 0%,#1a1f2e 100%);color:#fff;min-height:100vh;padding-bottom:80px;-webkit-user-select:none;user-select:none}
-input,textarea,select{-webkit-user-select:text;user-select:text}
-.header{background:linear-gradient(135deg,#d4af37 0%,#b8941f 100%);padding:20px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);position:sticky;top:0;z-index:100;padding-top:max(20px,env(safe-area-inset-top))}
-.header h1{font-size:22px;color:#0f1419;font-weight:800;letter-spacing:1px}
-.header p{font-size:11px;color:#0f1419;opacity:0.8;margin-top:4px}
-.user-bar{background:rgba(0,0,0,0.3);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(212,175,55,0.2);gap:10px}
-.user-bar select{background:#1a1f2e;color:#d4af37;border:1px solid #d4af37;padding:6px 12px;border-radius:6px;font-size:14px;font-weight:600}
-.sync-status{font-size:11px;color:#4ade80;display:flex;align-items:center;gap:6px}
-.sync-status.offline{color:#f59e0b}
-.sync-status .dot{width:8px;height:8px;background:currentColor;border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.tabs{display:flex;background:#1a1f2e;border-bottom:1px solid rgba(212,175,55,0.2);overflow-x:auto;position:sticky;top:86px;z-index:99}
-.tab{flex:1;min-width:70px;padding:12px 4px;text-align:center;font-size:11px;font-weight:600;color:#888;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap}
-.tab.active{color:#d4af37;border-bottom-color:#d4af37;background:rgba(212,175,55,0.05)}
-.content{padding:16px}
-.section{display:none}
-.section.active{display:block}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.stat-card{background:linear-gradient(135deg,#1e2536 0%,#252d42 100%);padding:16px;border-radius:12px;border:1px solid rgba(212,175,55,0.2)}
-.stat-card.full{grid-column:1/-1;background:linear-gradient(135deg,#d4af37 0%,#b8941f 100%);color:#0f1419}
-.stat-card.warning{border-color:#f59e0b;background:linear-gradient(135deg,#2a2010 0%,#3a2a15 100%)}
-.stat-card.success{border-color:#16a34a;background:linear-gradient(135deg,#0f2818 0%,#16352a 100%)}
-.stat-card.danger{border-color:#dc2626;background:linear-gradient(135deg,#2a1010 0%,#3a1a1a 100%)}
-.stat-card.info{border-color:#3b82f6;background:linear-gradient(135deg,#102030 0%,#1a2540 100%)}
-.stat-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.stat-card.full .stat-label{color:rgba(15,20,25,0.7)}
-.stat-card.warning .stat-label{color:#f59e0b}
-.stat-card.success .stat-label{color:#4ade80}
-.stat-card.danger .stat-label{color:#f87171}
-.stat-card.info .stat-label{color:#60a5fa}
-.stat-value{font-size:22px;font-weight:800;color:#d4af37}
-.stat-card.full .stat-value{color:#0f1419;font-size:26px}
-.stat-card.warning .stat-value{color:#f59e0b}
-.stat-card.success .stat-value{color:#4ade80}
-.stat-card.danger .stat-value{color:#f87171}
-.stat-card.info .stat-value{color:#60a5fa}
-.stat-sub{font-size:11px;color:#888;margin-top:4px}
-.btn{background:linear-gradient(135deg,#d4af37 0%,#b8941f 100%);color:#0f1419;border:none;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:12px;box-shadow:0 4px 12px rgba(212,175,55,0.3)}
-.btn:active{transform:scale(0.98)}
-.btn-secondary{background:#2a3245;color:#d4af37;border:1px solid #d4af37;box-shadow:none}
-.btn-danger{background:#dc2626;color:#fff;box-shadow:0 4px 12px rgba(220,38,38,0.3)}
-.btn-success{background:#16a34a;color:#fff;box-shadow:0 4px 12px rgba(22,163,74,0.3)}
-.btn-info{background:#3b82f6;color:#fff;box-shadow:0 4px 12px rgba(59,130,246,0.3)}
-.btn-small{padding:8px 12px;font-size:13px;width:auto;margin:0}
-.team-card{background:#1e2536;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid rgba(212,175,55,0.2)}
-.team-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;cursor:pointer}
-.team-name{font-size:17px;font-weight:700;color:#d4af37}
-.team-stock{font-size:13px;color:#888}
-.team-toggle{font-size:18px;color:#d4af37;transition:transform 0.2s}
-.team-card.expanded .team-toggle{transform:rotate(180deg)}
-.sizes-grid{display:none;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(212,175,55,0.1)}
-.team-card.expanded .sizes-grid{display:grid}
-.size-item{background:#0f1419;border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:8px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative}
-.size-item.empty{opacity:0.4}
-.size-item.low{border-color:#f59e0b}
-.size-item:active{transform:scale(0.95)}
-.size-label{font-size:11px;color:#888}
-.size-qty{font-size:18px;font-weight:800;color:#d4af37;margin-top:2px}
-.size-reserved{font-size:9px;color:#f59e0b;margin-top:2px}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:20px}
-.modal.active{display:flex}
-.modal-content{background:#1a1f2e;border-radius:16px;padding:24px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;border:1px solid rgba(212,175,55,0.3)}
-.modal-title{font-size:20px;font-weight:700;color:#d4af37;margin-bottom:16px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:12px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
-.form-group input,.form-group select,.form-group textarea{width:100%;padding:12px;background:#0f1419;border:1px solid rgba(212,175,55,0.3);border-radius:8px;color:#fff;font-size:16px}
-.form-group input:focus,.form-group select:focus{outline:none;border-color:#d4af37}
-.toggle-group{display:flex;gap:8px}
-.toggle-btn{flex:1;padding:12px;background:#0f1419;border:1px solid rgba(212,175,55,0.3);border-radius:8px;color:#888;cursor:pointer;text-align:center;font-weight:600;font-size:14px}
-.toggle-btn.danger.active{background:#dc2626;color:#fff;border-color:#dc2626}
-.toggle-btn.success.active{background:#16a34a;color:#fff;border-color:#16a34a}
-.toggle-btn.info.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
-.sale-item{background:#1e2536;border-radius:10px;padding:12px;margin-bottom:10px;border-left:3px solid #d4af37}
-.sale-item.reservation-paid{border-left-color:#16a34a}
-.sale-item.reservation-unpaid{border-left-color:#dc2626}
-.sale-item.expense{border-left-color:#dc2626}
-.sale-item.contribution{border-left-color:#3b82f6}
-.sale-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.sale-team{font-weight:700;color:#d4af37;font-size:15px}
-.sale-price{font-weight:800;color:#4ade80;font-size:16px}
-.sale-price.negative{color:#f87171}
-.sale-price.info{color:#60a5fa}
-.sale-details{font-size:12px;color:#888;margin-bottom:2px}
-.sale-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
-.badge{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;margin-left:6px}
-.badge-paid{background:#16a34a;color:#fff}
-.badge-unpaid{background:#dc2626;color:#fff}
-.badge-info{background:#3b82f6;color:#fff}
-.empty-state{text-align:center;padding:40px 20px;color:#666}
-.empty-state .icon{font-size:48px;margin-bottom:12px}
-.filter-bar{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto}
-.filter-chip{padding:8px 14px;background:#1e2536;border:1px solid rgba(212,175,55,0.2);border-radius:20px;font-size:13px;color:#888;cursor:pointer;white-space:nowrap}
-.filter-chip.active{background:#d4af37;color:#0f1419;border-color:#d4af37;font-weight:700}
-.size-selector{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
-.size-btn{padding:10px 4px;background:#0f1419;border:1px solid rgba(212,175,55,0.3);border-radius:8px;color:#fff;cursor:pointer;font-size:12px;text-align:center}
-.size-btn.selected{background:#d4af37;color:#0f1419;font-weight:700}
-.size-btn:disabled{opacity:0.3;cursor:not-allowed}
-.size-btn .stock-info{display:block;font-size:10px;opacity:0.7;margin-top:2px}
-.category-tabs{display:flex;gap:8px;margin-bottom:12px}
-.cat-tab{flex:1;padding:10px;background:#1e2536;border:1px solid rgba(212,175,55,0.2);border-radius:8px;text-align:center;cursor:pointer;font-size:13px;color:#888}
-.cat-tab.active{background:#d4af37;color:#0f1419;font-weight:700}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e2536;color:#fff;padding:12px 20px;border-radius:10px;border:1px solid #d4af37;z-index:2000;opacity:0;transition:opacity 0.3s;font-size:14px;max-width:90%;text-align:center}
-.toast.show{opacity:1}
-.toast.error{border-color:#dc2626}
-.toast.success{border-color:#4ade80}
-.search-bar{width:100%;padding:12px;background:#1e2536;border:1px solid rgba(212,175,55,0.2);border-radius:10px;color:#fff;margin-bottom:12px;font-size:14px}
-.export-section{background:#1e2536;padding:16px;border-radius:12px;margin-top:20px}
-.divider{height:1px;background:rgba(212,175,55,0.2);margin:16px 0}
-.totals-row{display:flex;justify-content:space-between;padding:12px;background:rgba(212,175,55,0.1);border-radius:8px;margin-bottom:12px;font-weight:700}
-.loading-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:#0f1419;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column}
-.loading-screen .spinner{width:50px;height:50px;border:4px solid #1e2536;border-top-color:#d4af37;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-screen p{color:#d4af37;margin-top:20px;font-weight:600}
-.tab-badge{display:inline-block;background:#dc2626;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:10px;margin-left:4px;min-width:18px}
-.subtabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
-.subtab{padding:8px 14px;background:#1e2536;border:1px solid rgba(212,175,55,0.2);border-radius:8px;font-size:13px;color:#888;cursor:pointer;white-space:nowrap;font-weight:600}
-.subtab.active{background:#d4af37;color:#0f1419;border-color:#d4af37}
-.section-title{color:#d4af37;margin-bottom:12px;font-size:16px;font-weight:700}
-.margin-row{background:#1e2536;padding:12px;border-radius:8px;margin-bottom:8px}
-.margin-team{font-weight:700;color:#d4af37;font-size:15px}
-.margin-detail{font-size:12px;color:#888;margin-top:4px}
-.margin-pct{font-weight:800;color:#4ade80;font-size:16px;margin-left:8px}
-.margin-pct.negative{color:#f87171}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%);
+  color: #fff; min-height: 100vh; padding-bottom: 80px;
+  -webkit-user-select: none; user-select: none;
+}
+input, textarea, select { -webkit-user-select: text; user-select: text; }
+.header {
+  background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+  padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  position: sticky; top: 0; z-index: 100;
+  padding-top: max(20px, env(safe-area-inset-top));
+}
+.header h1 { font-size: 24px; color: #0f1419; font-weight: 800; letter-spacing: 1px; }
+.header p { font-size: 12px; color: #0f1419; opacity: 0.8; margin-top: 4px; }
+.user-bar {
+  background: rgba(0,0,0,0.3); padding: 10px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(212,175,55,0.2); gap: 10px;
+}
+.user-bar select {
+  background: #1a1f2e; color: #d4af37; border: 1px solid #d4af37;
+  padding: 6px 12px; border-radius: 6px; font-size: 14px; font-weight: 600;
+}
+.sync-status { font-size: 11px; color: #4ade80; display: flex; align-items: center; gap: 6px; }
+.sync-status.offline { color: #f59e0b; }
+.sync-status .dot { width: 8px; height: 8px; background: currentColor; border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.tabs {
+  display: flex; background: #1a1f2e; border-bottom: 1px solid rgba(212,175,55,0.2);
+  overflow-x: auto; position: sticky; top: 86px; z-index: 99;
+}
+.tab {
+  flex: 1; min-width: 80px; padding: 14px 6px; text-align: center;
+  font-size: 12px; font-weight: 600; color: #888; cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap;
+}
+.tab.active { color: #d4af37; border-bottom-color: #d4af37; background: rgba(212,175,55,0.05); }
+.content { padding: 16px; }
+.section { display: none; }
+.section.active { display: block; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: linear-gradient(135deg, #1e2536 0%, #252d42 100%);
+  padding: 16px; border-radius: 12px; border: 1px solid rgba(212,175,55,0.2);
+}
+.stat-card.full { grid-column: 1 / -1; background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%); color: #0f1419; }
+.stat-card.warning { border-color: #f59e0b; background: linear-gradient(135deg, #2a2010 0%, #3a2a15 100%); }
+.stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.stat-card.full .stat-label { color: rgba(15,20,25,0.7); }
+.stat-card.warning .stat-label { color: #f59e0b; }
+.stat-value { font-size: 24px; font-weight: 800; color: #d4af37; }
+.stat-card.full .stat-value { color: #0f1419; font-size: 28px; }
+.stat-card.warning .stat-value { color: #f59e0b; }
+.btn {
+  background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+  color: #0f1419; border: none; padding: 14px 20px; border-radius: 10px;
+  font-size: 15px; font-weight: 700; cursor: pointer; width: 100%;
+  margin-bottom: 12px; box-shadow: 0 4px 12px rgba(212,175,55,0.3);
+}
+.btn:active { transform: scale(0.98); }
+.btn-secondary { background: #2a3245; color: #d4af37; border: 1px solid #d4af37; box-shadow: none; }
+.btn-danger { background: #dc2626; color: #fff; box-shadow: 0 4px 12px rgba(220,38,38,0.3); }
+.btn-success { background: #16a34a; color: #fff; box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
+.btn-small { padding: 8px 12px; font-size: 13px; width: auto; margin: 0; }
+.team-card {
+  background: #1e2536; border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  border: 1px solid rgba(212,175,55,0.2);
+}
+.team-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer; }
+.team-name { font-size: 17px; font-weight: 700; color: #d4af37; }
+.team-stock { font-size: 13px; color: #888; }
+.team-toggle { font-size: 18px; color: #d4af37; transition: transform 0.2s; }
+.team-card.expanded .team-toggle { transform: rotate(180deg); }
+.sizes-grid {
+  display: none; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(212,175,55,0.1);
+}
+.team-card.expanded .sizes-grid { display: grid; }
+.size-item {
+  background: #0f1419; border: 1px solid rgba(212,175,55,0.3); border-radius: 8px;
+  padding: 8px; text-align: center; cursor: pointer; transition: all 0.2s; position: relative;
+}
+.size-item.empty { opacity: 0.4; }
+.size-item.low { border-color: #f59e0b; }
+.size-item:active { transform: scale(0.95); }
+.size-label { font-size: 11px; color: #888; }
+.size-qty { font-size: 18px; font-weight: 800; color: #d4af37; margin-top: 2px; }
+.size-reserved { font-size: 9px; color: #f59e0b; margin-top: 2px; }
+.modal {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+}
+.modal.active { display: flex; }
+.modal-content {
+  background: #1a1f2e; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px;
+  max-height: 90vh; overflow-y: auto; border: 1px solid rgba(212,175,55,0.3);
+}
+.modal-title { font-size: 20px; font-weight: 700; color: #d4af37; margin-bottom: 16px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%; padding: 12px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px; color: #fff; font-size: 16px;
+}
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #d4af37; }
+.toggle-group { display: flex; gap: 8px; }
+.toggle-btn {
+  flex: 1; padding: 12px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px; color: #888; cursor: pointer; text-align: center; font-weight: 600; font-size: 14px;
+}
+.toggle-btn.danger.active { background: #dc2626; color: #fff; border-color: #dc2626; }
+.toggle-btn.success.active { background: #16a34a; color: #fff; border-color: #16a34a; }
+.sale-item {
+  background: #1e2536; border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  border-left: 3px solid #d4af37;
+}
+.sale-item.reservation-paid { border-left-color: #16a34a; }
+.sale-item.reservation-unpaid { border-left-color: #dc2626; }
+.sale-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.sale-team { font-weight: 700; color: #d4af37; font-size: 15px; }
+.sale-price { font-weight: 800; color: #4ade80; font-size: 16px; }
+.sale-details { font-size: 12px; color: #888; margin-bottom: 2px; }
+.sale-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+.badge-paid { background: #16a34a; color: #fff; }
+.badge-unpaid { background: #dc2626; color: #fff; }
+.empty-state { text-align: center; padding: 40px 20px; color: #666; }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; }
+.filter-chip {
+  padding: 8px 14px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 20px; font-size: 13px; color: #888; cursor: pointer; white-space: nowrap;
+}
+.filter-chip.active { background: #d4af37; color: #0f1419; border-color: #d4af37; font-weight: 700; }
+.size-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+.size-btn {
+  padding: 10px 4px; background: #0f1419; border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px; color: #fff; cursor: pointer; font-size: 12px; text-align: center;
+}
+.size-btn.selected { background: #d4af37; color: #0f1419; font-weight: 700; }
+.size-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.size-btn .stock-info { display: block; font-size: 10px; opacity: 0.7; margin-top: 2px; }
+.category-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.cat-tab {
+  flex: 1; padding: 10px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px; text-align: center; cursor: pointer; font-size: 13px; color: #888;
+}
+.cat-tab.active { background: #d4af37; color: #0f1419; font-weight: 700; }
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #1e2536; color: #fff; padding: 12px 20px; border-radius: 10px;
+  border: 1px solid #d4af37; z-index: 2000; opacity: 0; transition: opacity 0.3s;
+  font-size: 14px; max-width: 90%; text-align: center;
+}
+.toast.show { opacity: 1; }
+.toast.error { border-color: #dc2626; }
+.toast.success { border-color: #4ade80; }
+.search-bar {
+  width: 100%; padding: 12px; background: #1e2536; border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 10px; color: #fff; margin-bottom: 12px; font-size: 14px;
+}
+.export-section { background: #1e2536; padding: 16px; border-radius: 12px; margin-top: 20px; }
+.divider { height: 1px; background: rgba(212,175,55,0.2); margin: 16px 0; }
+.totals-row {
+  display: flex; justify-content: space-between; padding: 12px;
+  background: rgba(212,175,55,0.1); border-radius: 8px; margin-bottom: 12px; font-weight: 700;
+}
+.loading-screen {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: #0f1419; display: flex; align-items: center; justify-content: center;
+  z-index: 9999; flex-direction: column;
+}
+.loading-screen .spinner {
+  width: 50px; height: 50px; border: 4px solid #1e2536;
+  border-top-color: #d4af37; border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-screen p { color: #d4af37; margin-top: 20px; font-weight: 600; }
+.tab-badge {
+  display: inline-block; background: #dc2626; color: #fff;
+  font-size: 10px; font-weight: 800; padding: 2px 6px;
+  border-radius: 10px; margin-left: 4px; min-width: 18px;
+}
 </style>
 </head>
 <body>
+
 <div class="loading-screen" id="loadingScreen">
   <div class="spinner"></div>
   <p>⚽ KIT PREMIUM</p>
-  <p style="color:#888;font-size:12px;margin-top:8px;">Connexion au cloud...</p>
+  <p style="color:#888; font-size:12px; margin-top:8px;">Connexion au cloud...</p>
 </div>
 
 <div class="header">
   <h1>⚽ KIT PREMIUM</h1>
-  <p>Stock • Ventes • Résa • Compta</p>
+  <p>Stock • Ventes • Réservations</p>
 </div>
 
 <div class="user-bar">
   <select id="currentUser" onchange="changeUser()">
-    <option value="">-- Vendeur --</option>
+    <option value="">-- Choisir vendeur --</option>
     <option value="Hugo">Hugo</option>
     <option value="Clément">Clément</option>
   </select>
-  <div class="sync-status" id="syncStatus"><span class="dot"></span><span id="syncText">Sync</span></div>
+  <div class="sync-status" id="syncStatus"><span class="dot"></span><span id="syncText">Sync activée</span></div>
 </div>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab(event, 'dashboard')">📊</div>
+  <div class="tab active" onclick="switchTab(event, 'dashboard')">📊 Tableau</div>
   <div class="tab" onclick="switchTab(event, 'stock')">📦 Stock</div>
   <div class="tab" onclick="switchTab(event, 'sales')">💰 Ventes</div>
   <div class="tab" onclick="switchTab(event, 'reservations')">📅 Résa<span class="tab-badge" id="resBadge" style="display:none">0</span></div>
-  <div class="tab" onclick="switchTab(event, 'compta')">💼 Compta</div>
-  <div class="tab" onclick="switchTab(event, 'manage')">⚙️</div>
+  <div class="tab" onclick="switchTab(event, 'manage')">⚙️ Gérer</div>
 </div>
 
 <div class="content">
@@ -172,16 +233,8 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
   <div id="dashboard" class="section active">
     <div class="stats-grid">
       <div class="stat-card full">
-        <div class="stat-label">💵 Chiffre d'affaires</div>
+        <div class="stat-label">💵 Chiffre d'affaires total</div>
         <div class="stat-value" id="totalRevenue">0 €</div>
-      </div>
-      <div class="stat-card success">
-        <div class="stat-label">📈 Bénéfice net</div>
-        <div class="stat-value" id="netProfit">0 €</div>
-      </div>
-      <div class="stat-card info">
-        <div class="stat-label">🚀 ROI</div>
-        <div class="stat-value" id="roi">0%</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Ventes</div>
@@ -200,7 +253,7 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
         <div class="stat-value" id="todaySales">0</div>
       </div>
       <div class="stat-card warning">
-        <div class="stat-label">📅 Réservations</div>
+        <div class="stat-label">📅 Réservations actives</div>
         <div class="stat-value" id="activeReservations">0</div>
       </div>
       <div class="stat-card warning">
@@ -210,13 +263,13 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
     </div>
 
 ```
-<h3 class="section-title">🏆 Top équipes vendues</h3>
+<h3 style="color:#d4af37; margin-bottom:12px;">🏆 Top équipes vendues</h3>
 <div id="topTeams"></div>
 
-<h3 class="section-title" style="margin-top:20px;">👥 Ventes par vendeur</h3>
+<h3 style="color:#d4af37; margin: 20px 0 12px;">👥 Ventes par vendeur</h3>
 <div id="salesBySeller"></div>
 
-<h3 class="section-title" style="margin-top:20px;">⚠️ Stock faible (≤ 2)</h3>
+<h3 style="color:#d4af37; margin: 20px 0 12px;">⚠️ Stock faible (≤ 2)</h3>
 <div id="lowStock"></div>
 ```
 
@@ -266,97 +319,14 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
     <div id="reservationsList"></div>
   </div>
 
-  <div id="compta" class="section">
-    <div class="stats-grid">
-      <div class="stat-card full">
-        <div class="stat-label">📈 Bénéfice net</div>
-        <div class="stat-value" id="comptaNet">0 €</div>
-        <div class="stat-sub" style="color:rgba(15,20,25,0.7);">Recettes − Dépenses</div>
-      </div>
-      <div class="stat-card success">
-        <div class="stat-label">💰 Recettes</div>
-        <div class="stat-value" id="comptaRevenue">0 €</div>
-        <div class="stat-sub" id="comptaRevenueSub">0 ventes</div>
-      </div>
-      <div class="stat-card danger">
-        <div class="stat-label">🛒 Dépenses</div>
-        <div class="stat-value" id="comptaExpenses">0 €</div>
-        <div class="stat-sub" id="comptaExpensesSub">0 achats</div>
-      </div>
-      <div class="stat-card info">
-        <div class="stat-label">💵 Apports perso</div>
-        <div class="stat-value" id="comptaContrib">0 €</div>
-        <div class="stat-sub" id="comptaContribSub">0 apports</div>
-      </div>
-      <div class="stat-card info">
-        <div class="stat-label">🚀 ROI</div>
-        <div class="stat-value" id="comptaROI">0%</div>
-        <div class="stat-sub">Bénéfice / Apports</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">💼 Trésorerie dispo</div>
-        <div class="stat-value" id="comptaCash">0 €</div>
-        <div class="stat-sub">Cash en caisse</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">📦 Valeur stock</div>
-        <div class="stat-value" id="comptaStockValue">0 €</div>
-        <div class="stat-sub">Au prix d'achat</div>
-      </div>
-    </div>
-
-```
-<div class="subtabs">
-  <div class="subtab active" onclick="switchSubtab('comptaApports', this)">💵 Apports</div>
-  <div class="subtab" onclick="switchSubtab('comptaAchats', this)">🛒 Achats stock</div>
-  <div class="subtab" onclick="switchSubtab('comptaDepenses', this)">📋 Autres dépenses</div>
-  <div class="subtab" onclick="switchSubtab('comptaMarges', this)">📊 Marges</div>
-</div>
-
-<div id="comptaApports" class="compta-subsection">
-  <button class="btn btn-info" onclick="openModal('contributionModal')">➕ Ajouter un apport</button>
-  <div class="totals-row">
-    <span>Total apports :</span>
-    <span id="contribTotal">0 €</span>
-  </div>
-  <div id="contributionsList"></div>
-</div>
-
-<div id="comptaAchats" class="compta-subsection" style="display:none;">
-  <button class="btn btn-danger" onclick="openModal('purchaseModal')">🛒 Nouvel achat de stock</button>
-  <div class="totals-row">
-    <span>Total achats stock :</span>
-    <span id="purchaseTotal">0 €</span>
-  </div>
-  <div id="purchasesList"></div>
-</div>
-
-<div id="comptaDepenses" class="compta-subsection" style="display:none;">
-  <button class="btn btn-danger" onclick="openModal('expenseModal')">➕ Autre dépense</button>
-  <div class="totals-row">
-    <span>Total autres dépenses :</span>
-    <span id="expenseTotal">0 €</span>
-  </div>
-  <div id="expensesList"></div>
-</div>
-
-<div id="comptaMarges" class="compta-subsection" style="display:none;">
-  <p style="color:#888;font-size:13px;margin-bottom:12px;">Marge calculée à partir du prix d'achat moyen et du prix de vente moyen.</p>
-  <div id="marginsList"></div>
-</div>
-```
-
-  </div>
-
   <div id="manage" class="section">
-    <h3 class="section-title">⚙️ Gestion</h3>
+    <h3 style="color:#d4af37; margin-bottom:12px;">⚙️ Gestion</h3>
     <button class="btn" onclick="exportData()">📤 Exporter ventes (CSV)</button>
     <button class="btn btn-secondary" onclick="exportReservations()">📤 Exporter réservations (CSV)</button>
-    <button class="btn btn-secondary" onclick="exportCompta()">📤 Exporter compta (CSV)</button>
     <div class="divider"></div>
-    <h4 style="color:#d4af37;margin-bottom:12px;">📏 Tailles disponibles</h4>
+    <h4 style="color:#d4af37; margin-bottom:12px;">📏 Tailles disponibles</h4>
     <div class="export-section">
-      <p style="font-size:13px;line-height:1.8;">
+      <p style="font-size:13px; line-height:1.8;">
         <strong style="color:#d4af37;">👶 Enfant :</strong><br>
         16 = 2/3/4 ans • 18 = 4/5 ans • 20 = 5/6 ans<br>
         22 = 7/8 ans • 24 = 9/10 ans • 26 = 10/11 ans • 28 = 12/14 ans<br><br>
@@ -366,13 +336,14 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
     </div>
     <div class="divider"></div>
     <button class="btn btn-danger" onclick="confirmReset()">🗑️ Tout réinitialiser</button>
-    <p style="text-align:center;color:#666;font-size:11px;margin-top:30px;">
-      Kit Premium v3.0 • Sync temps réel ☁️<br>
+    <p style="text-align:center; color:#666; font-size:11px; margin-top:30px;">
+      Kit Premium v2.0 • Synchro temps réel ☁️<br>
       Hugo & Clément
     </p>
   </div>
 
 </div>
+
 <div class="modal" id="addProductModal">
   <div class="modal-content">
     <div class="modal-title">➕ Nouvelle équipe / produit</div>
@@ -392,10 +363,6 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
       <input type="number" id="newTeamPrice" placeholder="Ex: 35" step="0.01">
     </div>
     <div class="form-group">
-      <label>Prix d'achat unitaire (€) — pour calculer ta marge</label>
-      <input type="number" id="newTeamCost" placeholder="Ex: 12" step="0.01">
-    </div>
-    <div class="form-group">
       <label>Stock initial par taille</label>
       <div id="sizeStockInputs"></div>
     </div>
@@ -409,7 +376,9 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
     <div class="modal-title">💰 Nouvelle vente</div>
     <div class="form-group">
       <label>Équipe / Produit</label>
-      <select id="saleTeam" onchange="updateSizesForSale()"><option value="">-- Choisir --</option></select>
+      <select id="saleTeam" onchange="updateSizesForSale()">
+        <option value="">-- Choisir --</option>
+      </select>
     </div>
     <div class="form-group">
       <label>Taille vendue</label>
@@ -441,7 +410,9 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
     <div class="modal-title">📅 Nouvelle réservation</div>
     <div class="form-group">
       <label>Équipe / Produit</label>
-      <select id="resTeam" onchange="updateSizesForReservation()"><option value="">-- Choisir --</option></select>
+      <select id="resTeam" onchange="updateSizesForReservation()">
+        <option value="">-- Choisir --</option>
+      </select>
     </div>
     <div class="form-group">
       <label>Taille réservée</label>
@@ -457,7 +428,7 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
     </div>
     <div class="form-group">
       <label>👤 Nom du client *</label>
-      <input type="text" id="resCustomer" placeholder="Ex: Florian">
+      <input type="text" id="resCustomer" placeholder="Ex: Karim Benali">
     </div>
     <div class="form-group">
       <label>📞 Téléphone (optionnel)</label>
@@ -472,101 +443,10 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
     </div>
     <div class="form-group">
       <label>📝 Note (optionnel)</label>
-      <input type="text" id="resNote" placeholder="Ex: livraison samedi...">
+      <input type="text" id="resNote" placeholder="Ex: livraison samedi, à récupérer...">
     </div>
     <button class="btn" onclick="recordReservation()">✅ Valider la réservation</button>
     <button class="btn btn-secondary" onclick="closeModal('reservationModal')">Annuler</button>
-  </div>
-</div>
-
-<div class="modal" id="contributionModal">
-  <div class="modal-content">
-    <div class="modal-title">💵 Nouvel apport</div>
-    <div class="form-group">
-      <label>Qui apporte l'argent ?</label>
-      <div class="toggle-group">
-        <div class="toggle-btn info active" id="contribHugo" onclick="selectContrib('Hugo')">Hugo</div>
-        <div class="toggle-btn info" id="contribClement" onclick="selectContrib('Clément')">Clément</div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Montant (€)</label>
-      <input type="number" id="contribAmount" step="0.01" placeholder="Ex: 400">
-    </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="contribDate">
-    </div>
-    <div class="form-group">
-      <label>Note (optionnel)</label>
-      <input type="text" id="contribNote" placeholder="Ex: capital de départ">
-    </div>
-    <button class="btn btn-info" onclick="recordContribution()">✅ Enregistrer l'apport</button>
-    <button class="btn btn-secondary" onclick="closeModal('contributionModal')">Annuler</button>
-  </div>
-</div>
-
-<div class="modal" id="purchaseModal">
-  <div class="modal-content">
-    <div class="modal-title">🛒 Achat de stock</div>
-    <p style="color:#888;font-size:12px;margin-bottom:12px;">Achète des kits → ça augmente le stock + enregistre la dépense automatiquement.</p>
-    <div class="form-group">
-      <label>Équipe / Produit</label>
-      <select id="purchaseTeam" onchange="updatePurchaseSizes()"><option value="">-- Choisir --</option></select>
-    </div>
-    <div class="form-group">
-      <label>Taille</label>
-      <div class="size-selector" id="purchaseSizes"></div>
-    </div>
-    <div class="form-group">
-      <label>Quantité achetée</label>
-      <input type="number" id="purchaseQty" value="1" min="1">
-    </div>
-    <div class="form-group">
-      <label>Prix d'achat unitaire (€)</label>
-      <input type="number" id="purchaseUnitPrice" step="0.01" placeholder="Ex: 12">
-    </div>
-    <div class="form-group">
-      <label>Total (calculé auto)</label>
-      <input type="number" id="purchaseTotalPrice" step="0.01" placeholder="Ex: 120" style="background:#1e2536;color:#4ade80;font-weight:700;">
-    </div>
-    <div class="form-group">
-      <label>Fournisseur / Note</label>
-      <input type="text" id="purchaseNote" placeholder="Ex: Aliexpress, ami...">
-    </div>
-    <button class="btn btn-danger" onclick="recordPurchase()">✅ Valider l'achat</button>
-    <button class="btn btn-secondary" onclick="closeModal('purchaseModal')">Annuler</button>
-  </div>
-</div>
-
-<div class="modal" id="expenseModal">
-  <div class="modal-content">
-    <div class="modal-title">📋 Autre dépense</div>
-    <div class="form-group">
-      <label>Catégorie</label>
-      <select id="expenseCategory">
-        <option value="Frais de port">📦 Frais de port</option>
-        <option value="Emballages">🎁 Emballages</option>
-        <option value="Marketing">📢 Marketing / Pub</option>
-        <option value="Transport">🚗 Transport</option>
-        <option value="Matériel">🛠️ Matériel</option>
-        <option value="Autre">❓ Autre</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <input type="text" id="expenseDesc" placeholder="Ex: Sacs Kit Premium">
-    </div>
-    <div class="form-group">
-      <label>Montant (€)</label>
-      <input type="number" id="expenseAmount" step="0.01" placeholder="Ex: 25">
-    </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="expenseDate">
-    </div>
-    <button class="btn btn-danger" onclick="recordExpense()">✅ Enregistrer la dépense</button>
-    <button class="btn btn-secondary" onclick="closeModal('expenseModal')">Annuler</button>
   </div>
 </div>
 
@@ -578,47 +458,46 @@ input,textarea,select{-webkit-user-select:text;user-select:text}
 </div>
 
 <div class="toast" id="toast"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, runTransaction, getDocs, writeBatch, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot,
+  runTransaction, getDocs, writeBatch, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: “AIzaSyCrSO9EjN32Df15KPWL0x1PWi8kpImuPfo”,
-authDomain: “kit-premium.firebaseapp.com”,
-projectId: “kit-premium”,
-storageBucket: “kit-premium.firebasestorage.app”,
-messagingSenderId: “852610924039”,
-appId: “1:852610924039:web:e42489eb4bf01daa8a74a2”,
-measurementId: “G-SF4N6614ME”
+  apiKey: "AIzaSyCrSO9EjN32Df15KPWL0x1PWi8kpImuPfo",
+  authDomain: "kit-premium.firebaseapp.com",
+  projectId: "kit-premium",
+  storageBucket: "kit-premium.firebasestorage.app",
+  messagingSenderId: "852610924039",
+  appId: "1:852610924039:web:e42489eb4bf01daa8a74a2",
+  measurementId: "G-SF4N6614ME"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 window.fb = { db, doc, setDoc, deleteDoc, onSnapshot, collection, runTransaction, getDocs, writeBatch, updateDoc };
-window.dispatchEvent(new Event(‘firebase-ready’));
+window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
 <script>
-const SIZES_KIDS = ['16','18','20','22','24','26','28'];
+const SIZES_KIDS = ['16', '18', '20', '22', '24', '26', '28'];
 const SIZES_KIDS_LABELS = {'16':'2/3/4a','18':'4/5a','20':'5/6a','22':'7/8a','24':'9/10a','26':'10/11a','28':'12/14a'};
-const SIZES_MEN = ['M','L','XL','2XL','3XL'];
+const SIZES_MEN = ['M', 'L', 'XL', '2XL', '3XL'];
 
 let products = {};
 let sales = [];
 let reservations = [];
-let contributions = [];
-let purchases = [];
-let expenses = [];
-let allDataLoaded = { products: false, sales: false, reservations: false, contributions: false, purchases: false, expenses: false };
 let currentCategory = 'enfant';
 let currentStockFilter = 'all';
 let currentSalesFilter = 'all';
 let currentResFilter = 'active';
 let selectedSize = null;
 let selectedResSize = null;
-let selectedPurchaseSize = null;
 let resPaymentStatus = 'unpaid';
-let contribPerson = 'Hugo';
 let firebaseReady = false;
 
 function showToast(msg, type='success') {
@@ -631,7 +510,7 @@ function showToast(msg, type='success') {
 function setSyncStatus(online) {
   const el = document.getElementById('syncStatus');
   const txt = document.getElementById('syncText');
-  if (online) { el.classList.remove('offline'); txt.textContent = 'Sync ☁️'; }
+  if (online) { el.classList.remove('offline'); txt.textContent = 'Sync en direct ☁️'; }
   else { el.classList.add('offline'); txt.textContent = 'Hors ligne'; }
 }
 
@@ -647,40 +526,19 @@ function initSync() {
     document.getElementById('loadingScreen').style.display = 'none';
     setSyncStatus(true);
     renderAll();
-  }, (err) => { console.error(err); document.getElementById('loadingScreen').style.display = 'none'; });
+  }, (err) => { console.error(err); showToast('Erreur sync', 'error'); document.getElementById('loadingScreen').style.display = 'none'; });
 
   onSnapshot(collection(db, 'sales'), (snap) => {
     sales = [];
     snap.forEach(d => { sales.push({ id: d.id, ...d.data() }); });
-    sales.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    sales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     renderAll();
   });
 
   onSnapshot(collection(db, 'reservations'), (snap) => {
     reservations = [];
     snap.forEach(d => { reservations.push({ id: d.id, ...d.data() }); });
-    reservations.sort((a,b) => (b.date||'').localeCompare(a.date||''));
-    renderAll();
-  });
-
-  onSnapshot(collection(db, 'contributions'), (snap) => {
-    contributions = [];
-    snap.forEach(d => { contributions.push({ id: d.id, ...d.data() }); });
-    contributions.sort((a,b) => (b.date||'').localeCompare(a.date||''));
-    renderAll();
-  });
-
-  onSnapshot(collection(db, 'purchases'), (snap) => {
-    purchases = [];
-    snap.forEach(d => { purchases.push({ id: d.id, ...d.data() }); });
-    purchases.sort((a,b) => (b.date||'').localeCompare(a.date||''));
-    renderAll();
-  });
-
-  onSnapshot(collection(db, 'expenses'), (snap) => {
-    expenses = [];
-    snap.forEach(d => { expenses.push({ id: d.id, ...d.data() }); });
-    expenses.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+    reservations.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     renderAll();
   });
 }
@@ -699,14 +557,6 @@ function switchTab(e, name) {
   if (name === 'stock') renderStock();
   if (name === 'sales') renderSales();
   if (name === 'reservations') renderReservations();
-  if (name === 'compta') renderCompta();
-}
-
-function switchSubtab(id, el) {
-  document.querySelectorAll('.subtab').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.compta-subsection').forEach(s => s.style.display = 'none');
-  el.classList.add('active');
-  document.getElementById(id).style.display = 'block';
 }
 
 function openModal(id) {
@@ -735,32 +585,9 @@ function openModal(id) {
   if (id === 'addProductModal') {
     document.getElementById('newTeamName').value = '';
     document.getElementById('newTeamPrice').value = '';
-    document.getElementById('newTeamCost').value = '';
     currentCategory = 'enfant';
     document.querySelectorAll('.cat-tab').forEach(c => c.classList.toggle('active', c.dataset.cat === 'enfant'));
     renderSizeStockInputs();
-  }
-  if (id === 'contributionModal') {
-    document.getElementById('contribAmount').value = '';
-    document.getElementById('contribNote').value = '';
-    document.getElementById('contribDate').value = new Date().toISOString().slice(0,10);
-    contribPerson = 'Hugo';
-    document.getElementById('contribHugo').classList.add('active');
-    document.getElementById('contribClement').classList.remove('active');
-  }
-  if (id === 'purchaseModal') {
-    populateTeams('purchaseTeam');
-    document.getElementById('purchaseQty').value = '1';
-    document.getElementById('purchaseUnitPrice').value = '';
-    document.getElementById('purchaseTotalPrice').value = '';
-    document.getElementById('purchaseNote').value = '';
-    document.getElementById('purchaseSizes').innerHTML = '';
-    selectedPurchaseSize = null;
-  }
-  if (id === 'expenseModal') {
-    document.getElementById('expenseDesc').value = '';
-    document.getElementById('expenseAmount').value = '';
-    document.getElementById('expenseDate').value = new Date().toISOString().slice(0,10);
   }
   document.getElementById(id).classList.add('active');
 }
@@ -774,62 +601,50 @@ function selectCategory(cat, el) {
   renderSizeStockInputs();
 }
 
-function selectContrib(person) {
-  contribPerson = person;
-  document.getElementById('contribHugo').classList.toggle('active', person === 'Hugo');
-  document.getElementById('contribClement').classList.toggle('active', person === 'Clément');
-}
-
 function renderSizeStockInputs() {
   const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
   const c = document.getElementById('sizeStockInputs');
   c.innerHTML = sizes.map(s => {
     const lbl = currentCategory === 'enfant' ? `${s} (${SIZES_KIDS_LABELS[s]})` : s;
-    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="min-width:80px;font-size:13px;color:#d4af37;">${lbl}</span><input type="number" min="0" value="0" id="initStock_${s}" style="flex:1;"></div>`;
+    return `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+      <span style="min-width:80px; font-size:13px; color:#d4af37;">${lbl}</span>
+      <input type="number" min="0" value="0" id="initStock_${s}" style="flex:1;">
+    </div>`;
   }).join('');
+}
+
+async function addProduct() {
+  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
+  const name = document.getElementById('newTeamName').value.trim();
+  const price = parseFloat(document.getElementById('newTeamPrice').value) || 0;
+  if (!name) return showToast('Nom requis', 'error');
+  const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  const stock = {};
+  sizes.forEach(s => { stock[s] = parseInt(document.getElementById('initStock_' + s).value) || 0; });
+  const id = Date.now().toString();
+  try {
+    const { db, doc, setDoc } = window.fb;
+    await setDoc(doc(db, 'products', id), { name, category: currentCategory, price, stock });
+    closeModal('addProductModal');
+    showToast('✅ ' + name + ' ajouté');
+  } catch (e) { console.error(e); showToast('Erreur ajout', 'error'); }
 }
 
 function populateTeams(selectId) {
   const sel = document.getElementById(selectId);
   sel.innerHTML = '<option value="">-- Choisir --</option>';
-  Object.entries(products).sort((a,b) => a[1].name.localeCompare(b[1].name)).forEach(([id, p]) => {
-    const cat = p.category === 'enfant' ? '👶' : '👨';
-    sel.innerHTML += `<option value="${id}">${cat} ${p.name}</option>`;
-  });
+  Object.entries(products)
+    .sort((a,b) => a[1].name.localeCompare(b[1].name))
+    .forEach(([id, p]) => {
+      const cat = p.category === 'enfant' ? '👶' : '👨';
+      sel.innerHTML += `<option value="${id}">${cat} ${p.name}</option>`;
+    });
 }
 
 function getReservedQty(productId, size) {
-  return reservations.filter(r => r.productId === productId && r.size === size && r.status === 'active').reduce((sum, r) => sum + (r.qty || 0), 0);
-}
-
-function toggleResStatus(status) {
-  resPaymentStatus = status;
-  document.getElementById('resStatusUnpaid').classList.toggle('active', status === 'unpaid');
-  document.getElementById('resStatusPaid').classList.toggle('active', status === 'paid');
-}
-
-function selectSaleSize(s, el) {
-  selectedSize = s;
-  document.querySelectorAll('#saleSizes .size-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-function selectResSize(s, el) {
-  selectedResSize = s;
-  document.querySelectorAll('#resSizes .size-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-}
-
-function selectPurchaseSize(s, el) {
-  selectedPurchaseSize = s;
-  document.querySelectorAll('#purchaseSizes .size-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  // Remplir le prix d'achat depuis le produit si dispo
-  const id = document.getElementById('purchaseTeam').value;
-  if (id && products[id] && products[id].cost) {
-    document.getElementById('purchaseUnitPrice').value = products[id].cost;
-    updatePurchaseTotal();
-  }
+  return reservations
+    .filter(r => r.productId === productId && r.size === size && r.status === 'active')
+    .reduce((sum, r) => sum + (r.qty || 0), 0);
 }
 
 function updateSizesForSale() {
@@ -845,8 +660,10 @@ function updateSizesForSale() {
     const reserved = getReservedQty(id, s);
     const available = qty - reserved;
     const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
-    const stockTxt = reserved > 0 ? `Dispo: ${available}` : `Stock: ${qty}`;
-    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectSaleSize('${s}', this)">${lbl}<span class="stock-info">${stockTxt}</span></button>`;
+    const stockTxt = reserved > 0 ? `Dispo: ${available} (${reserved} rés.)` : `Stock: ${qty}`;
+    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectSaleSize('${s}', this)">
+      ${lbl}<span class="stock-info">${stockTxt}</span>
+    </button>`;
   }).join('');
 }
 
@@ -864,49 +681,28 @@ function updateSizesForReservation() {
     const available = qty - reserved;
     const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
     const stockTxt = reserved > 0 ? `Dispo: ${available}` : `Stock: ${qty}`;
-    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectResSize('${s}', this)">${lbl}<span class="stock-info">${stockTxt}</span></button>`;
+    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectResSize('${s}', this)">
+      ${lbl}<span class="stock-info">${stockTxt}</span>
+    </button>`;
   }).join('');
 }
 
-function updatePurchaseSizes() {
-  const id = document.getElementById('purchaseTeam').value;
-  const c = document.getElementById('purchaseSizes');
-  selectedPurchaseSize = null;
-  if (!id) { c.innerHTML = ''; return; }
-  const p = products[id];
-  if (p.cost) document.getElementById('purchaseUnitPrice').value = p.cost;
-  const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
-  c.innerHTML = sizes.map(s => {
-    const qty = p.stock[s] || 0;
-    const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
-    return `<button type="button" class="size-btn" onclick="selectPurchaseSize('${s}', this)">${lbl}<span class="stock-info">Stock: ${qty}</span></button>`;
-  }).join('');
+function selectSaleSize(s, el) {
+  selectedSize = s;
+  document.querySelectorAll('#saleSizes .size-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
 }
 
-function updatePurchaseTotal() {
-  const qty = parseInt(document.getElementById('purchaseQty').value) || 0;
-  const price = parseFloat(document.getElementById('purchaseUnitPrice').value) || 0;
-  document.getElementById('purchaseTotalPrice').value = (qty * price).toFixed(2);
+function selectResSize(s, el) {
+  selectedResSize = s;
+  document.querySelectorAll('#resSizes .size-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
 }
-</script>
 
-<script>
-async function addProduct() {
-  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
-  const name = document.getElementById('newTeamName').value.trim();
-  const price = parseFloat(document.getElementById('newTeamPrice').value) || 0;
-  const cost = parseFloat(document.getElementById('newTeamCost').value) || 0;
-  if (!name) return showToast('Nom requis', 'error');
-  const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
-  const stock = {};
-  sizes.forEach(s => { stock[s] = parseInt(document.getElementById('initStock_' + s).value) || 0; });
-  const id = Date.now().toString();
-  try {
-    const { db, doc, setDoc } = window.fb;
-    await setDoc(doc(db, 'products', id), { name, category: currentCategory, price, cost, stock });
-    closeModal('addProductModal');
-    showToast('✅ ' + name + ' ajouté');
-  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+function toggleResStatus(status) {
+  resPaymentStatus = status;
+  document.getElementById('resStatusUnpaid').classList.toggle('active', status === 'unpaid');
+  document.getElementById('resStatusPaid').classList.toggle('active', status === 'paid');
 }
 
 async function recordSale() {
@@ -932,12 +728,13 @@ async function recordSale() {
       const p = snap.data();
       const current = p.stock[selectedSize] || 0;
       const reserved = getReservedQty(productId, selectedSize);
-      if ((current - reserved) < qty) throw new Error('Stock insuffisant');
+      const available = current - reserved;
+      if (available < qty) throw new Error('Stock insuffisant (réservations en cours)');
       const newStock = { ...p.stock, [selectedSize]: current - qty };
       t.update(productRef, { stock: newStock });
       t.set(saleRef, {
         productId, team: p.name, category: p.category, size: selectedSize,
-        price, qty, total: price * qty, cost: p.cost || 0,
+        price, qty, total: price * qty,
         customer: document.getElementById('saleCustomer').value.trim(),
         note: document.getElementById('saleNote').value.trim(),
         seller: user, date: new Date().toISOString()
@@ -945,7 +742,7 @@ async function recordSale() {
     });
     closeModal('saleModal');
     showToast(`✅ Vente : ${(price*qty).toFixed(2)} €`);
-  } catch (e) { showToast(e.message || 'Erreur', 'error'); }
+  } catch (e) { console.error(e); showToast(e.message || 'Erreur', 'error'); }
 }
 
 async function recordReservation() {
@@ -958,7 +755,7 @@ async function recordReservation() {
   const price = parseFloat(document.getElementById('resPrice').value);
   const qty = parseInt(document.getElementById('resQty').value) || 1;
   const customer = document.getElementById('resCustomer').value.trim();
-  if (!customer) return showToast('Nom client requis', 'error');
+  if (!customer) return showToast('Nom du client requis', 'error');
   if (!price || price <= 0) return showToast('Prix invalide', 'error');
 
   const p = products[productId];
@@ -971,98 +768,16 @@ async function recordReservation() {
     const resId = Date.now().toString() + Math.random().toString(36).slice(2,6);
     await setDoc(doc(db, 'reservations', resId), {
       productId, team: p.name, category: p.category, size: selectedResSize,
-      price, qty, total: price * qty, cost: p.cost || 0, customer,
+      price, qty, total: price * qty, customer,
       phone: document.getElementById('resPhone').value.trim(),
       note: document.getElementById('resNote').value.trim(),
       paymentStatus: resPaymentStatus, status: 'active',
       seller: user, date: new Date().toISOString()
     });
     closeModal('reservationModal');
-    showToast(`📅 Réservation ${resPaymentStatus === 'paid' ? 'PAYÉE' : 'À PAYER'} : ${customer}`);
-  } catch (e) { showToast('Erreur', 'error'); }
-}
-
-async function recordContribution() {
-  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
-  const amount = parseFloat(document.getElementById('contribAmount').value);
-  const date = document.getElementById('contribDate').value;
-  if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
-  if (!date) return showToast('Date requise', 'error');
-  try {
-    const { db, doc, setDoc } = window.fb;
-    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
-    await setDoc(doc(db, 'contributions', id), {
-      person: contribPerson, amount,
-      note: document.getElementById('contribNote').value.trim(),
-      date: new Date(date).toISOString()
-    });
-    closeModal('contributionModal');
-    showToast(`✅ Apport ${contribPerson} : ${amount.toFixed(2)} €`);
-  } catch (e) { showToast('Erreur', 'error'); }
-}
-
-async function recordPurchase() {
-  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
-  const user = document.getElementById('currentUser').value;
-  if (!user) return showToast('Choisis un vendeur en haut', 'error');
-  const productId = document.getElementById('purchaseTeam').value;
-  if (!productId) return showToast('Choisis une équipe', 'error');
-  if (!selectedPurchaseSize) return showToast('Choisis une taille', 'error');
-  const qty = parseInt(document.getElementById('purchaseQty').value) || 0;
-  const unitPrice = parseFloat(document.getElementById('purchaseUnitPrice').value) || 0;
-  if (qty <= 0) return showToast('Quantité invalide', 'error');
-  if (unitPrice <= 0) return showToast('Prix d\'achat invalide', 'error');
-  const total = qty * unitPrice;
-
-  try {
-    const { db, doc, runTransaction } = window.fb;
-    const productRef = doc(db, 'products', productId);
-    const purchaseId = Date.now().toString() + Math.random().toString(36).slice(2,6);
-    const purchaseRef = doc(db, 'purchases', purchaseId);
-
-    await runTransaction(db, async (t) => {
-      const snap = await t.get(productRef);
-      if (!snap.exists()) throw new Error('Produit introuvable');
-      const p = snap.data();
-      const current = p.stock[selectedPurchaseSize] || 0;
-      const newStock = { ...p.stock, [selectedPurchaseSize]: current + qty };
-      // Mettre à jour le prix d'achat moyen
-      const updates = { stock: newStock };
-      if (!p.cost || p.cost === 0) updates.cost = unitPrice;
-      t.update(productRef, updates);
-      t.set(purchaseRef, {
-        productId, team: p.name, category: p.category, size: selectedPurchaseSize,
-        qty, unitPrice, total,
-        note: document.getElementById('purchaseNote').value.trim(),
-        buyer: user, date: new Date().toISOString()
-      });
-    });
-    closeModal('purchaseModal');
-    showToast(`✅ Achat : ${total.toFixed(2)} € • +${qty} stock`);
-  } catch (e) { showToast(e.message || 'Erreur', 'error'); }
-}
-
-async function recordExpense() {
-  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
-  const user = document.getElementById('currentUser').value;
-  if (!user) return showToast('Choisis un vendeur en haut', 'error');
-  const desc = document.getElementById('expenseDesc').value.trim();
-  const amount = parseFloat(document.getElementById('expenseAmount').value);
-  const date = document.getElementById('expenseDate').value;
-  const category = document.getElementById('expenseCategory').value;
-  if (!desc) return showToast('Description requise', 'error');
-  if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
-  if (!date) return showToast('Date requise', 'error');
-  try {
-    const { db, doc, setDoc } = window.fb;
-    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
-    await setDoc(doc(db, 'expenses', id), {
-      category, description: desc, amount,
-      payer: user, date: new Date(date).toISOString()
-    });
-    closeModal('expenseModal');
-    showToast(`✅ Dépense : ${amount.toFixed(2)} €`);
-  } catch (e) { showToast('Erreur', 'error'); }
+    const statusTxt = resPaymentStatus === 'paid' ? 'PAYÉE' : 'À PAYER';
+    showToast(`📅 Réservation ${statusTxt} : ${customer}`);
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
 async function deleteSale(id) {
@@ -1077,13 +792,14 @@ async function deleteSale(id) {
       const snap = await t.get(productRef);
       if (snap.exists()) {
         const p = snap.data();
-        const newStock = { ...p.stock, [sale.size]: (p.stock[sale.size] || 0) + sale.qty };
+        const current = p.stock[sale.size] || 0;
+        const newStock = { ...p.stock, [sale.size]: current + sale.qty };
         t.update(productRef, { stock: newStock });
       }
       t.delete(saleRef);
     });
-    showToast('Vente annulée');
-  } catch (e) { showToast('Erreur', 'error'); }
+    showToast('Vente annulée, stock restauré');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
 async function confirmReservation(id) {
@@ -1091,15 +807,17 @@ async function confirmReservation(id) {
   if (!r) return;
   const wasPaid = r.paymentStatus === 'paid';
   const msg = wasPaid
-    ? `Confirmer la livraison de ${r.team} taille ${r.size} pour ${r.customer} ?`
-    : `Confirmer livraison + paiement de ${r.team} pour ${r.customer} ?\nMontant à encaisser : ${r.total.toFixed(2)} €`;
+    ? `Confirmer la livraison de ${r.team} taille ${r.size} pour ${r.customer} ?\n(déjà payé)`
+    : `Confirmer la livraison + paiement de ${r.team} taille ${r.size} pour ${r.customer} ?\nMontant à encaisser : ${r.total.toFixed(2)} €`;
   if (!confirm(msg)) return;
+
   try {
     const { db, doc, runTransaction } = window.fb;
     const productRef = doc(db, 'products', r.productId);
     const resRef = doc(db, 'reservations', id);
     const saleId = Date.now().toString() + Math.random().toString(36).slice(2,6);
     const saleRef = doc(db, 'sales', saleId);
+
     await runTransaction(db, async (t) => {
       const snap = await t.get(productRef);
       if (snap.exists()) {
@@ -1112,20 +830,21 @@ async function confirmReservation(id) {
       t.update(resRef, { status: 'done', completedDate: new Date().toISOString() });
       t.set(saleRef, {
         productId: r.productId, team: r.team, category: r.category, size: r.size,
-        price: r.price, qty: r.qty, total: r.total, cost: r.cost || 0, customer: r.customer,
+        price: r.price, qty: r.qty, total: r.total, customer: r.customer,
         note: 'Issue de réservation' + (r.note ? ' - ' + r.note : ''),
         seller: r.seller, date: new Date().toISOString(), fromReservation: id
       });
     });
     showToast(`✅ Vente confirmée : ${r.total.toFixed(2)} €`);
-  } catch (e) { showToast(e.message || 'Erreur', 'error'); }
+  } catch (e) { console.error(e); showToast(e.message || 'Erreur', 'error'); }
 }
 
 async function togglePaymentStatus(id) {
   const r = reservations.find(x => x.id === id);
   if (!r) return;
   const newStatus = r.paymentStatus === 'paid' ? 'unpaid' : 'paid';
-  if (!confirm(newStatus === 'paid' ? 'Marquer comme PAYÉ ?' : 'Marquer comme À PAYER ?')) return;
+  const msg = newStatus === 'paid' ? 'Marquer comme PAYÉ ?' : 'Marquer comme À PAYER ?';
+  if (!confirm(msg)) return;
   try {
     const { db, doc, updateDoc } = window.fb;
     await updateDoc(doc(db, 'reservations', id), { paymentStatus: newStatus });
@@ -1144,49 +863,74 @@ async function cancelReservation(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
-async function deleteContribution(id) {
-  if (!confirm('Supprimer cet apport ?')) return;
-  try {
-    const { db, doc, deleteDoc } = window.fb;
-    await deleteDoc(doc(db, 'contributions', id));
-    showToast('Apport supprimé');
-  } catch (e) { showToast('Erreur', 'error'); }
+function filterStock(f, el) {
+  currentStockFilter = f;
+  document.querySelectorAll('#stock .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderStock();
 }
 
-async function deletePurchase(id) {
-  const p = purchases.find(x => x.id === id);
-  if (!p) return;
-  if (!confirm(`Annuler cet achat ? Le stock de ${p.team} sera réduit de ${p.qty}.`)) return;
-  try {
-    const { db, doc, runTransaction } = window.fb;
-    const productRef = doc(db, 'products', p.productId);
-    const purchaseRef = doc(db, 'purchases', id);
-    await runTransaction(db, async (t) => {
-      const snap = await t.get(productRef);
-      if (snap.exists()) {
-        const prod = snap.data();
-        const newQty = Math.max(0, (prod.stock[p.size] || 0) - p.qty);
-        const newStock = { ...prod.stock, [p.size]: newQty };
-        t.update(productRef, { stock: newStock });
-      }
-      t.delete(purchaseRef);
-    });
-    showToast('Achat annulé');
-  } catch (e) { showToast('Erreur', 'error'); }
+function filterSales(f, el) {
+  currentSalesFilter = f;
+  document.querySelectorAll('#sales .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderSales();
 }
 
-async function deleteExpense(id) {
-  if (!confirm('Supprimer cette dépense ?')) return;
-  try {
-    const { db, doc, deleteDoc } = window.fb;
-    await deleteDoc(doc(db, 'expenses', id));
-    showToast('Dépense supprimée');
-  } catch (e) { showToast('Erreur', 'error'); }
+function filterReservations(f, el) {
+  currentResFilter = f;
+  document.querySelectorAll('#reservations .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderReservations();
 }
 
-function filterStock(f, el) { currentStockFilter = f; document.querySelectorAll('#stock .filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); renderStock(); }
-function filterSales(f, el) { currentSalesFilter = f; document.querySelectorAll('#sales .filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); renderSales(); }
-function filterReservations(f, el) { currentResFilter = f; document.querySelectorAll('#reservations .filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); renderReservations(); }
+function renderStock() {
+  const search = (document.getElementById('searchStock')?.value || '').toLowerCase();
+  const list = document.getElementById('stockList');
+  if (!list) return;
+  let entries = Object.entries(products);
+  if (currentStockFilter !== 'all') entries = entries.filter(([_,p]) => p.category === currentStockFilter);
+  if (search) entries = entries.filter(([_,p]) => p.name.toLowerCase().includes(search));
+  entries.sort((a,b) => a[1].name.localeCompare(b[1].name));
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Aucun produit. Ajoute ta première équipe !</div></div>';
+    return;
+  }
+  list.innerHTML = entries.map(([id, p]) => {
+    const total = Object.values(p.stock || {}).reduce((a,b)=>a+(b||0), 0);
+    const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+    const cat = p.category === 'enfant' ? '👶' : '👨';
+    return `
+      <div class="team-card" id="card_${id}">
+        <div class="team-header" onclick="toggleCard('${id}')">
+          <div>
+            <div class="team-name">${cat} ${p.name}</div>
+            <div class="team-stock">${total} pièces • ${p.price}€ </div>
+          </div>
+          <div class="team-toggle">▼</div>
+        </div>
+        <div class="sizes-grid">
+          ${sizes.map(s => {
+            const q = (p.stock || {})[s] || 0;
+            const reserved = getReservedQty(id, s);
+            const cls = q === 0 ? 'empty' : (q <= 2 ? 'low' : '');
+            const lbl = p.category === 'enfant' ? `${s}<br><span style="font-size:9px">${SIZES_KIDS_LABELS[s]}</span>` : s;
+            const resBadge = reserved > 0 ? `<div class="size-reserved">${reserved} rés.</div>` : '';
+            return `<div class="size-item ${cls}" onclick="event.stopPropagation(); openAdjust('${id}','${s}')">
+              <div class="size-label">${lbl}</div>
+              <div class="size-qty">${q}</div>
+              ${resBadge}
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="card-actions" style="margin-top:12px; display:none; gap:8px;">
+          <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editPrice('${id}')">💵 Prix</button>
+          <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteProduct('${id}')">🗑️ Suppr.</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
 
 function toggleCard(id) {
   const c = document.getElementById('card_' + id);
@@ -1200,13 +944,16 @@ function openAdjust(productId, size) {
   const current = (p.stock || {})[size] || 0;
   const reserved = getReservedQty(productId, size);
   const lbl = p.category === 'enfant' ? `${size} (${SIZES_KIDS_LABELS[size]})` : size;
-  const resInfo = reserved > 0 ? `<p style="color:#f59e0b;margin-bottom:8px;font-size:13px;">⚠️ ${reserved} pièce(s) réservée(s)</p>` : '';
+  const resInfo = reserved > 0 ? `<p style="color:#f59e0b; margin-bottom:8px; font-size:13px;">⚠️ ${reserved} pièce(s) réservée(s)</p>` : '';
   document.getElementById('adjustStockContent').innerHTML = `
     <p style="margin-bottom:12px;"><strong style="color:#d4af37;">${p.name}</strong> - Taille ${lbl}</p>
     <p style="margin-bottom:8px;">Stock actuel : <strong>${current}</strong></p>
     ${resInfo}
-    <div class="form-group"><label>Nouveau stock</label><input type="number" id="newStockVal" value="${current}" min="0"></div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <div class="form-group">
+      <label>Nouveau stock</label>
+      <input type="number" id="newStockVal" value="${current}" min="0">
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
       <button class="btn btn-small btn-secondary" onclick="adjustQuick(-1)">-1</button>
       <button class="btn btn-small btn-secondary" onclick="adjustQuick(1)">+1</button>
       <button class="btn btn-small btn-secondary" onclick="adjustQuick(5)">+5</button>
@@ -1232,16 +979,17 @@ async function saveAdjust(productId, size) {
       const snap = await t.get(ref);
       if (!snap.exists()) throw new Error('Introuvable');
       const p = snap.data();
-      t.update(ref, { stock: { ...p.stock, [size]: v } });
+      const newStock = { ...p.stock, [size]: v };
+      t.update(ref, { stock: newStock });
     });
     closeModal('adjustStockModal');
     showToast('Stock mis à jour');
-  } catch (e) { showToast('Erreur', 'error'); }
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
 async function editPrice(id) {
   const p = products[id];
-  const np = prompt('Nouveau prix de vente pour ' + p.name + ' :', p.price);
+  const np = prompt('Nouveau prix pour ' + p.name + ' :', p.price);
   if (np === null) return;
   const v = parseFloat(np);
   if (isNaN(v) || v < 0) return showToast('Prix invalide','error');
@@ -1252,76 +1000,13 @@ async function editPrice(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
-async function editCost(id) {
-  const p = products[id];
-  const np = prompt('Prix d\'achat unitaire pour ' + p.name + ' :', p.cost || 0);
-  if (np === null) return;
-  const v = parseFloat(np);
-  if (isNaN(v) || v < 0) return showToast('Prix invalide','error');
-  try {
-    const { db, doc, setDoc } = window.fb;
-    await setDoc(doc(db, 'products', id), { ...p, cost: v });
-    showToast('Prix d\'achat mis à jour');
-  } catch (e) { showToast('Erreur', 'error'); }
-}
-
 async function deleteProduct(id) {
-  if (!confirm('Supprimer ' + products[id].name + ' ?')) return;
+  if (!confirm('Supprimer ' + products[id].name + ' ? Les ventes existantes seront conservées.')) return;
   try {
     const { db, doc, deleteDoc } = window.fb;
     await deleteDoc(doc(db, 'products', id));
     showToast('Produit supprimé');
   } catch (e) { showToast('Erreur', 'error'); }
-}
-</script>
-
-<script>
-function renderStock() {
-  const search = (document.getElementById('searchStock')?.value || '').toLowerCase();
-  const list = document.getElementById('stockList');
-  if (!list) return;
-  let entries = Object.entries(products);
-  if (currentStockFilter !== 'all') entries = entries.filter(([_,p]) => p.category === currentStockFilter);
-  if (search) entries = entries.filter(([_,p]) => p.name.toLowerCase().includes(search));
-  entries.sort((a,b) => a[1].name.localeCompare(b[1].name));
-  if (entries.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Aucun produit. Ajoute ta première équipe !</div></div>';
-    return;
-  }
-  list.innerHTML = entries.map(([id, p]) => {
-    const total = Object.values(p.stock || {}).reduce((a,b)=>a+(b||0), 0);
-    const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
-    const cat = p.category === 'enfant' ? '👶' : '👨';
-    const costInfo = p.cost ? ` • Achat ${p.cost}€` : '';
-    return `<div class="team-card" id="card_${id}">
-      <div class="team-header" onclick="toggleCard('${id}')">
-        <div>
-          <div class="team-name">${cat} ${p.name}</div>
-          <div class="team-stock">${total} pièces • Vente ${p.price}€${costInfo}</div>
-        </div>
-        <div class="team-toggle">▼</div>
-      </div>
-      <div class="sizes-grid">
-        ${sizes.map(s => {
-          const q = (p.stock || {})[s] || 0;
-          const reserved = getReservedQty(id, s);
-          const cls = q === 0 ? 'empty' : (q <= 2 ? 'low' : '');
-          const lbl = p.category === 'enfant' ? `${s}<br><span style="font-size:9px">${SIZES_KIDS_LABELS[s]}</span>` : s;
-          const resBadge = reserved > 0 ? `<div class="size-reserved">${reserved} rés.</div>` : '';
-          return `<div class="size-item ${cls}" onclick="event.stopPropagation();openAdjust('${id}','${s}')">
-            <div class="size-label">${lbl}</div>
-            <div class="size-qty">${q}</div>
-            ${resBadge}
-          </div>`;
-        }).join('')}
-      </div>
-      <div class="card-actions" style="margin-top:12px;display:none;gap:8px;">
-        <button class="btn btn-small btn-secondary" onclick="event.stopPropagation();editPrice('${id}')">💵 Vente</button>
-        <button class="btn btn-small btn-secondary" onclick="event.stopPropagation();editCost('${id}')">🛒 Achat</button>
-        <button class="btn btn-small btn-danger" onclick="event.stopPropagation();deleteProduct('${id}')">🗑️</button>
-      </div>
-    </div>`;
-  }).join('');
 }
 
 function renderSales() {
@@ -1330,27 +1015,48 @@ function renderSales() {
   if (!list) return;
   let filtered = [...sales];
   const now = new Date();
-  if (currentSalesFilter === 'today') filtered = filtered.filter(s => new Date(s.date).toDateString() === now.toDateString());
-  else if (currentSalesFilter === 'week') { const c = new Date(now.getTime() - 7*24*60*60*1000); filtered = filtered.filter(s => new Date(s.date) >= c); }
-  else if (currentSalesFilter === 'month') { const c = new Date(now.getTime() - 30*24*60*60*1000); filtered = filtered.filter(s => new Date(s.date) >= c); }
-  if (search) filtered = filtered.filter(s => (s.team||'').toLowerCase().includes(search) || (s.customer||'').toLowerCase().includes(search) || (s.seller||'').toLowerCase().includes(search));
+  if (currentSalesFilter === 'today') {
+    filtered = filtered.filter(s => new Date(s.date).toDateString() === now.toDateString());
+  } else if (currentSalesFilter === 'week') {
+    const cutoff = new Date(now.getTime() - 7*24*60*60*1000);
+    filtered = filtered.filter(s => new Date(s.date) >= cutoff);
+  } else if (currentSalesFilter === 'month') {
+    const cutoff = new Date(now.getTime() - 30*24*60*60*1000);
+    filtered = filtered.filter(s => new Date(s.date) >= cutoff);
+  }
+  if (search) {
+    filtered = filtered.filter(s =>
+      (s.team||'').toLowerCase().includes(search) ||
+      (s.customer||'').toLowerCase().includes(search) ||
+      (s.seller||'').toLowerCase().includes(search)
+    );
+  }
   const total = filtered.reduce((a,s) => a + (s.total||0), 0);
   document.getElementById('filteredTotal').textContent = total.toFixed(2) + ' €';
-  if (filtered.length === 0) { list.innerHTML = '<div class="empty-state"><div class="icon">💰</div><div>Aucune vente.</div></div>'; return; }
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">💰</div><div>Aucune vente.</div></div>';
+    return;
+  }
   list.innerHTML = filtered.map(s => {
     const d = new Date(s.date);
     const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     const cat = s.category === 'enfant' ? '👶' : '👨';
     const sizeLbl = s.category === 'enfant' && SIZES_KIDS_LABELS[s.size] ? `${s.size} (${SIZES_KIDS_LABELS[s.size]})` : s.size;
-    const margin = s.cost ? `<div class="sale-details">📊 Marge : ${((s.price - s.cost) * s.qty).toFixed(2)} €</div>` : '';
-    return `<div class="sale-item">
-      <div class="sale-row"><div class="sale-team">${cat} ${s.team}</div><div class="sale-price">${(s.total||0).toFixed(2)} €</div></div>
-      <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${s.qty} • ${s.price}€/u</div>
-      <div class="sale-details">👤 ${s.customer || '—'} • 🧑‍💼 ${s.seller} • 📅 ${dateStr}</div>
-      ${margin}
-      ${s.note ? `<div class="sale-details">📝 ${s.note}</div>` : ''}
-      <div class="sale-actions"><button class="btn btn-small btn-danger" onclick="deleteSale('${s.id}')">Annuler</button></div>
-    </div>`;
+    return `
+      <div class="sale-item">
+        <div class="sale-row">
+          <div class="sale-team">${cat} ${s.team}</div>
+          <div class="sale-price">${(s.total||0).toFixed(2)} €</div>
+        </div>
+        <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${s.qty} • ${s.price}€/u</div>
+        <div class="sale-details">👤 ${s.customer || '—'} • 🧑‍💼 ${s.seller} • 📅 ${dateStr}</div>
+        ${s.note ? `<div class="sale-details">📝 ${s.note}</div>` : ''}
+        <div class="sale-actions">
+          <button class="btn btn-small btn-danger" onclick="deleteSale('${s.id}')">Annuler</button>
+        </div>
+      </div>
+    `;
   }).join('');
 }
 
@@ -1359,19 +1065,37 @@ function renderReservations() {
   const list = document.getElementById('reservationsList');
   if (!list) return;
   let filtered = [...reservations];
+
   if (currentResFilter === 'active') filtered = filtered.filter(r => r.status === 'active');
   else if (currentResFilter === 'unpaid') filtered = filtered.filter(r => r.status === 'active' && r.paymentStatus === 'unpaid');
   else if (currentResFilter === 'paid') filtered = filtered.filter(r => r.status === 'active' && r.paymentStatus === 'paid');
   else if (currentResFilter === 'done') filtered = filtered.filter(r => r.status === 'done');
-  if (search) filtered = filtered.filter(r => (r.team||'').toLowerCase().includes(search) || (r.customer||'').toLowerCase().includes(search) || (r.phone||'').toLowerCase().includes(search) || (r.seller||'').toLowerCase().includes(search));
-  let totalLabel = 'Total :', total = 0;
+
+  if (search) {
+    filtered = filtered.filter(r =>
+      (r.team||'').toLowerCase().includes(search) ||
+      (r.customer||'').toLowerCase().includes(search) ||
+      (r.phone||'').toLowerCase().includes(search) ||
+      (r.seller||'').toLowerCase().includes(search)
+    );
+  }
+
+  let totalLabel = 'Total :';
+  let total = 0;
   if (currentResFilter === 'unpaid' || currentResFilter === 'active') {
     totalLabel = 'Reste à encaisser :';
     total = filtered.filter(r => r.paymentStatus === 'unpaid' && r.status === 'active').reduce((a,r) => a + (r.total||0), 0);
-  } else { total = filtered.reduce((a,r) => a + (r.total||0), 0); }
+  } else {
+    total = filtered.reduce((a,r) => a + (r.total||0), 0);
+  }
   document.getElementById('resTotalLabel').textContent = totalLabel;
   document.getElementById('resFilteredTotal').textContent = total.toFixed(2) + ' €';
-  if (filtered.length === 0) { list.innerHTML = '<div class="empty-state"><div class="icon">📅</div><div>Aucune réservation.</div></div>'; return; }
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📅</div><div>Aucune réservation.</div></div>';
+    return;
+  }
+
   list.innerHTML = filtered.map(r => {
     const d = new Date(r.date);
     const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
@@ -1380,8 +1104,11 @@ function renderReservations() {
     const isDone = r.status === 'done';
     const isPaid = r.paymentStatus === 'paid';
     const cls = isDone ? '' : (isPaid ? 'reservation-paid' : 'reservation-unpaid');
-    const badge = isDone ? '<span class="badge badge-paid">🏁 LIVRÉ</span>' : (isPaid ? '<span class="badge badge-paid">✅ PAYÉ</span>' : '<span class="badge badge-unpaid">❌ À PAYER</span>');
-    const phoneLink = r.phone ? `<a href="tel:${r.phone}" style="color:#4ade80;text-decoration:none;">📞 ${r.phone}</a>` : '';
+    const badge = isDone
+      ? '<span class="badge badge-paid">🏁 LIVRÉ</span>'
+      : (isPaid ? '<span class="badge badge-paid">✅ PAYÉ</span>' : '<span class="badge badge-unpaid">❌ À PAYER</span>');
+    const phoneLink = r.phone ? `<a href="tel:${r.phone}" style="color:#4ade80; text-decoration:none;">📞 ${r.phone}</a>` : '';
+
     let actions = '';
     if (!isDone) {
       actions = `
@@ -1390,14 +1117,20 @@ function renderReservations() {
         <button class="btn btn-small btn-danger" onclick="cancelReservation('${r.id}')">❌ Annuler</button>
       `;
     }
-    return `<div class="sale-item ${cls}">
-      <div class="sale-row"><div class="sale-team">${cat} ${r.team} ${badge}</div><div class="sale-price">${(r.total||0).toFixed(2)} €</div></div>
-      <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${r.qty} • ${r.price}€/u</div>
-      <div class="sale-details"><strong style="color:#d4af37;">👤 ${r.customer}</strong> ${phoneLink ? '• ' + phoneLink : ''}</div>
-      <div class="sale-details">🧑‍💼 ${r.seller} • 📅 ${dateStr}</div>
-      ${r.note ? `<div class="sale-details">📝 ${r.note}</div>` : ''}
-      <div class="sale-actions">${actions}</div>
-    </div>`;
+
+    return `
+      <div class="sale-item ${cls}">
+        <div class="sale-row">
+          <div class="sale-team">${cat} ${r.team} ${badge}</div>
+          <div class="sale-price">${(r.total||0).toFixed(2)} €</div>
+        </div>
+        <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${r.qty} • ${r.price}€/u</div>
+        <div class="sale-details"><strong style="color:#d4af37;">👤 ${r.customer}</strong> ${phoneLink ? '• ' + phoneLink : ''}</div>
+        <div class="sale-details">🧑‍💼 ${r.seller} • 📅 ${dateStr}</div>
+        ${r.note ? `<div class="sale-details">📝 ${r.note}</div>` : ''}
+        <div class="sale-actions">${actions}</div>
+      </div>
+    `;
   }).join('');
 }
 
@@ -1407,20 +1140,11 @@ function renderDashboard() {
   const today = new Date().toDateString();
   const todaysSales = sales.filter(s => new Date(s.date).toDateString() === today);
   const todayRev = todaysSales.reduce((a,s) => a + (s.total||0), 0);
+
   const activeRes = reservations.filter(r => r.status === 'active');
   const toCollect = activeRes.filter(r => r.paymentStatus === 'unpaid').reduce((a,r) => a + (r.total||0), 0);
 
-  // Compta
-  const totalContrib = contributions.reduce((a,c) => a + (c.amount||0), 0);
-  const totalPurchases = purchases.reduce((a,p) => a + (p.total||0), 0);
-  const totalExpenses = expenses.reduce((a,e) => a + (e.amount||0), 0);
-  const totalDepenses = totalPurchases + totalExpenses;
-  const beneficeNet = totalRev - totalDepenses;
-  const roi = totalContrib > 0 ? (beneficeNet / totalContrib * 100) : 0;
-
   document.getElementById('totalRevenue').textContent = totalRev.toFixed(2) + ' €';
-  document.getElementById('netProfit').textContent = beneficeNet.toFixed(2) + ' €';
-  document.getElementById('roi').textContent = roi.toFixed(1) + '%';
   document.getElementById('totalSales').textContent = sales.length;
   document.getElementById('totalStock').textContent = totalStockCount;
   document.getElementById('todayRevenue').textContent = todayRev.toFixed(2) + ' €';
@@ -1447,7 +1171,9 @@ function renderDashboard() {
   });
   document.getElementById('salesBySeller').innerHTML = Object.keys(sellerStats).length === 0
     ? '<div class="empty-state" style="padding:20px;">Pas encore de ventes</div>'
-    : Object.entries(sellerStats).map(([n,st]) => `<div class="totals-row"><span>${n} (${st.count} ventes)</span><span>${st.total.toFixed(2)} €</span></div>`).join('');
+    : Object.entries(sellerStats).map(([n,st]) =>
+        `<div class="totals-row"><span>${n} (${st.count} ventes)</span><span>${st.total.toFixed(2)} €</span></div>`
+      ).join('');
 
   const low = [];
   Object.entries(products).forEach(([id,p]) => {
@@ -1463,126 +1189,23 @@ function renderDashboard() {
       }).join('');
 }
 
-function renderCompta() {
-  // Stats principales
-  const totalRev = sales.reduce((a,s) => a + (s.total||0), 0);
-  const totalContrib = contributions.reduce((a,c) => a + (c.amount||0), 0);
-  const totalPurchases = purchases.reduce((a,p) => a + (p.total||0), 0);
-  const totalExpenses = expenses.reduce((a,e) => a + (e.amount||0), 0);
-  const totalDepenses = totalPurchases + totalExpenses;
-  const beneficeNet = totalRev - totalDepenses;
-  const roi = totalContrib > 0 ? (beneficeNet / totalContrib * 100) : 0;
-  const cash = totalContrib + totalRev - totalDepenses;
-  const stockValue = Object.values(products).reduce((sum, p) => {
-    const stockQty = Object.values(p.stock || {}).reduce((a,b) => a + (b||0), 0);
-    return sum + (stockQty * (p.cost || 0));
-  }, 0);
-
-  document.getElementById('comptaNet').textContent = beneficeNet.toFixed(2) + ' €';
-  document.getElementById('comptaRevenue').textContent = totalRev.toFixed(2) + ' €';
-  document.getElementById('comptaRevenueSub').textContent = sales.length + ' ventes';
-  document.getElementById('comptaExpenses').textContent = totalDepenses.toFixed(2) + ' €';
-  document.getElementById('comptaExpensesSub').textContent = (purchases.length + expenses.length) + ' opérations';
-  document.getElementById('comptaContrib').textContent = totalContrib.toFixed(2) + ' €';
-  document.getElementById('comptaContribSub').textContent = contributions.length + ' apports';
-  document.getElementById('comptaROI').textContent = roi.toFixed(1) + '%';
-  document.getElementById('comptaCash').textContent = cash.toFixed(2) + ' €';
-  document.getElementById('comptaStockValue').textContent = stockValue.toFixed(2) + ' €';
-
-  // Apports
-  const totalContribByPerson = {};
-  contributions.forEach(c => { totalContribByPerson[c.person] = (totalContribByPerson[c.person]||0) + c.amount; });
-  document.getElementById('contribTotal').textContent = totalContrib.toFixed(2) + ' €';
-  const contribListHtml = contributions.length === 0
-    ? '<div class="empty-state"><div class="icon">💵</div><div>Aucun apport. Enregistre votre apport de départ !</div></div>'
-    : Object.entries(totalContribByPerson).map(([n,v]) => `<div class="totals-row"><span>👤 ${n}</span><span>${v.toFixed(2)} €</span></div>`).join('') + '<div style="height:12px"></div>' +
-      contributions.map(c => {
-        const d = new Date(c.date).toLocaleDateString('fr-FR');
-        return `<div class="sale-item contribution">
-          <div class="sale-row"><div class="sale-team">💵 ${c.person}</div><div class="sale-price info">+${(c.amount||0).toFixed(2)} €</div></div>
-          <div class="sale-details">📅 ${d}${c.note ? ' • 📝 ' + c.note : ''}</div>
-          <div class="sale-actions"><button class="btn btn-small btn-danger" onclick="deleteContribution('${c.id}')">🗑️ Suppr.</button></div>
-        </div>`;
-      }).join('');
-  document.getElementById('contributionsList').innerHTML = contribListHtml;
-
-  // Achats
-  document.getElementById('purchaseTotal').textContent = totalPurchases.toFixed(2) + ' €';
-  document.getElementById('purchasesList').innerHTML = purchases.length === 0
-    ? '<div class="empty-state"><div class="icon">🛒</div><div>Aucun achat enregistré.</div></div>'
-    : purchases.map(p => {
-        const d = new Date(p.date).toLocaleDateString('fr-FR');
-        const cat = p.category === 'enfant' ? '👶' : '👨';
-        const sizeLbl = p.category === 'enfant' && SIZES_KIDS_LABELS[p.size] ? `${p.size} (${SIZES_KIDS_LABELS[p.size]})` : p.size;
-        return `<div class="sale-item expense">
-          <div class="sale-row"><div class="sale-team">${cat} ${p.team}</div><div class="sale-price negative">-${(p.total||0).toFixed(2)} €</div></div>
-          <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${p.qty} • ${p.unitPrice}€/u</div>
-          <div class="sale-details">🧑‍💼 ${p.buyer} • 📅 ${d}${p.note ? ' • 📝 ' + p.note : ''}</div>
-          <div class="sale-actions"><button class="btn btn-small btn-danger" onclick="deletePurchase('${p.id}')">🗑️ Suppr.</button></div>
-        </div>`;
-      }).join('');
-
-  // Autres dépenses
-  document.getElementById('expenseTotal').textContent = totalExpenses.toFixed(2) + ' €';
-  document.getElementById('expensesList').innerHTML = expenses.length === 0
-    ? '<div class="empty-state"><div class="icon">📋</div><div>Aucune dépense.</div></div>'
-    : expenses.map(e => {
-        const d = new Date(e.date).toLocaleDateString('fr-FR');
-        return `<div class="sale-item expense">
-          <div class="sale-row"><div class="sale-team">${e.category}</div><div class="sale-price negative">-${(e.amount||0).toFixed(2)} €</div></div>
-          <div class="sale-details">📝 ${e.description}</div>
-          <div class="sale-details">🧑‍💼 ${e.payer} • 📅 ${d}</div>
-          <div class="sale-actions"><button class="btn btn-small btn-danger" onclick="deleteExpense('${e.id}')">🗑️ Suppr.</button></div>
-        </div>`;
-      }).join('');
-
-  // Marges par produit
-  const margins = {};
-  sales.forEach(s => {
-    if (!margins[s.team]) margins[s.team] = { sold: 0, revenue: 0, cost: 0 };
-    margins[s.team].sold += s.qty;
-    margins[s.team].revenue += s.total;
-    margins[s.team].cost += (s.cost || 0) * s.qty;
-  });
-  const marginsList = document.getElementById('marginsList');
-  if (Object.keys(margins).length === 0) {
-    marginsList.innerHTML = '<div class="empty-state"><div class="icon">📊</div><div>Pas encore de ventes pour calculer les marges.</div></div>';
-  } else {
-    marginsList.innerHTML = Object.entries(margins).sort((a,b) => (b[1].revenue - b[1].cost) - (a[1].revenue - a[1].cost)).map(([team, m]) => {
-      const profit = m.revenue - m.cost;
-      const pct = m.cost > 0 ? (profit / m.cost * 100) : 0;
-      const avgPrice = m.revenue / m.sold;
-      const avgCost = m.cost > 0 ? m.cost / m.sold : 0;
-      return `<div class="margin-row">
-        <div class="sale-row" style="margin-bottom:6px;">
-          <div class="margin-team">${team}</div>
-          <div class="sale-price ${profit < 0 ? 'negative' : ''}">${profit >= 0 ? '+' : ''}${profit.toFixed(2)} €</div>
-        </div>
-        <div class="margin-detail">Vendu : ${m.sold} • Prix moy: ${avgPrice.toFixed(2)}€ • Achat moy: ${avgCost.toFixed(2)}€</div>
-        ${m.cost > 0 ? `<div class="margin-detail">Marge : <span class="margin-pct ${pct < 0 ? 'negative' : ''}">${pct.toFixed(0)}%</span></div>` : '<div class="margin-detail" style="color:#f59e0b;">⚠️ Pas de prix d\'achat enregistré</div>'}
-      </div>`;
-    }).join('');
-  }
-}
-
 function renderAll() {
-  try { renderDashboard(); } catch(e) { console.error('renderDashboard:', e); }
-  try { renderStock(); } catch(e) { console.error('renderStock:', e); }
-  try { renderSales(); } catch(e) { console.error('renderSales:', e); }
-  try { renderReservations(); } catch(e) { console.error('renderReservations:', e); }
-  try { renderCompta(); } catch(e) { console.error('renderCompta:', e); }
+  renderDashboard();
+  renderStock();
+  renderSales();
+  renderReservations();
 }
 
 function exportData() {
-  let csv = 'Date,Vendeur,Catégorie,Équipe,Taille,Quantité,Prix unitaire,Prix achat,Total,Marge,Client,Note\n';
+  let csv = 'Date,Vendeur,Catégorie,Équipe,Taille,Quantité,Prix unitaire,Total,Client,Note\n';
   sales.forEach(s => {
     const d = new Date(s.date).toLocaleString('fr-FR');
-    const margin = s.cost ? ((s.price - s.cost) * s.qty).toFixed(2) : '';
-    csv += `"${d}","${s.seller}","${s.category}","${s.team}","${s.size}",${s.qty},${s.price},${s.cost||0},${s.total},${margin},"${s.customer||''}","${(s.note||'').replace(/"/g,'""')}"\n`;
+    csv += `"${d}","${s.seller}","${s.category}","${s.team}","${s.size}",${s.qty},${s.price},${s.total},"${s.customer||''}","${(s.note||'').replace(/"/g,'""')}"\n`;
   });
   const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  a.href = url;
   a.download = 'kit-premium-ventes-' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   showToast('📤 Exporté');
@@ -1597,93 +1220,51 @@ function exportReservations() {
     csv += `"${d}","${r.seller}","${statut}","${paiement}","${r.category}","${r.team}","${r.size}",${r.qty},${r.price},${r.total},"${r.customer||''}","${r.phone||''}","${(r.note||'').replace(/"/g,'""')}"\n`;
   });
   const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  a.href = url;
   a.download = 'kit-premium-reservations-' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
-  showToast('📤 Exporté');
-}
-
-function exportCompta() {
-  let csv = 'Date,Type,Personne/Vendeur,Description,Montant\n';
-  contributions.forEach(c => {
-    const d = new Date(c.date).toLocaleString('fr-FR');
-    csv += `"${d}","Apport","${c.person}","${c.note||''}",${c.amount}\n`;
-  });
-  purchases.forEach(p => {
-    const d = new Date(p.date).toLocaleString('fr-FR');
-    csv += `"${d}","Achat stock","${p.buyer}","${p.team} ${p.size} x${p.qty} - ${p.note||''}",-${p.total}\n`;
-  });
-  expenses.forEach(e => {
-    const d = new Date(e.date).toLocaleString('fr-FR');
-    csv += `"${d}","Dépense","${e.payer}","${e.category} - ${e.description}",-${e.amount}\n`;
-  });
-  sales.forEach(s => {
-    const d = new Date(s.date).toLocaleString('fr-FR');
-    csv += `"${d}","Vente","${s.seller}","${s.team} ${s.size} x${s.qty}",${s.total}\n`;
-  });
-  const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'kit-premium-compta-' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
   showToast('📤 Exporté');
 }
 
 async function confirmReset() {
   if (!confirm('⚠️ Tout supprimer ? Cette action est irréversible.')) return;
-  if (!confirm('Vraiment SUR ? Stock + ventes + résa + compta seront effacés DÉFINITIVEMENT.')) return;
+  if (!confirm('Vraiment SUR ? Stock + ventes + réservations seront effacés DÉFINITIVEMENT.')) return;
   try {
     const { db, collection, getDocs, writeBatch } = window.fb;
     const batch = writeBatch(db);
-    for (const coll of ['products','sales','reservations','contributions','purchases','expenses']) {
-      const docs = await getDocs(collection(db, coll));
-      docs.forEach(d => batch.delete(d.ref));
-    }
+    const prods = await getDocs(collection(db, 'products'));
+    prods.forEach(d => batch.delete(d.ref));
+    const sals = await getDocs(collection(db, 'sales'));
+    sals.forEach(d => batch.delete(d.ref));
+    const res = await getDocs(collection(db, 'reservations'));
+    res.forEach(d => batch.delete(d.ref));
     await batch.commit();
     showToast('Tout a été réinitialisé');
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
-// Lien total achat = qty × prix unitaire
-document.addEventListener('input', (e) => {
-  if (e.target.id === 'purchaseQty' || e.target.id === 'purchaseUnitPrice') {
-    updatePurchaseTotal();
-  }
-});
-
 const savedUser = localStorage.getItem('kp:user');
 if (savedUser) document.getElementById('currentUser').value = savedUser;
 
-// Expose
 window.switchTab = switchTab;
-window.switchSubtab = switchSubtab;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.changeUser = changeUser;
 window.selectCategory = selectCategory;
-window.selectContrib = selectContrib;
 window.addProduct = addProduct;
 window.updateSizesForSale = updateSizesForSale;
 window.updateSizesForReservation = updateSizesForReservation;
-window.updatePurchaseSizes = updatePurchaseSizes;
-window.updatePurchaseTotal = updatePurchaseTotal;
 window.selectSaleSize = selectSaleSize;
 window.selectResSize = selectResSize;
-window.selectPurchaseSize = selectPurchaseSize;
 window.toggleResStatus = toggleResStatus;
 window.recordSale = recordSale;
 window.recordReservation = recordReservation;
-window.recordContribution = recordContribution;
-window.recordPurchase = recordPurchase;
-window.recordExpense = recordExpense;
 window.confirmReservation = confirmReservation;
 window.togglePaymentStatus = togglePaymentStatus;
 window.cancelReservation = cancelReservation;
 window.deleteSale = deleteSale;
-window.deleteContribution = deleteContribution;
-window.deletePurchase = deletePurchase;
-window.deleteExpense = deleteExpense;
 window.filterStock = filterStock;
 window.filterSales = filterSales;
 window.filterReservations = filterReservations;
@@ -1692,16 +1273,13 @@ window.openAdjust = openAdjust;
 window.adjustQuick = adjustQuick;
 window.saveAdjust = saveAdjust;
 window.editPrice = editPrice;
-window.editCost = editCost;
 window.deleteProduct = deleteProduct;
 window.exportData = exportData;
 window.exportReservations = exportReservations;
-window.exportCompta = exportCompta;
 window.confirmReset = confirmReset;
 window.renderStock = renderStock;
 window.renderSales = renderSales;
 window.renderReservations = renderReservations;
-window.renderCompta = renderCompta;
 
 setTimeout(() => {
   if (!firebaseReady) {

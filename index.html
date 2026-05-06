@@ -60,12 +60,18 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 }
 .stat-card.full { grid-column: 1 / -1; background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%); color: #0f1419; }
 .stat-card.warning { border-color: #f59e0b; background: linear-gradient(135deg, #2a2010 0%, #3a2a15 100%); }
+.stat-card.green { border-color: #16a34a; background: linear-gradient(135deg, #102a18 0%, #15351f 100%); }
+.stat-card.red { border-color: #dc2626; background: linear-gradient(135deg, #2a1010 0%, #351515 100%); }
 .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
 .stat-card.full .stat-label { color: rgba(15,20,25,0.7); }
 .stat-card.warning .stat-label { color: #f59e0b; }
+.stat-card.green .stat-label { color: #4ade80; }
+.stat-card.red .stat-label { color: #f87171; }
 .stat-value { font-size: 24px; font-weight: 800; color: #d4af37; }
 .stat-card.full .stat-value { color: #0f1419; font-size: 28px; }
 .stat-card.warning .stat-value { color: #f59e0b; }
+.stat-card.green .stat-value { color: #4ade80; }
+.stat-card.red .stat-value { color: #f87171; }
 .btn {
   background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
   color: #0f1419; border: none; padding: 14px 20px; border-radius: 10px;
@@ -131,9 +137,12 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 }
 .sale-item.reservation-paid { border-left-color: #16a34a; }
 .sale-item.reservation-unpaid { border-left-color: #dc2626; }
+.sale-item.compta-in { border-left-color: #16a34a; }
+.sale-item.compta-out { border-left-color: #dc2626; }
 .sale-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
 .sale-team { font-weight: 700; color: #d4af37; font-size: 15px; }
 .sale-price { font-weight: 800; color: #4ade80; font-size: 16px; }
+.sale-price.negative { color: #f87171; }
 .sale-details { font-size: 12px; color: #888; margin-bottom: 2px; }
 .sale-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-left: 6px; }
@@ -196,6 +205,13 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   font-size: 10px; font-weight: 800; padding: 2px 6px;
   border-radius: 10px; margin-left: 4px; min-width: 18px;
 }
+.compta-subtabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; }
+.compta-subtab {
+  flex: 1; min-width: 80px; padding: 10px 8px; background: #1e2536;
+  border: 1px solid rgba(212,175,55,0.2); border-radius: 8px;
+  text-align: center; cursor: pointer; font-size: 12px; color: #888; white-space: nowrap;
+}
+.compta-subtab.active { background: #d4af37; color: #0f1419; font-weight: 700; border-color: #d4af37; }
 </style>
 </head>
 <body>
@@ -208,7 +224,7 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 
 <div class="header">
   <h1>⚽ KIT PREMIUM</h1>
-  <p>Stock • Ventes • Réservations</p>
+  <p>Stock • Ventes • Réservations • Compta</p>
 </div>
 
 <div class="user-bar">
@@ -225,6 +241,7 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   <div class="tab" onclick="switchTab(event, 'stock')">📦 Stock</div>
   <div class="tab" onclick="switchTab(event, 'sales')">💰 Ventes</div>
   <div class="tab" onclick="switchTab(event, 'reservations')">📅 Résa<span class="tab-badge" id="resBadge" style="display:none">0</span></div>
+  <div class="tab" onclick="switchTab(event, 'compta')">💼 Compta</div>
   <div class="tab" onclick="switchTab(event, 'manage')">⚙️ Gérer</div>
 </div>
 
@@ -319,10 +336,79 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <div id="reservationsList"></div>
   </div>
 
+  <div id="compta" class="section">
+    <h3 style="color:#d4af37; margin-bottom:12px;">💼 Comptabilité</h3>
+
+```
+<div class="compta-subtabs">
+  <div class="compta-subtab active" onclick="switchComptaTab('bilan', this)">📊 Bilan</div>
+  <div class="compta-subtab" onclick="switchComptaTab('apports', this)">💰 Apports</div>
+  <div class="compta-subtab" onclick="switchComptaTab('achats', this)">🛒 Achats</div>
+</div>
+
+<div id="comptaBilan" class="compta-pane">
+  <div class="stats-grid">
+    <div class="stat-card full">
+      <div class="stat-label">💰 Cash en caisse</div>
+      <div class="stat-value" id="bilanCash">0 €</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Apports</div>
+      <div class="stat-value" id="bilanApports">0 €</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">CA Ventes</div>
+      <div class="stat-value" id="bilanRevenue">0 €</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Achats stock</div>
+      <div class="stat-value" id="bilanAchats">0 €</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-label">📈 Bénéfice net</div>
+      <div class="stat-value" id="bilanProfit">0 €</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Retour sur invest.</div>
+      <div class="stat-value" id="bilanROI">0 %</div>
+    </div>
+  </div>
+
+  <h4 style="color:#d4af37; margin: 20px 0 12px;">👥 Apports par associé</h4>
+  <div id="bilanByPartner"></div>
+
+  <p style="text-align:center; color:#666; font-size:11px; margin-top:30px; line-height:1.6;">
+    Cash = Apports + Ventes - Achats stock<br>
+    Bénéfice = CA Ventes - Coût des maillots vendus
+  </p>
+</div>
+
+<div id="comptaApports" class="compta-pane" style="display:none;">
+  <button class="btn" onclick="openModal('apportModal')">➕ Nouvel apport</button>
+  <div class="totals-row">
+    <span>Total apports :</span>
+    <span id="apportsTotal">0 €</span>
+  </div>
+  <div id="apportsList"></div>
+</div>
+
+<div id="comptaAchats" class="compta-pane" style="display:none;">
+  <button class="btn" onclick="openModal('achatModal')">➕ Nouvel achat stock</button>
+  <div class="totals-row">
+    <span>Total achats :</span>
+    <span id="achatsTotal">0 €</span>
+  </div>
+  <div id="achatsList"></div>
+</div>
+```
+
+  </div>
+
   <div id="manage" class="section">
     <h3 style="color:#d4af37; margin-bottom:12px;">⚙️ Gestion</h3>
     <button class="btn" onclick="exportData()">📤 Exporter ventes (CSV)</button>
     <button class="btn btn-secondary" onclick="exportReservations()">📤 Exporter réservations (CSV)</button>
+    <button class="btn btn-secondary" onclick="exportCompta()">📤 Exporter compta (CSV)</button>
     <div class="divider"></div>
     <h4 style="color:#d4af37; margin-bottom:12px;">📏 Tailles disponibles</h4>
     <div class="export-section">
@@ -337,7 +423,7 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <div class="divider"></div>
     <button class="btn btn-danger" onclick="confirmReset()">🗑️ Tout réinitialiser</button>
     <p style="text-align:center; color:#666; font-size:11px; margin-top:30px;">
-      Kit Premium v2.0 • Synchro temps réel ☁️<br>
+      Kit Premium v3.0 • Synchro temps réel ☁️<br>
       Hugo & Clément
     </p>
   </div>
@@ -359,8 +445,12 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
       <input type="text" id="newTeamName" placeholder="Nom de l'équipe ou marque">
     </div>
     <div class="form-group">
+      <label>Prix d'achat unitaire (€) - coût du maillot</label>
+      <input type="number" id="newTeamCost" placeholder="Ex: 8" step="0.01">
+    </div>
+    <div class="form-group">
       <label>Prix de vente par défaut (€)</label>
-      <input type="number" id="newTeamPrice" placeholder="Ex: 35" step="0.01">
+      <input type="number" id="newTeamPrice" placeholder="Ex: 25" step="0.01">
     </div>
     <div class="form-group">
       <label>Stock initial par taille</label>
@@ -457,6 +547,61 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   </div>
 </div>
 
+<div class="modal" id="apportModal">
+  <div class="modal-content">
+    <div class="modal-title">💰 Nouvel apport</div>
+    <div class="form-group">
+      <label>Associé</label>
+      <select id="apportPartner">
+        <option value="Hugo">Hugo</option>
+        <option value="Clément">Clément</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Montant (€)</label>
+      <input type="number" id="apportAmount" step="0.01" placeholder="Ex: 400">
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="apportDate">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="apportNote" placeholder="Ex: capital initial">
+    </div>
+    <button class="btn" onclick="saveApport()">✅ Valider</button>
+    <button class="btn btn-secondary" onclick="closeModal('apportModal')">Annuler</button>
+  </div>
+</div>
+
+<div class="modal" id="achatModal">
+  <div class="modal-content">
+    <div class="modal-title">🛒 Nouvel achat stock</div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" id="achatDesc" placeholder="Ex: 10 maillots PSG enfant">
+    </div>
+    <div class="form-group">
+      <label>Montant total (€)</label>
+      <input type="number" id="achatAmount" step="0.01" placeholder="Ex: 250">
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="achatDate">
+    </div>
+    <div class="form-group">
+      <label>Fournisseur (optionnel)</label>
+      <input type="text" id="achatSupplier" placeholder="Ex: Aliexpress">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="achatNote">
+    </div>
+    <button class="btn" onclick="saveAchat()">✅ Valider</button>
+    <button class="btn btn-secondary" onclick="closeModal('achatModal')">Annuler</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -491,6 +636,8 @@ const SIZES_MEN = ['M', 'L', 'XL', '2XL', '3XL'];
 let products = {};
 let sales = [];
 let reservations = [];
+let contributions = [];
+let purchases = [];
 let currentCategory = 'enfant';
 let currentStockFilter = 'all';
 let currentSalesFilter = 'all';
@@ -500,47 +647,74 @@ let selectedResSize = null;
 let resPaymentStatus = 'unpaid';
 let firebaseReady = false;
 
-function showToast(msg, type='success') {
+function showToast(msg, type) {
+  type = type || 'success';
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show ' + type;
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 
 function setSyncStatus(online) {
   const el = document.getElementById('syncStatus');
   const txt = document.getElementById('syncText');
-  if (online) { el.classList.remove('offline'); txt.textContent = 'Sync en direct ☁️'; }
+  if (online) { el.classList.remove('offline'); txt.textContent = 'Sync en direct'; }
   else { el.classList.add('offline'); txt.textContent = 'Hors ligne'; }
 }
 
-window.addEventListener('firebase-ready', () => { firebaseReady = true; initSync(); });
-window.addEventListener('online', () => setSyncStatus(true));
-window.addEventListener('offline', () => setSyncStatus(false));
+window.addEventListener('firebase-ready', function() { firebaseReady = true; initSync(); });
+window.addEventListener('online', function() { setSyncStatus(true); });
+window.addEventListener('offline', function() { setSyncStatus(false); });
 
 function initSync() {
-  const { db, collection, onSnapshot } = window.fb;
-  onSnapshot(collection(db, 'products'), (snap) => {
+  const fb = window.fb;
+  fb.onSnapshot(fb.collection(fb.db, 'products'), function(snap) {
     products = {};
-    snap.forEach(d => { products[d.id] = d.data(); });
+    snap.forEach(function(d) { products[d.id] = d.data(); });
     document.getElementById('loadingScreen').style.display = 'none';
     setSyncStatus(true);
-    renderAll();
-  }, (err) => { console.error(err); showToast('Erreur sync', 'error'); document.getElementById('loadingScreen').style.display = 'none'; });
+    safeRenderAll();
+  }, function(err) {
+    console.error(err);
+    showToast('Erreur sync', 'error');
+    document.getElementById('loadingScreen').style.display = 'none';
+  });
 
-  onSnapshot(collection(db, 'sales'), (snap) => {
+  fb.onSnapshot(fb.collection(fb.db, 'sales'), function(snap) {
     sales = [];
-    snap.forEach(d => { sales.push({ id: d.id, ...d.data() }); });
-    sales.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    renderAll();
+    snap.forEach(function(d) { sales.push(Object.assign({ id: d.id }, d.data())); });
+    sales.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
   });
 
-  onSnapshot(collection(db, 'reservations'), (snap) => {
+  fb.onSnapshot(fb.collection(fb.db, 'reservations'), function(snap) {
     reservations = [];
-    snap.forEach(d => { reservations.push({ id: d.id, ...d.data() }); });
-    reservations.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-    renderAll();
+    snap.forEach(function(d) { reservations.push(Object.assign({ id: d.id }, d.data())); });
+    reservations.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
   });
+
+  fb.onSnapshot(fb.collection(fb.db, 'contributions'), function(snap) {
+    contributions = [];
+    snap.forEach(function(d) { contributions.push(Object.assign({ id: d.id }, d.data())); });
+    contributions.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
+  }, function(err) { console.error('contrib', err); });
+
+  fb.onSnapshot(fb.collection(fb.db, 'purchases'), function(snap) {
+    purchases = [];
+    snap.forEach(function(d) { purchases.push(Object.assign({ id: d.id }, d.data())); });
+    purchases.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
+  }, function(err) { console.error('purchases', err); });
+}
+
+function safeRenderAll() {
+  try { renderDashboard(); } catch(e) { console.error('renderDashboard', e); }
+  try { renderStock(); } catch(e) { console.error('renderStock', e); }
+  try { renderSales(); } catch(e) { console.error('renderSales', e); }
+  try { renderReservations(); } catch(e) { console.error('renderReservations', e); }
+  try { renderCompta(); } catch(e) { console.error('renderCompta', e); }
 }
 
 function changeUser() {
@@ -549,14 +723,29 @@ function changeUser() {
 }
 
 function switchTab(e, name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
   e.target.classList.add('active');
   document.getElementById(name).classList.add('active');
   if (name === 'dashboard') renderDashboard();
   if (name === 'stock') renderStock();
   if (name === 'sales') renderSales();
   if (name === 'reservations') renderReservations();
+  if (name === 'compta') renderCompta();
+}
+
+function switchComptaTab(name, el) {
+  document.querySelectorAll('.compta-subtab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.compta-pane').forEach(function(p) { p.style.display = 'none'; });
+  const map = { bilan: 'comptaBilan', apports: 'comptaApports', achats: 'comptaAchats' };
+  document.getElementById(map[name]).style.display = 'block';
+  renderCompta();
+}
+
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
 function openModal(id) {
@@ -585,9 +774,26 @@ function openModal(id) {
   if (id === 'addProductModal') {
     document.getElementById('newTeamName').value = '';
     document.getElementById('newTeamPrice').value = '';
+    document.getElementById('newTeamCost').value = '';
     currentCategory = 'enfant';
-    document.querySelectorAll('.cat-tab').forEach(c => c.classList.toggle('active', c.dataset.cat === 'enfant'));
+    document.querySelectorAll('.cat-tab').forEach(function(c) {
+      c.classList.toggle('active', c.dataset.cat === 'enfant');
+    });
     renderSizeStockInputs();
+  }
+  if (id === 'apportModal') {
+    document.getElementById('apportAmount').value = '';
+    document.getElementById('apportNote').value = '';
+    document.getElementById('apportDate').value = todayISO();
+    const u = document.getElementById('currentUser').value;
+    if (u === 'Hugo' || u === 'Clément') document.getElementById('apportPartner').value = u;
+  }
+  if (id === 'achatModal') {
+    document.getElementById('achatDesc').value = '';
+    document.getElementById('achatAmount').value = '';
+    document.getElementById('achatSupplier').value = '';
+    document.getElementById('achatNote').value = '';
+    document.getElementById('achatDate').value = todayISO();
   }
   document.getElementById(id).classList.add('active');
 }
@@ -596,7 +802,7 @@ function closeModal(id) { document.getElementById(id).classList.remove('active')
 
 function selectCategory(cat, el) {
   currentCategory = cat;
-  document.querySelectorAll('.cat-tab').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.cat-tab').forEach(function(c) { c.classList.remove('active'); });
   el.classList.add('active');
   renderSizeStockInputs();
 }
@@ -604,12 +810,12 @@ function selectCategory(cat, el) {
 function renderSizeStockInputs() {
   const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
   const c = document.getElementById('sizeStockInputs');
-  c.innerHTML = sizes.map(s => {
-    const lbl = currentCategory === 'enfant' ? `${s} (${SIZES_KIDS_LABELS[s]})` : s;
-    return `<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-      <span style="min-width:80px; font-size:13px; color:#d4af37;">${lbl}</span>
-      <input type="number" min="0" value="0" id="initStock_${s}" style="flex:1;">
-    </div>`;
+  c.innerHTML = sizes.map(function(s) {
+    const lbl = currentCategory === 'enfant' ? s + ' (' + SIZES_KIDS_LABELS[s] + ')' : s;
+    return '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">' +
+      '<span style="min-width:80px; font-size:13px; color:#d4af37;">' + lbl + '</span>' +
+      '<input type="number" min="0" value="0" id="initStock_' + s + '" style="flex:1;">' +
+      '</div>';
   }).join('');
 }
 
@@ -617,14 +823,17 @@ async function addProduct() {
   if (!firebaseReady) return showToast('Cloud non connecté', 'error');
   const name = document.getElementById('newTeamName').value.trim();
   const price = parseFloat(document.getElementById('newTeamPrice').value) || 0;
+  const cost = parseFloat(document.getElementById('newTeamCost').value) || 0;
   if (!name) return showToast('Nom requis', 'error');
   const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
   const stock = {};
-  sizes.forEach(s => { stock[s] = parseInt(document.getElementById('initStock_' + s).value) || 0; });
+  sizes.forEach(function(s) { stock[s] = parseInt(document.getElementById('initStock_' + s).value) || 0; });
   const id = Date.now().toString();
   try {
-    const { db, doc, setDoc } = window.fb;
-    await setDoc(doc(db, 'products', id), { name, category: currentCategory, price, stock });
+    const fb = window.fb;
+    await fb.setDoc(fb.doc(fb.db, 'products', id), {
+      name: name, category: currentCategory, price: price, cost: cost, stock: stock
+    });
     closeModal('addProductModal');
     showToast('✅ ' + name + ' ajouté');
   } catch (e) { console.error(e); showToast('Erreur ajout', 'error'); }
@@ -634,17 +843,18 @@ function populateTeams(selectId) {
   const sel = document.getElementById(selectId);
   sel.innerHTML = '<option value="">-- Choisir --</option>';
   Object.entries(products)
-    .sort((a,b) => a[1].name.localeCompare(b[1].name))
-    .forEach(([id, p]) => {
+    .sort(function(a,b) { return a[1].name.localeCompare(b[1].name); })
+    .forEach(function(entry) {
+      const id = entry[0], p = entry[1];
       const cat = p.category === 'enfant' ? '👶' : '👨';
-      sel.innerHTML += `<option value="${id}">${cat} ${p.name}</option>`;
+      sel.innerHTML += '<option value="' + id + '">' + cat + ' ' + p.name + '</option>';
     });
 }
 
 function getReservedQty(productId, size) {
   return reservations
-    .filter(r => r.productId === productId && r.size === size && r.status === 'active')
-    .reduce((sum, r) => sum + (r.qty || 0), 0);
+    .filter(function(r) { return r.productId === productId && r.size === size && r.status === 'active'; })
+    .reduce(function(sum, r) { return sum + (r.qty || 0); }, 0);
 }
 
 function updateSizesForSale() {
@@ -655,15 +865,15 @@ function updateSizesForSale() {
   const p = products[id];
   document.getElementById('salePrice').value = p.price || '';
   const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
-  c.innerHTML = sizes.map(s => {
+  c.innerHTML = sizes.map(function(s) {
     const qty = p.stock[s] || 0;
     const reserved = getReservedQty(id, s);
     const available = qty - reserved;
-    const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
-    const stockTxt = reserved > 0 ? `Dispo: ${available} (${reserved} rés.)` : `Stock: ${qty}`;
-    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectSaleSize('${s}', this)">
-      ${lbl}<span class="stock-info">${stockTxt}</span>
-    </button>`;
+    const lbl = p.category === 'enfant' ? s + '<span class="stock-info">' + SIZES_KIDS_LABELS[s] + '</span>' : s;
+    const stockTxt = reserved > 0 ? 'Dispo: ' + available + ' (' + reserved + ' rés.)' : 'Stock: ' + qty;
+    return '<button type="button" class="size-btn" ' + (available <= 0 ? 'disabled' : '') +
+      ' onclick="selectSaleSize(\'' + s + '\', this)">' +
+      lbl + '<span class="stock-info">' + stockTxt + '</span></button>';
   }).join('');
 }
 
@@ -675,27 +885,27 @@ function updateSizesForReservation() {
   const p = products[id];
   document.getElementById('resPrice').value = p.price || '';
   const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
-  c.innerHTML = sizes.map(s => {
+  c.innerHTML = sizes.map(function(s) {
     const qty = p.stock[s] || 0;
     const reserved = getReservedQty(id, s);
     const available = qty - reserved;
-    const lbl = p.category === 'enfant' ? `${s}<span class="stock-info">${SIZES_KIDS_LABELS[s]}</span>` : s;
-    const stockTxt = reserved > 0 ? `Dispo: ${available}` : `Stock: ${qty}`;
-    return `<button type="button" class="size-btn" ${available<=0?'disabled':''} onclick="selectResSize('${s}', this)">
-      ${lbl}<span class="stock-info">${stockTxt}</span>
-    </button>`;
+    const lbl = p.category === 'enfant' ? s + '<span class="stock-info">' + SIZES_KIDS_LABELS[s] + '</span>' : s;
+    const stockTxt = reserved > 0 ? 'Dispo: ' + available : 'Stock: ' + qty;
+    return '<button type="button" class="size-btn" ' + (available <= 0 ? 'disabled' : '') +
+      ' onclick="selectResSize(\'' + s + '\', this)">' +
+      lbl + '<span class="stock-info">' + stockTxt + '</span></button>';
   }).join('');
 }
 
 function selectSaleSize(s, el) {
   selectedSize = s;
-  document.querySelectorAll('#saleSizes .size-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#saleSizes .size-btn').forEach(function(b) { b.classList.remove('selected'); });
   el.classList.add('selected');
 }
 
 function selectResSize(s, el) {
   selectedResSize = s;
-  document.querySelectorAll('#resSizes .size-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('#resSizes .size-btn').forEach(function(b) { b.classList.remove('selected'); });
   el.classList.add('selected');
 }
 
@@ -717,31 +927,33 @@ async function recordSale() {
   if (!price || price <= 0) return showToast('Prix invalide', 'error');
 
   try {
-    const { db, doc, runTransaction } = window.fb;
-    const productRef = doc(db, 'products', productId);
+    const fb = window.fb;
+    const productRef = fb.doc(fb.db, 'products', productId);
     const saleId = Date.now().toString() + Math.random().toString(36).slice(2,6);
-    const saleRef = doc(db, 'sales', saleId);
+    const saleRef = fb.doc(fb.db, 'sales', saleId);
 
-    await runTransaction(db, async (t) => {
+    await fb.runTransaction(fb.db, async function(t) {
       const snap = await t.get(productRef);
       if (!snap.exists()) throw new Error('Produit introuvable');
       const p = snap.data();
       const current = p.stock[selectedSize] || 0;
       const reserved = getReservedQty(productId, selectedSize);
       const available = current - reserved;
-      if (available < qty) throw new Error('Stock insuffisant (réservations en cours)');
-      const newStock = { ...p.stock, [selectedSize]: current - qty };
+      if (available < qty) throw new Error('Stock insuffisant');
+      const newStock = Object.assign({}, p.stock);
+      newStock[selectedSize] = current - qty;
       t.update(productRef, { stock: newStock });
       t.set(saleRef, {
-        productId, team: p.name, category: p.category, size: selectedSize,
-        price, qty, total: price * qty,
+        productId: productId, team: p.name, category: p.category, size: selectedSize,
+        price: price, qty: qty, total: price * qty,
+        cost: p.cost || 0,
         customer: document.getElementById('saleCustomer').value.trim(),
         note: document.getElementById('saleNote').value.trim(),
         seller: user, date: new Date().toISOString()
       });
     });
     closeModal('saleModal');
-    showToast(`✅ Vente : ${(price*qty).toFixed(2)} €`);
+    showToast('✅ Vente : ' + (price*qty).toFixed(2) + ' €');
   } catch (e) { console.error(e); showToast(e.message || 'Erreur', 'error'); }
 }
 
@@ -764,11 +976,12 @@ async function recordReservation() {
   if ((current - reserved) < qty) return showToast('Stock insuffisant', 'error');
 
   try {
-    const { db, doc, setDoc } = window.fb;
+    const fb = window.fb;
     const resId = Date.now().toString() + Math.random().toString(36).slice(2,6);
-    await setDoc(doc(db, 'reservations', resId), {
-      productId, team: p.name, category: p.category, size: selectedResSize,
-      price, qty, total: price * qty, customer,
+    await fb.setDoc(fb.doc(fb.db, 'reservations', resId), {
+      productId: productId, team: p.name, category: p.category, size: selectedResSize,
+      price: price, qty: qty, total: price * qty, customer: customer,
+      cost: p.cost || 0,
       phone: document.getElementById('resPhone').value.trim(),
       note: document.getElementById('resNote').value.trim(),
       paymentStatus: resPaymentStatus, status: 'active',
@@ -776,24 +989,25 @@ async function recordReservation() {
     });
     closeModal('reservationModal');
     const statusTxt = resPaymentStatus === 'paid' ? 'PAYÉE' : 'À PAYER';
-    showToast(`📅 Réservation ${statusTxt} : ${customer}`);
+    showToast('📅 Réservation ' + statusTxt + ' : ' + customer);
   } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
 async function deleteSale(id) {
   if (!confirm('Annuler cette vente ? Le stock sera restauré.')) return;
   try {
-    const { db, doc, runTransaction } = window.fb;
-    const sale = sales.find(s => s.id === id);
+    const fb = window.fb;
+    const sale = sales.find(function(s) { return s.id === id; });
     if (!sale) return;
-    const productRef = doc(db, 'products', sale.productId);
-    const saleRef = doc(db, 'sales', id);
-    await runTransaction(db, async (t) => {
+    const productRef = fb.doc(fb.db, 'products', sale.productId);
+    const saleRef = fb.doc(fb.db, 'sales', id);
+    await fb.runTransaction(fb.db, async function(t) {
       const snap = await t.get(productRef);
       if (snap.exists()) {
         const p = snap.data();
         const current = p.stock[sale.size] || 0;
-        const newStock = { ...p.stock, [sale.size]: current + sale.qty };
+        const newStock = Object.assign({}, p.stock);
+        newStock[sale.size] = current + sale.qty;
         t.update(productRef, { stock: newStock });
       }
       t.delete(saleRef);
@@ -803,132 +1017,130 @@ async function deleteSale(id) {
 }
 
 async function confirmReservation(id) {
-  const r = reservations.find(x => x.id === id);
+  const r = reservations.find(function(x) { return x.id === id; });
   if (!r) return;
   const wasPaid = r.paymentStatus === 'paid';
   const msg = wasPaid
-    ? `Confirmer la livraison de ${r.team} taille ${r.size} pour ${r.customer} ?\n(déjà payé)`
-    : `Confirmer la livraison + paiement de ${r.team} taille ${r.size} pour ${r.customer} ?\nMontant à encaisser : ${r.total.toFixed(2)} €`;
+    ? 'Confirmer la livraison de ' + r.team + ' taille ' + r.size + ' pour ' + r.customer + ' ? (déjà payé)'
+    : 'Confirmer livraison + paiement ' + r.team + ' taille ' + r.size + ' pour ' + r.customer + ' ? Montant : ' + r.total.toFixed(2) + ' €';
   if (!confirm(msg)) return;
 
   try {
-    const { db, doc, runTransaction } = window.fb;
-    const productRef = doc(db, 'products', r.productId);
-    const resRef = doc(db, 'reservations', id);
+    const fb = window.fb;
+    const productRef = fb.doc(fb.db, 'products', r.productId);
+    const resRef = fb.doc(fb.db, 'reservations', id);
     const saleId = Date.now().toString() + Math.random().toString(36).slice(2,6);
-    const saleRef = doc(db, 'sales', saleId);
+    const saleRef = fb.doc(fb.db, 'sales', saleId);
 
-    await runTransaction(db, async (t) => {
+    await fb.runTransaction(fb.db, async function(t) {
       const snap = await t.get(productRef);
       if (snap.exists()) {
         const p = snap.data();
         const current = p.stock[r.size] || 0;
         if (current < r.qty) throw new Error('Stock insuffisant');
-        const newStock = { ...p.stock, [r.size]: current - r.qty };
+        const newStock = Object.assign({}, p.stock);
+        newStock[r.size] = current - r.qty;
         t.update(productRef, { stock: newStock });
       }
       t.update(resRef, { status: 'done', completedDate: new Date().toISOString() });
       t.set(saleRef, {
         productId: r.productId, team: r.team, category: r.category, size: r.size,
         price: r.price, qty: r.qty, total: r.total, customer: r.customer,
+        cost: r.cost || 0,
         note: 'Issue de réservation' + (r.note ? ' - ' + r.note : ''),
         seller: r.seller, date: new Date().toISOString(), fromReservation: id
       });
     });
-    showToast(`✅ Vente confirmée : ${r.total.toFixed(2)} €`);
+    showToast('✅ Vente confirmée : ' + r.total.toFixed(2) + ' €');
   } catch (e) { console.error(e); showToast(e.message || 'Erreur', 'error'); }
 }
 
 async function togglePaymentStatus(id) {
-  const r = reservations.find(x => x.id === id);
+  const r = reservations.find(function(x) { return x.id === id; });
   if (!r) return;
   const newStatus = r.paymentStatus === 'paid' ? 'unpaid' : 'paid';
-  const msg = newStatus === 'paid' ? 'Marquer comme PAYÉ ?' : 'Marquer comme À PAYER ?';
-  if (!confirm(msg)) return;
+  if (!confirm(newStatus === 'paid' ? 'Marquer comme PAYÉ ?' : 'Marquer comme À PAYER ?')) return;
   try {
-    const { db, doc, updateDoc } = window.fb;
-    await updateDoc(doc(db, 'reservations', id), { paymentStatus: newStatus });
+    const fb = window.fb;
+    await fb.updateDoc(fb.doc(fb.db, 'reservations', id), { paymentStatus: newStatus });
     showToast(newStatus === 'paid' ? '✅ Marqué payé' : '❌ Marqué à payer');
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
 async function cancelReservation(id) {
-  const r = reservations.find(x => x.id === id);
+  const r = reservations.find(function(x) { return x.id === id; });
   if (!r) return;
-  if (!confirm(`Annuler la réservation de ${r.customer} ?\nLe stock sera libéré.`)) return;
+  if (!confirm('Annuler la réservation de ' + r.customer + ' ?')) return;
   try {
-    const { db, doc, deleteDoc } = window.fb;
-    await deleteDoc(doc(db, 'reservations', id));
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'reservations', id));
     showToast('Réservation annulée');
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
 function filterStock(f, el) {
   currentStockFilter = f;
-  document.querySelectorAll('#stock .filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#stock .filter-chip').forEach(function(c) { c.classList.remove('active'); });
   el.classList.add('active');
   renderStock();
 }
 
 function filterSales(f, el) {
   currentSalesFilter = f;
-  document.querySelectorAll('#sales .filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#sales .filter-chip').forEach(function(c) { c.classList.remove('active'); });
   el.classList.add('active');
   renderSales();
 }
 
 function filterReservations(f, el) {
   currentResFilter = f;
-  document.querySelectorAll('#reservations .filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#reservations .filter-chip').forEach(function(c) { c.classList.remove('active'); });
   el.classList.add('active');
   renderReservations();
 }
 
 function renderStock() {
-  const search = (document.getElementById('searchStock')?.value || '').toLowerCase();
+  const sb = document.getElementById('searchStock');
+  const search = (sb && sb.value || '').toLowerCase();
   const list = document.getElementById('stockList');
   if (!list) return;
   let entries = Object.entries(products);
-  if (currentStockFilter !== 'all') entries = entries.filter(([_,p]) => p.category === currentStockFilter);
-  if (search) entries = entries.filter(([_,p]) => p.name.toLowerCase().includes(search));
-  entries.sort((a,b) => a[1].name.localeCompare(b[1].name));
+  if (currentStockFilter !== 'all') entries = entries.filter(function(e) { return e[1].category === currentStockFilter; });
+  if (search) entries = entries.filter(function(e) { return e[1].name.toLowerCase().indexOf(search) !== -1; });
+  entries.sort(function(a, b) { return a[1].name.localeCompare(b[1].name); });
   if (entries.length === 0) {
     list.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Aucun produit. Ajoute ta première équipe !</div></div>';
     return;
   }
-  list.innerHTML = entries.map(([id, p]) => {
-    const total = Object.values(p.stock || {}).reduce((a,b)=>a+(b||0), 0);
+  list.innerHTML = entries.map(function(entry) {
+    const id = entry[0], p = entry[1];
+    const total = Object.values(p.stock || {}).reduce(function(a, b) { return a + (b || 0); }, 0);
     const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
     const cat = p.category === 'enfant' ? '👶' : '👨';
-    return `
-      <div class="team-card" id="card_${id}">
-        <div class="team-header" onclick="toggleCard('${id}')">
-          <div>
-            <div class="team-name">${cat} ${p.name}</div>
-            <div class="team-stock">${total} pièces • ${p.price}€ </div>
-          </div>
-          <div class="team-toggle">▼</div>
-        </div>
-        <div class="sizes-grid">
-          ${sizes.map(s => {
-            const q = (p.stock || {})[s] || 0;
-            const reserved = getReservedQty(id, s);
-            const cls = q === 0 ? 'empty' : (q <= 2 ? 'low' : '');
-            const lbl = p.category === 'enfant' ? `${s}<br><span style="font-size:9px">${SIZES_KIDS_LABELS[s]}</span>` : s;
-            const resBadge = reserved > 0 ? `<div class="size-reserved">${reserved} rés.</div>` : '';
-            return `<div class="size-item ${cls}" onclick="event.stopPropagation(); openAdjust('${id}','${s}')">
-              <div class="size-label">${lbl}</div>
-              <div class="size-qty">${q}</div>
-              ${resBadge}
-            </div>`;
-          }).join('')}
-        </div>
-        <div class="card-actions" style="margin-top:12px; display:none; gap:8px;">
-          <button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editPrice('${id}')">💵 Prix</button>
-          <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteProduct('${id}')">🗑️ Suppr.</button>
-        </div>
-      </div>
-    `;
+    const costInfo = p.cost ? ' • Achat ' + p.cost + '€' : '';
+    const sizesHtml = sizes.map(function(s) {
+      const q = (p.stock || {})[s] || 0;
+      const reserved = getReservedQty(id, s);
+      const cls = q === 0 ? 'empty' : (q <= 2 ? 'low' : '');
+      const lbl = p.category === 'enfant' ? s + '<br><span style="font-size:9px">' + SIZES_KIDS_LABELS[s] + '</span>' : s;
+      const resBadge = reserved > 0 ? '<div class="size-reserved">' + reserved + ' rés.</div>' : '';
+      return '<div class="size-item ' + cls + '" onclick="event.stopPropagation(); openAdjust(\'' + id + '\',\'' + s + '\')">' +
+        '<div class="size-label">' + lbl + '</div>' +
+        '<div class="size-qty">' + q + '</div>' + resBadge +
+        '</div>';
+    }).join('');
+    return '<div class="team-card" id="card_' + id + '">' +
+      '<div class="team-header" onclick="toggleCard(\'' + id + '\')">' +
+        '<div><div class="team-name">' + cat + ' ' + p.name + '</div>' +
+        '<div class="team-stock">' + total + ' pièces • Vente ' + (p.price || 0) + '€' + costInfo + '</div></div>' +
+        '<div class="team-toggle">▼</div>' +
+      '</div>' +
+      '<div class="sizes-grid">' + sizesHtml + '</div>' +
+      '<div class="card-actions" style="margin-top:12px; display:none; gap:8px; flex-wrap:wrap;">' +
+        '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editPrice(\'' + id + '\')">💵 Prix vente</button>' +
+        '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editCost(\'' + id + '\')">🛒 Prix achat</button>' +
+        '<button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteProduct(\'' + id + '\')">🗑️ Suppr.</button>' +
+      '</div></div>';
   }).join('');
 }
 
@@ -943,43 +1155,40 @@ function openAdjust(productId, size) {
   const p = products[productId];
   const current = (p.stock || {})[size] || 0;
   const reserved = getReservedQty(productId, size);
-  const lbl = p.category === 'enfant' ? `${size} (${SIZES_KIDS_LABELS[size]})` : size;
-  const resInfo = reserved > 0 ? `<p style="color:#f59e0b; margin-bottom:8px; font-size:13px;">⚠️ ${reserved} pièce(s) réservée(s)</p>` : '';
-  document.getElementById('adjustStockContent').innerHTML = `
-    <p style="margin-bottom:12px;"><strong style="color:#d4af37;">${p.name}</strong> - Taille ${lbl}</p>
-    <p style="margin-bottom:8px;">Stock actuel : <strong>${current}</strong></p>
-    ${resInfo}
-    <div class="form-group">
-      <label>Nouveau stock</label>
-      <input type="number" id="newStockVal" value="${current}" min="0">
-    </div>
-    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
-      <button class="btn btn-small btn-secondary" onclick="adjustQuick(-1)">-1</button>
-      <button class="btn btn-small btn-secondary" onclick="adjustQuick(1)">+1</button>
-      <button class="btn btn-small btn-secondary" onclick="adjustQuick(5)">+5</button>
-      <button class="btn btn-small btn-secondary" onclick="adjustQuick(10)">+10</button>
-    </div>
-    <button class="btn" onclick="saveAdjust('${productId}','${size}')">✅ Enregistrer</button>
-    <button class="btn btn-secondary" onclick="closeModal('adjustStockModal')">Annuler</button>
-  `;
+  const lbl = p.category === 'enfant' ? size + ' (' + SIZES_KIDS_LABELS[size] + ')' : size;
+  const resInfo = reserved > 0 ? '<p style="color:#f59e0b; margin-bottom:8px; font-size:13px;">⚠️ ' + reserved + ' pièce(s) réservée(s)</p>' : '';
+  document.getElementById('adjustStockContent').innerHTML =
+    '<p style="margin-bottom:12px;"><strong style="color:#d4af37;">' + p.name + '</strong> - Taille ' + lbl + '</p>' +
+    '<p style="margin-bottom:8px;">Stock actuel : <strong>' + current + '</strong></p>' + resInfo +
+    '<div class="form-group"><label>Nouveau stock</label>' +
+    '<input type="number" id="newStockVal" value="' + current + '" min="0"></div>' +
+    '<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">' +
+      '<button class="btn btn-small btn-secondary" onclick="adjustQuick(-1)">-1</button>' +
+      '<button class="btn btn-small btn-secondary" onclick="adjustQuick(1)">+1</button>' +
+      '<button class="btn btn-small btn-secondary" onclick="adjustQuick(5)">+5</button>' +
+      '<button class="btn btn-small btn-secondary" onclick="adjustQuick(10)">+10</button>' +
+    '</div>' +
+    '<button class="btn" onclick="saveAdjust(\'' + productId + '\',\'' + size + '\')">✅ Enregistrer</button>' +
+    '<button class="btn btn-secondary" onclick="closeModal(\'adjustStockModal\')">Annuler</button>';
   openModal('adjustStockModal');
 }
 
 function adjustQuick(delta) {
   const inp = document.getElementById('newStockVal');
-  inp.value = Math.max(0, (parseInt(inp.value)||0) + delta);
+  inp.value = Math.max(0, (parseInt(inp.value) || 0) + delta);
 }
 
 async function saveAdjust(productId, size) {
   const v = parseInt(document.getElementById('newStockVal').value) || 0;
   try {
-    const { db, doc, runTransaction } = window.fb;
-    const ref = doc(db, 'products', productId);
-    await runTransaction(db, async (t) => {
+    const fb = window.fb;
+    const ref = fb.doc(fb.db, 'products', productId);
+    await fb.runTransaction(fb.db, async function(t) {
       const snap = await t.get(ref);
       if (!snap.exists()) throw new Error('Introuvable');
       const p = snap.data();
-      const newStock = { ...p.stock, [size]: v };
+      const newStock = Object.assign({}, p.stock);
+      newStock[size] = v;
       t.update(ref, { stock: newStock });
     });
     closeModal('adjustStockModal');
@@ -989,104 +1198,120 @@ async function saveAdjust(productId, size) {
 
 async function editPrice(id) {
   const p = products[id];
-  const np = prompt('Nouveau prix pour ' + p.name + ' :', p.price);
+  const np = prompt('Nouveau prix de VENTE pour ' + p.name + ' :', p.price);
   if (np === null) return;
   const v = parseFloat(np);
-  if (isNaN(v) || v < 0) return showToast('Prix invalide','error');
+  if (isNaN(v) || v < 0) return showToast('Prix invalide', 'error');
   try {
-    const { db, doc, setDoc } = window.fb;
-    await setDoc(doc(db, 'products', id), { ...p, price: v });
-    showToast('Prix mis à jour');
+    const fb = window.fb;
+    await fb.setDoc(fb.doc(fb.db, 'products', id), Object.assign({}, p, { price: v }));
+    showToast('Prix de vente mis à jour');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+async function editCost(id) {
+  const p = products[id];
+  const np = prompt('Nouveau prix d ACHAT (coût unitaire) pour ' + p.name + ' :', p.cost || 0);
+  if (np === null) return;
+  const v = parseFloat(np);
+  if (isNaN(v) || v < 0) return showToast('Prix invalide', 'error');
+  try {
+    const fb = window.fb;
+    await fb.setDoc(fb.doc(fb.db, 'products', id), Object.assign({}, p, { cost: v }));
+    showToast('Prix d achat mis à jour');
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
 async function deleteProduct(id) {
-  if (!confirm('Supprimer ' + products[id].name + ' ? Les ventes existantes seront conservées.')) return;
+  if (!confirm('Supprimer ' + products[id].name + ' ? Les ventes seront conservées.')) return;
   try {
-    const { db, doc, deleteDoc } = window.fb;
-    await deleteDoc(doc(db, 'products', id));
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'products', id));
     showToast('Produit supprimé');
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
 function renderSales() {
-  const search = (document.getElementById('searchSales')?.value || '').toLowerCase();
+  const sb = document.getElementById('searchSales');
+  const search = (sb && sb.value || '').toLowerCase();
   const list = document.getElementById('salesList');
   if (!list) return;
-  let filtered = [...sales];
+  let filtered = sales.slice();
   const now = new Date();
   if (currentSalesFilter === 'today') {
-    filtered = filtered.filter(s => new Date(s.date).toDateString() === now.toDateString());
+    filtered = filtered.filter(function(s) { return new Date(s.date).toDateString() === now.toDateString(); });
   } else if (currentSalesFilter === 'week') {
     const cutoff = new Date(now.getTime() - 7*24*60*60*1000);
-    filtered = filtered.filter(s => new Date(s.date) >= cutoff);
+    filtered = filtered.filter(function(s) { return new Date(s.date) >= cutoff; });
   } else if (currentSalesFilter === 'month') {
     const cutoff = new Date(now.getTime() - 30*24*60*60*1000);
-    filtered = filtered.filter(s => new Date(s.date) >= cutoff);
+    filtered = filtered.filter(function(s) { return new Date(s.date) >= cutoff; });
   }
   if (search) {
-    filtered = filtered.filter(s =>
-      (s.team||'').toLowerCase().includes(search) ||
-      (s.customer||'').toLowerCase().includes(search) ||
-      (s.seller||'').toLowerCase().includes(search)
-    );
+    filtered = filtered.filter(function(s) {
+      return ((s.team||'').toLowerCase().indexOf(search) !== -1) ||
+        ((s.customer||'').toLowerCase().indexOf(search) !== -1) ||
+        ((s.seller||'').toLowerCase().indexOf(search) !== -1);
+    });
   }
-  const total = filtered.reduce((a,s) => a + (s.total||0), 0);
+  const total = filtered.reduce(function(a, s) { return a + (s.total || 0); }, 0);
   document.getElementById('filteredTotal').textContent = total.toFixed(2) + ' €';
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="empty-state"><div class="icon">💰</div><div>Aucune vente.</div></div>';
     return;
   }
-  list.innerHTML = filtered.map(s => {
+  list.innerHTML = filtered.map(function(s) {
     const d = new Date(s.date);
     const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     const cat = s.category === 'enfant' ? '👶' : '👨';
-    const sizeLbl = s.category === 'enfant' && SIZES_KIDS_LABELS[s.size] ? `${s.size} (${SIZES_KIDS_LABELS[s.size]})` : s.size;
-    return `
-      <div class="sale-item">
-        <div class="sale-row">
-          <div class="sale-team">${cat} ${s.team}</div>
-          <div class="sale-price">${(s.total||0).toFixed(2)} €</div>
-        </div>
-        <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${s.qty} • ${s.price}€/u</div>
-        <div class="sale-details">👤 ${s.customer || '—'} • 🧑‍💼 ${s.seller} • 📅 ${dateStr}</div>
-        ${s.note ? `<div class="sale-details">📝 ${s.note}</div>` : ''}
-        <div class="sale-actions">
-          <button class="btn btn-small btn-danger" onclick="deleteSale('${s.id}')">Annuler</button>
-        </div>
-      </div>
-    `;
+    const sizeLbl = s.category === 'enfant' && SIZES_KIDS_LABELS[s.size] ? s.size + ' (' + SIZES_KIDS_LABELS[s.size] + ')' : s.size;
+    const margin = s.cost ? ((s.price - s.cost) * s.qty) : 0;
+    const marginInfo = s.cost ? '<div class="sale-details" style="color:#4ade80;">📈 Marge : ' + margin.toFixed(2) + ' €</div>' : '';
+    return '<div class="sale-item">' +
+      '<div class="sale-row">' +
+        '<div class="sale-team">' + cat + ' ' + s.team + '</div>' +
+        '<div class="sale-price">' + (s.total||0).toFixed(2) + ' €</div>' +
+      '</div>' +
+      '<div class="sale-details">📏 Taille ' + sizeLbl + ' • Qté ' + s.qty + ' • ' + s.price + '€/u</div>' +
+      marginInfo +
+      '<div class="sale-details">👤 ' + (s.customer || '-') + ' • 🧑 ' + s.seller + ' • 📅 ' + dateStr + '</div>' +
+      (s.note ? '<div class="sale-details">📝 ' + s.note + '</div>' : '') +
+      '<div class="sale-actions">' +
+        '<button class="btn btn-small btn-danger" onclick="deleteSale(\'' + s.id + '\')">Annuler</button>' +
+      '</div></div>';
   }).join('');
 }
 
 function renderReservations() {
-  const search = (document.getElementById('searchReservations')?.value || '').toLowerCase();
+  const sb = document.getElementById('searchReservations');
+  const search = (sb && sb.value || '').toLowerCase();
   const list = document.getElementById('reservationsList');
   if (!list) return;
-  let filtered = [...reservations];
+  let filtered = reservations.slice();
 
-  if (currentResFilter === 'active') filtered = filtered.filter(r => r.status === 'active');
-  else if (currentResFilter === 'unpaid') filtered = filtered.filter(r => r.status === 'active' && r.paymentStatus === 'unpaid');
-  else if (currentResFilter === 'paid') filtered = filtered.filter(r => r.status === 'active' && r.paymentStatus === 'paid');
-  else if (currentResFilter === 'done') filtered = filtered.filter(r => r.status === 'done');
+  if (currentResFilter === 'active') filtered = filtered.filter(function(r) { return r.status === 'active'; });
+  else if (currentResFilter === 'unpaid') filtered = filtered.filter(function(r) { return r.status === 'active' && r.paymentStatus === 'unpaid'; });
+  else if (currentResFilter === 'paid') filtered = filtered.filter(function(r) { return r.status === 'active' && r.paymentStatus === 'paid'; });
+  else if (currentResFilter === 'done') filtered = filtered.filter(function(r) { return r.status === 'done'; });
 
   if (search) {
-    filtered = filtered.filter(r =>
-      (r.team||'').toLowerCase().includes(search) ||
-      (r.customer||'').toLowerCase().includes(search) ||
-      (r.phone||'').toLowerCase().includes(search) ||
-      (r.seller||'').toLowerCase().includes(search)
-    );
+    filtered = filtered.filter(function(r) {
+      return ((r.team||'').toLowerCase().indexOf(search) !== -1) ||
+        ((r.customer||'').toLowerCase().indexOf(search) !== -1) ||
+        ((r.phone||'').toLowerCase().indexOf(search) !== -1) ||
+        ((r.seller||'').toLowerCase().indexOf(search) !== -1);
+    });
   }
 
   let totalLabel = 'Total :';
   let total = 0;
   if (currentResFilter === 'unpaid' || currentResFilter === 'active') {
     totalLabel = 'Reste à encaisser :';
-    total = filtered.filter(r => r.paymentStatus === 'unpaid' && r.status === 'active').reduce((a,r) => a + (r.total||0), 0);
+    total = filtered.filter(function(r) { return r.paymentStatus === 'unpaid' && r.status === 'active'; })
+      .reduce(function(a, r) { return a + (r.total || 0); }, 0);
   } else {
-    total = filtered.reduce((a,r) => a + (r.total||0), 0);
+    total = filtered.reduce(function(a, r) { return a + (r.total || 0); }, 0);
   }
   document.getElementById('resTotalLabel').textContent = totalLabel;
   document.getElementById('resFilteredTotal').textContent = total.toFixed(2) + ' €';
@@ -1096,53 +1321,52 @@ function renderReservations() {
     return;
   }
 
-  list.innerHTML = filtered.map(r => {
+  list.innerHTML = filtered.map(function(r) {
     const d = new Date(r.date);
     const dateStr = d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     const cat = r.category === 'enfant' ? '👶' : '👨';
-    const sizeLbl = r.category === 'enfant' && SIZES_KIDS_LABELS[r.size] ? `${r.size} (${SIZES_KIDS_LABELS[r.size]})` : r.size;
+    const sizeLbl = r.category === 'enfant' && SIZES_KIDS_LABELS[r.size] ? r.size + ' (' + SIZES_KIDS_LABELS[r.size] + ')' : r.size;
     const isDone = r.status === 'done';
     const isPaid = r.paymentStatus === 'paid';
     const cls = isDone ? '' : (isPaid ? 'reservation-paid' : 'reservation-unpaid');
     const badge = isDone
       ? '<span class="badge badge-paid">🏁 LIVRÉ</span>'
       : (isPaid ? '<span class="badge badge-paid">✅ PAYÉ</span>' : '<span class="badge badge-unpaid">❌ À PAYER</span>');
-    const phoneLink = r.phone ? `<a href="tel:${r.phone}" style="color:#4ade80; text-decoration:none;">📞 ${r.phone}</a>` : '';
+    const phoneLink = r.phone ? '<a href="tel:' + r.phone + '" style="color:#4ade80; text-decoration:none;">📞 ' + r.phone + '</a>' : '';
 
     let actions = '';
     if (!isDone) {
-      actions = `
-        <button class="btn btn-small btn-success" onclick="confirmReservation('${r.id}')">✅ ${isPaid ? 'Livrer' : 'Livrer + encaisser'}</button>
-        <button class="btn btn-small btn-secondary" onclick="togglePaymentStatus('${r.id}')">${isPaid ? '↩️ À payer' : '💵 Marquer payé'}</button>
-        <button class="btn btn-small btn-danger" onclick="cancelReservation('${r.id}')">❌ Annuler</button>
-      `;
+      actions = '<button class="btn btn-small btn-success" onclick="confirmReservation(\'' + r.id + '\')">✅ ' + (isPaid ? 'Livrer' : 'Livrer + encaisser') + '</button>' +
+        '<button class="btn btn-small btn-secondary" onclick="togglePaymentStatus(\'' + r.id + '\')">' + (isPaid ? '↩️ À payer' : '💵 Marquer payé') + '</button>' +
+        '<button class="btn btn-small btn-danger" onclick="cancelReservation(\'' + r.id + '\')">❌ Annuler</button>';
     }
 
-    return `
-      <div class="sale-item ${cls}">
-        <div class="sale-row">
-          <div class="sale-team">${cat} ${r.team} ${badge}</div>
-          <div class="sale-price">${(r.total||0).toFixed(2)} €</div>
-        </div>
-        <div class="sale-details">📏 Taille ${sizeLbl} • Qté ${r.qty} • ${r.price}€/u</div>
-        <div class="sale-details"><strong style="color:#d4af37;">👤 ${r.customer}</strong> ${phoneLink ? '• ' + phoneLink : ''}</div>
-        <div class="sale-details">🧑‍💼 ${r.seller} • 📅 ${dateStr}</div>
-        ${r.note ? `<div class="sale-details">📝 ${r.note}</div>` : ''}
-        <div class="sale-actions">${actions}</div>
-      </div>
-    `;
+    return '<div class="sale-item ' + cls + '">' +
+      '<div class="sale-row">' +
+        '<div class="sale-team">' + cat + ' ' + r.team + ' ' + badge + '</div>' +
+        '<div class="sale-price">' + (r.total||0).toFixed(2) + ' €</div>' +
+      '</div>' +
+      '<div class="sale-details">📏 Taille ' + sizeLbl + ' • Qté ' + r.qty + ' • ' + r.price + '€/u</div>' +
+      '<div class="sale-details"><strong style="color:#d4af37;">👤 ' + r.customer + '</strong> ' + (phoneLink ? '• ' + phoneLink : '') + '</div>' +
+      '<div class="sale-details">🧑 ' + r.seller + ' • 📅 ' + dateStr + '</div>' +
+      (r.note ? '<div class="sale-details">📝 ' + r.note + '</div>' : '') +
+      '<div class="sale-actions">' + actions + '</div>' +
+      '</div>';
   }).join('');
 }
 
 function renderDashboard() {
-  const totalRev = sales.reduce((a,s) => a + (s.total||0), 0);
-  const totalStockCount = Object.values(products).reduce((a,p) => a + Object.values(p.stock||{}).reduce((x,y)=>x+(y||0),0), 0);
+  const totalRev = sales.reduce(function(a, s) { return a + (s.total || 0); }, 0);
+  const totalStockCount = Object.values(products).reduce(function(a, p) {
+    return a + Object.values(p.stock || {}).reduce(function(x, y) { return x + (y || 0); }, 0);
+  }, 0);
   const today = new Date().toDateString();
-  const todaysSales = sales.filter(s => new Date(s.date).toDateString() === today);
-  const todayRev = todaysSales.reduce((a,s) => a + (s.total||0), 0);
+  const todaysSales = sales.filter(function(s) { return new Date(s.date).toDateString() === today; });
+  const todayRev = todaysSales.reduce(function(a, s) { return a + (s.total || 0); }, 0);
 
-  const activeRes = reservations.filter(r => r.status === 'active');
-  const toCollect = activeRes.filter(r => r.paymentStatus === 'unpaid').reduce((a,r) => a + (r.total||0), 0);
+  const activeRes = reservations.filter(function(r) { return r.status === 'active'; });
+  const toCollect = activeRes.filter(function(r) { return r.paymentStatus === 'unpaid'; })
+    .reduce(function(a, r) { return a + (r.total || 0); }, 0);
 
   document.getElementById('totalRevenue').textContent = totalRev.toFixed(2) + ' €';
   document.getElementById('totalSales').textContent = sales.length;
@@ -1157,52 +1381,197 @@ function renderDashboard() {
   else { badge.style.display = 'none'; }
 
   const teamRev = {};
-  sales.forEach(s => { teamRev[s.team] = (teamRev[s.team]||0) + (s.total||0); });
-  const top = Object.entries(teamRev).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  sales.forEach(function(s) { teamRev[s.team] = (teamRev[s.team] || 0) + (s.total || 0); });
+  const top = Object.entries(teamRev).sort(function(a, b) { return b[1] - a[1]; }).slice(0, 5);
   document.getElementById('topTeams').innerHTML = top.length === 0
     ? '<div class="empty-state" style="padding:20px;">Pas encore de ventes</div>'
-    : top.map(([t,v]) => `<div class="totals-row"><span>${t}</span><span>${v.toFixed(2)} €</span></div>`).join('');
+    : top.map(function(e) { return '<div class="totals-row"><span>' + e[0] + '</span><span>' + e[1].toFixed(2) + ' €</span></div>'; }).join('');
 
   const sellerStats = {};
-  sales.forEach(s => {
-    if (!sellerStats[s.seller]) sellerStats[s.seller] = {count:0, total:0};
+  sales.forEach(function(s) {
+    if (!sellerStats[s.seller]) sellerStats[s.seller] = { count: 0, total: 0 };
     sellerStats[s.seller].count++;
-    sellerStats[s.seller].total += (s.total||0);
+    sellerStats[s.seller].total += (s.total || 0);
   });
   document.getElementById('salesBySeller').innerHTML = Object.keys(sellerStats).length === 0
     ? '<div class="empty-state" style="padding:20px;">Pas encore de ventes</div>'
-    : Object.entries(sellerStats).map(([n,st]) =>
-        `<div class="totals-row"><span>${n} (${st.count} ventes)</span><span>${st.total.toFixed(2)} €</span></div>`
-      ).join('');
+    : Object.entries(sellerStats).map(function(e) {
+        return '<div class="totals-row"><span>' + e[0] + ' (' + e[1].count + ' ventes)</span><span>' + e[1].total.toFixed(2) + ' €</span></div>';
+      }).join('');
 
   const low = [];
-  Object.entries(products).forEach(([id,p]) => {
-    Object.entries(p.stock||{}).forEach(([s,q]) => {
-      if (q > 0 && q <= 2) low.push({name: p.name, size: s, qty: q, cat: p.category});
+  Object.entries(products).forEach(function(e) {
+    const p = e[1];
+    Object.entries(p.stock || {}).forEach(function(es) {
+      const s = es[0], q = es[1];
+      if (q > 0 && q <= 2) low.push({ name: p.name, size: s, qty: q, cat: p.category });
     });
   });
   document.getElementById('lowStock').innerHTML = low.length === 0
     ? '<div class="empty-state" style="padding:20px;">✅ Tout va bien !</div>'
-    : low.map(l => {
-        const sz = l.cat==='enfant' && SIZES_KIDS_LABELS[l.size] ? `${l.size} (${SIZES_KIDS_LABELS[l.size]})` : l.size;
-        return `<div class="totals-row" style="background:rgba(245,158,11,0.15);"><span>⚠️ ${l.name} - ${sz}</span><span>${l.qty} restant</span></div>`;
+    : low.map(function(l) {
+        const sz = l.cat === 'enfant' && SIZES_KIDS_LABELS[l.size] ? l.size + ' (' + SIZES_KIDS_LABELS[l.size] + ')' : l.size;
+        return '<div class="totals-row" style="background:rgba(245,158,11,0.15);"><span>⚠️ ' + l.name + ' - ' + sz + '</span><span>' + l.qty + ' restant</span></div>';
       }).join('');
 }
 
-function renderAll() {
-  renderDashboard();
-  renderStock();
-  renderSales();
-  renderReservations();
+async function saveApport() {
+  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
+  const partner = document.getElementById('apportPartner').value;
+  const amount = parseFloat(document.getElementById('apportAmount').value);
+  const date = document.getElementById('apportDate').value || todayISO();
+  const note = document.getElementById('apportNote').value.trim();
+  if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
+  try {
+    const fb = window.fb;
+    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await fb.setDoc(fb.doc(fb.db, 'contributions', id), {
+      partner: partner, amount: amount, date: date, note: note,
+      createdAt: new Date().toISOString()
+    });
+    closeModal('apportModal');
+    showToast('✅ Apport : ' + amount.toFixed(2) + ' €');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function deleteApport(id) {
+  if (!confirm('Supprimer cet apport ?')) return;
+  try {
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'contributions', id));
+    showToast('Apport supprimé');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+async function saveAchat() {
+  if (!firebaseReady) return showToast('Cloud non connecté', 'error');
+  const desc = document.getElementById('achatDesc').value.trim();
+  const amount = parseFloat(document.getElementById('achatAmount').value);
+  const date = document.getElementById('achatDate').value || todayISO();
+  const supplier = document.getElementById('achatSupplier').value.trim();
+  const note = document.getElementById('achatNote').value.trim();
+  if (!desc) return showToast('Description requise', 'error');
+  if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
+  try {
+    const fb = window.fb;
+    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await fb.setDoc(fb.doc(fb.db, 'purchases', id), {
+      description: desc, amount: amount, date: date,
+      supplier: supplier, note: note,
+      createdAt: new Date().toISOString()
+    });
+    closeModal('achatModal');
+    showToast('✅ Achat : ' + amount.toFixed(2) + ' €');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function deleteAchat(id) {
+  if (!confirm('Supprimer cet achat ?')) return;
+  try {
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'purchases', id));
+    showToast('Achat supprimé');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+function renderCompta() {
+  const totalApports = contributions.reduce(function(a, c) { return a + (c.amount || 0); }, 0);
+  const totalAchats = purchases.reduce(function(a, p) { return a + (p.amount || 0); }, 0);
+  const totalRevenue = sales.reduce(function(a, s) { return a + (s.total || 0); }, 0);
+
+  // Cash actuel = apports + ventes - achats stock
+  const cash = totalApports + totalRevenue - totalAchats;
+
+  // Bénéfice net = ventes - coût des maillots vendus
+  const totalCost = sales.reduce(function(a, s) {
+    return a + ((s.cost || 0) * (s.qty || 0));
+  }, 0);
+  const profit = totalRevenue - totalCost;
+
+  // ROI = bénéfice / apports
+  const roi = totalApports > 0 ? (profit / totalApports * 100) : 0;
+
+  const elCash = document.getElementById('bilanCash');
+  if (elCash) elCash.textContent = cash.toFixed(2) + ' €';
+  const elApp = document.getElementById('bilanApports');
+  if (elApp) elApp.textContent = totalApports.toFixed(2) + ' €';
+  const elRev = document.getElementById('bilanRevenue');
+  if (elRev) elRev.textContent = totalRevenue.toFixed(2) + ' €';
+  const elAch = document.getElementById('bilanAchats');
+  if (elAch) elAch.textContent = totalAchats.toFixed(2) + ' €';
+  const elProfit = document.getElementById('bilanProfit');
+  if (elProfit) elProfit.textContent = profit.toFixed(2) + ' €';
+  const elROI = document.getElementById('bilanROI');
+  if (elROI) elROI.textContent = roi.toFixed(1) + ' %';
+
+  // Apports par associé
+  const byPartner = {};
+  contributions.forEach(function(c) {
+    const k = c.partner || 'Inconnu';
+    byPartner[k] = (byPartner[k] || 0) + (c.amount || 0);
+  });
+  const partnerEl = document.getElementById('bilanByPartner');
+  if (partnerEl) {
+    partnerEl.innerHTML = Object.keys(byPartner).length === 0
+      ? '<div class="empty-state" style="padding:20px;">Aucun apport enregistré</div>'
+      : Object.entries(byPartner).map(function(e) {
+          return '<div class="totals-row"><span>' + e[0] + '</span><span>' + e[1].toFixed(2) + ' €</span></div>';
+        }).join('');
+  }
+
+  // Liste apports
+  const apTot = document.getElementById('apportsTotal');
+  if (apTot) apTot.textContent = totalApports.toFixed(2) + ' €';
+  const apList = document.getElementById('apportsList');
+  if (apList) {
+    apList.innerHTML = contributions.length === 0
+      ? '<div class="empty-state"><div class="icon">💰</div><div>Aucun apport.</div></div>'
+      : contributions.map(function(c) {
+          return '<div class="sale-item compta-in">' +
+            '<div class="sale-row">' +
+              '<div class="sale-team">' + (c.partner || 'Inconnu') + '</div>' +
+              '<div class="sale-price">+' + (c.amount || 0).toFixed(2) + ' €</div>' +
+            '</div>' +
+            '<div class="sale-details">📅 ' + (c.date || '-') + '</div>' +
+            (c.note ? '<div class="sale-details">📝 ' + c.note + '</div>' : '') +
+            '<div class="sale-actions">' +
+              '<button class="btn btn-small btn-danger" onclick="deleteApport(\'' + c.id + '\')">Supprimer</button>' +
+            '</div></div>';
+        }).join('');
+  }
+
+  // Liste achats
+  const acTot = document.getElementById('achatsTotal');
+  if (acTot) acTot.textContent = totalAchats.toFixed(2) + ' €';
+  const acList = document.getElementById('achatsList');
+  if (acList) {
+    acList.innerHTML = purchases.length === 0
+      ? '<div class="empty-state"><div class="icon">🛒</div><div>Aucun achat.</div></div>'
+      : purchases.map(function(p) {
+          return '<div class="sale-item compta-out">' +
+            '<div class="sale-row">' +
+              '<div class="sale-team">' + (p.description || '-') + '</div>' +
+              '<div class="sale-price negative">-' + (p.amount || 0).toFixed(2) + ' €</div>' +
+            '</div>' +
+            '<div class="sale-details">📅 ' + (p.date || '-') + (p.supplier ? ' • ' + p.supplier : '') + '</div>' +
+            (p.note ? '<div class="sale-details">📝 ' + p.note + '</div>' : '') +
+            '<div class="sale-actions">' +
+              '<button class="btn btn-small btn-danger" onclick="deleteAchat(\'' + p.id + '\')">Supprimer</button>' +
+            '</div></div>';
+        }).join('');
+  }
 }
 
 function exportData() {
-  let csv = 'Date,Vendeur,Catégorie,Équipe,Taille,Quantité,Prix unitaire,Total,Client,Note\n';
-  sales.forEach(s => {
+  let csv = 'Date,Vendeur,Categorie,Equipe,Taille,Quantite,Prix unitaire,Cout unitaire,Total,Marge,Client,Note\n';
+  sales.forEach(function(s) {
     const d = new Date(s.date).toLocaleString('fr-FR');
-    csv += `"${d}","${s.seller}","${s.category}","${s.team}","${s.size}",${s.qty},${s.price},${s.total},"${s.customer||''}","${(s.note||'').replace(/"/g,'""')}"\n`;
+    const margin = s.cost ? ((s.price - s.cost) * s.qty).toFixed(2) : '';
+    csv += '"' + d + '","' + s.seller + '","' + s.category + '","' + s.team + '","' + s.size + '",' +
+      s.qty + ',' + s.price + ',' + (s.cost || 0) + ',' + s.total + ',' + margin + ',"' +
+      (s.customer || '') + '","' + (s.note || '').replace(/"/g, '""') + '"\n';
   });
-  const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -1212,14 +1581,16 @@ function exportData() {
 }
 
 function exportReservations() {
-  let csv = 'Date,Vendeur,Statut,Paiement,Catégorie,Équipe,Taille,Quantité,Prix unitaire,Total,Client,Téléphone,Note\n';
-  reservations.forEach(r => {
+  let csv = 'Date,Vendeur,Statut,Paiement,Categorie,Equipe,Taille,Quantite,Prix unitaire,Total,Client,Telephone,Note\n';
+  reservations.forEach(function(r) {
     const d = new Date(r.date).toLocaleString('fr-FR');
-    const statut = r.status === 'done' ? 'Livrée' : 'Active';
-    const paiement = r.paymentStatus === 'paid' ? 'Payé' : 'À payer';
-    csv += `"${d}","${r.seller}","${statut}","${paiement}","${r.category}","${r.team}","${r.size}",${r.qty},${r.price},${r.total},"${r.customer||''}","${r.phone||''}","${(r.note||'').replace(/"/g,'""')}"\n`;
+    const statut = r.status === 'done' ? 'Livree' : 'Active';
+    const paiement = r.paymentStatus === 'paid' ? 'Paye' : 'A payer';
+    csv += '"' + d + '","' + r.seller + '","' + statut + '","' + paiement + '","' + r.category + '","' +
+      r.team + '","' + r.size + '",' + r.qty + ',' + r.price + ',' + r.total + ',"' +
+      (r.customer || '') + '","' + (r.phone || '') + '","' + (r.note || '').replace(/"/g, '""') + '"\n';
   });
-  const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -1228,18 +1599,34 @@ function exportReservations() {
   showToast('📤 Exporté');
 }
 
+function exportCompta() {
+  let csv = 'Type,Date,Description,Montant,Categorie/Partenaire,Note\n';
+  contributions.forEach(function(c) {
+    csv += '"Apport","' + (c.date || '') + '","Apport ' + (c.partner || '') + '",' + (c.amount || 0) + ',"' + (c.partner || '') + '","' + (c.note || '').replace(/"/g, '""') + '"\n';
+  });
+  purchases.forEach(function(p) {
+    csv += '"Achat","' + (p.date || '') + '","' + (p.description || '') + '",-' + (p.amount || 0) + ',"' + (p.supplier || '') + '","' + (p.note || '').replace(/"/g, '""') + '"\n';
+  });
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kit-premium-compta-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('📤 Exporté');
+}
+
 async function confirmReset() {
   if (!confirm('⚠️ Tout supprimer ? Cette action est irréversible.')) return;
-  if (!confirm('Vraiment SUR ? Stock + ventes + réservations seront effacés DÉFINITIVEMENT.')) return;
+  if (!confirm('Vraiment SUR ? Stock + ventes + réservations + compta seront effacés DÉFINITIVEMENT.')) return;
   try {
-    const { db, collection, getDocs, writeBatch } = window.fb;
-    const batch = writeBatch(db);
-    const prods = await getDocs(collection(db, 'products'));
-    prods.forEach(d => batch.delete(d.ref));
-    const sals = await getDocs(collection(db, 'sales'));
-    sals.forEach(d => batch.delete(d.ref));
-    const res = await getDocs(collection(db, 'reservations'));
-    res.forEach(d => batch.delete(d.ref));
+    const fb = window.fb;
+    const batch = fb.writeBatch(fb.db);
+    const cols = ['products', 'sales', 'reservations', 'contributions', 'purchases'];
+    for (let i = 0; i < cols.length; i++) {
+      const docs = await fb.getDocs(fb.collection(fb.db, cols[i]));
+      docs.forEach(function(d) { batch.delete(d.ref); });
+    }
     await batch.commit();
     showToast('Tout a été réinitialisé');
   } catch (e) { showToast('Erreur', 'error'); }
@@ -1249,6 +1636,7 @@ const savedUser = localStorage.getItem('kp:user');
 if (savedUser) document.getElementById('currentUser').value = savedUser;
 
 window.switchTab = switchTab;
+window.switchComptaTab = switchComptaTab;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.changeUser = changeUser;
@@ -1273,15 +1661,22 @@ window.openAdjust = openAdjust;
 window.adjustQuick = adjustQuick;
 window.saveAdjust = saveAdjust;
 window.editPrice = editPrice;
+window.editCost = editCost;
 window.deleteProduct = deleteProduct;
 window.exportData = exportData;
 window.exportReservations = exportReservations;
+window.exportCompta = exportCompta;
 window.confirmReset = confirmReset;
 window.renderStock = renderStock;
 window.renderSales = renderSales;
 window.renderReservations = renderReservations;
+window.renderCompta = renderCompta;
+window.saveApport = saveApport;
+window.deleteApport = deleteApport;
+window.saveAchat = saveAchat;
+window.deleteAchat = deleteAchat;
 
-setTimeout(() => {
+setTimeout(function() {
   if (!firebaseReady) {
     document.getElementById('loadingScreen').style.display = 'none';
     showToast('⚠️ Connexion cloud lente', 'error');

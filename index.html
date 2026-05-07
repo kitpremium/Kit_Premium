@@ -420,8 +420,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <button class="btn btn-secondary" onclick="exportCompta()">Exporter compta (CSV)</button>
     <div class="divider"></div>
     <h4 style="color:#d4af37; margin-bottom:12px;">Outils</h4>
-    <button class="btn btn-secondary" onclick="recalcAllSales()">Recalculer toutes les ventes (cout 7.70 EUR)</button>
-    <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:16px;">Applique le prix d achat actuel de chaque equipe a toutes les ventes existantes (utile si tu as ajoute le prix d achat apres).</p>
+    <button class="btn btn-secondary" onclick="recalcAllSales()">Recalculer les ventes avec prix d achat actuels</button>
+    <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:16px;">Prend le prix d achat actuel de chaque equipe (modifiable dans Stock) et l applique a toutes tes ventes existantes. Utile si tu as corrige un prix d achat apres coup.</p>
     <div class="divider"></div>
     <h4 style="color:#d4af37; margin-bottom:12px;">Tailles disponibles</h4>
     <div class="export-section">
@@ -429,8 +429,11 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
         <strong style="color:#d4af37;">Enfant :</strong><br>
         16 = 2/3/4 ans - 18 = 4/5 ans - 20 = 5/6 ans<br>
         22 = 7/8 ans - 24 = 9/10 ans - 26 = 10/11 ans - 28 = 12/14 ans<br><br>
-        <strong style="color:#d4af37;">Homme :</strong><br>
-        M - L - XL - 2XL - 3XL
+        <strong style="color:#d4af37;">Homme (tailles FR / maillots foot) :</strong><br>
+        S - M - L - XL - 2XL<br><br>
+        <strong style="color:#d4af37;">Homme (tailles Asia / ensembles Aliexpress) :</strong><br>
+        M (S FR) - L (M FR) - XL (L FR) - 2XL (XL FR) - 3XL (2XL FR)<br>
+        <span style="color:#888; font-size:11px;">Pour basculer entre les deux : coche &quot;Tailles d&eacute;cal&eacute;es (Asia)&quot; au moment de cr&eacute;er l&#39;&eacute;quipe, ou bouton &quot;Tailles&quot; dans la fiche.</span>
       </p>
     </div>
     <div class="divider"></div>
@@ -464,6 +467,13 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <div class="form-group">
       <label>Prix de vente par defaut (EUR)</label>
       <input type="number" id="newTeamPrice" placeholder="Ex: 30" step="0.01" inputmode="decimal">
+    </div>
+    <div class="form-group" id="asianSizesGroup" style="display:none;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="newTeamAsianSizes" onchange="renderSizeStockInputs()" style="width:auto; margin:0;">
+        <span>Tailles d&eacute;cal&eacute;es (Asia : M=S FR, L=M FR...)</span>
+      </label>
+      <p style="font-size:11px; color:#888; margin-top:4px;">Coche pour les ensembles Nike Aliexpress/Alibaba. Laisse d&eacute;coch&eacute; pour les maillots de foot adulte (tailles normales).</p>
     </div>
     <div class="form-group">
       <label>Stock initial par taille</label>
@@ -691,7 +701,10 @@ window.dispatchEvent(new Event('firebase-ready'));
 <script>
 const SIZES_KIDS = ['16', '18', '20', '22', '24', '26', '28'];
 const SIZES_KIDS_LABELS = {'16':'2/3/4a','18':'4/5a','20':'5/6a','22':'7/8a','24':'9/10a','26':'10/11a','28':'12/14a'};
-const SIZES_MEN = ['M', 'L', 'XL', '2XL', '3XL'];
+const SIZES_MEN_FR = ['S', 'M', 'L', 'XL', '2XL'];
+const SIZES_MEN_ASIA = ['M', 'L', 'XL', '2XL', '3XL'];
+const SIZES_MEN = SIZES_MEN_ASIA;
+const SIZES_MEN_LABELS = {'M':'S FR','L':'M FR','XL':'L FR','2XL':'XL FR','3XL':'2XL FR'};
 
 let products = {};
 let sales = [];
@@ -813,6 +826,19 @@ function todayISO() {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
+// Returns the size sub-label for display (e.g. "2/3/4a" for kids, "S FR" for asian-sized homme, '' otherwise)
+function getSizeSubLabel(size, category, asianSizes) {
+  if (category === 'enfant') return SIZES_KIDS_LABELS[size] || '';
+  if (asianSizes === true) return SIZES_MEN_LABELS[size] || '';
+  return '';
+}
+
+// Returns the appropriate size array based on category and asianSizes flag
+function getSizesForProduct(category, asianSizes) {
+  if (category === 'enfant') return SIZES_KIDS;
+  return asianSizes === true ? SIZES_MEN_ASIA : SIZES_MEN_FR;
+}
+
 function openModal(id) {
   if (id === 'saleModal') {
     saleCart = [];
@@ -850,6 +876,10 @@ function openModal(id) {
     document.getElementById('newTeamName').value = '';
     document.getElementById('newTeamPrice').value = '';
     document.getElementById('newTeamCost').value = '';
+    const asianCb = document.getElementById('newTeamAsianSizes');
+    if (asianCb) asianCb.checked = false;
+    const asianGroup = document.getElementById('asianSizesGroup');
+    if (asianGroup) asianGroup.style.display = 'none';
     currentCategory = 'enfant';
     document.querySelectorAll('.cat-tab').forEach(function(c) {
       c.classList.toggle('active', c.dataset.cat === 'enfant');
@@ -896,14 +926,20 @@ function selectCategory(cat, el) {
   currentCategory = cat;
   document.querySelectorAll('.cat-tab').forEach(function(c) { c.classList.remove('active'); });
   el.classList.add('active');
+  // Show asianSizes option only for homme category
+  const asianGroup = document.getElementById('asianSizesGroup');
+  if (asianGroup) asianGroup.style.display = (cat === 'homme') ? 'block' : 'none';
   renderSizeStockInputs();
 }
 
 function renderSizeStockInputs() {
-  const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  const _asianCb = document.getElementById('newTeamAsianSizes'); const sizes = getSizesForProduct(currentCategory, _asianCb && _asianCb.checked);
   const c = document.getElementById('sizeStockInputs');
   c.innerHTML = sizes.map(function(s) {
-    const lbl = currentCategory === 'enfant' ? s + ' (' + SIZES_KIDS_LABELS[s] + ')' : s;
+    const asianCb = document.getElementById('newTeamAsianSizes');
+    const isAsian = currentCategory === 'homme' && asianCb && asianCb.checked;
+    const sub = currentCategory === 'enfant' ? SIZES_KIDS_LABELS[s] : (isAsian ? SIZES_MEN_LABELS[s] : '');
+    const lbl = sub ? s + ' (' + sub + ')' : s;
     return '<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">' +
       '<span style="min-width:80px; font-size:13px; color:#d4af37;">' + lbl + '</span>' +
       '<input type="number" min="0" value="0" id="initStock_' + s + '" style="flex:1;">' +
@@ -917,14 +953,17 @@ async function addProduct() {
   const price = parseFloat(document.getElementById('newTeamPrice').value) || 0;
   const cost = parseFloat(document.getElementById('newTeamCost').value) || 0;
   if (!name) return showToast('Nom requis', 'error');
-  const sizes = currentCategory === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  const _asianCb = document.getElementById('newTeamAsianSizes'); const sizes = getSizesForProduct(currentCategory, _asianCb && _asianCb.checked);
   const stock = {};
   sizes.forEach(function(s) { stock[s] = parseInt(document.getElementById('initStock_' + s).value) || 0; });
+  const asianCb = document.getElementById('newTeamAsianSizes');
+  const asianSizes = (currentCategory === 'homme' && asianCb && asianCb.checked) ? true : false;
   const id = Date.now().toString();
   try {
     const fb = window.fb;
     await fb.setDoc(fb.doc(fb.db, 'products', id), {
-      name: name, category: currentCategory, price: price, cost: cost, stock: stock
+      name: name, category: currentCategory, price: price, cost: cost, stock: stock,
+      asianSizes: asianSizes
     });
     closeModal('addProductModal');
     showToast(name + ' ajoute');
@@ -961,14 +1000,15 @@ function updateSizesForItem() {
   selectedItemSize = null;
   if (!id) { c.innerHTML = ''; return; }
   const p = products[id];
-  const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+  const sizes = getSizesForProduct(p.category, p.asianSizes);
   const cart = cartTarget === 'sale' ? saleCart : resCart;
   c.innerHTML = sizes.map(function(s) {
     const qty = p.stock[s] || 0;
     const reserved = getReservedQty(id, s);
     const inCart = getCartQty(cart, id, s);
     const available = qty - reserved - inCart;
-    const lbl = p.category === 'enfant' ? s + '<span class="stock-info">' + SIZES_KIDS_LABELS[s] + '</span>' : s;
+    const sub = getSizeSubLabel(s, p.category, p.asianSizes);
+    const lbl = sub ? s + '<span class="stock-info">' + sub + '</span>' : s;
     const stockTxt = 'Dispo: ' + Math.max(0, available);
     return '<button type="button" class="size-btn" ' + (available <= 0 ? 'disabled' : '') +
       ' onclick="selectItemSize(\'' + s + '\', this)">' +
@@ -1001,6 +1041,7 @@ function addItemToCart() {
     productId: id,
     team: p.name,
     category: p.category,
+    asianSizes: p.asianSizes === true,
     size: selectedItemSize,
     qty: qty,
     cost: p.cost || 0,
@@ -1053,7 +1094,8 @@ function renderSaleCart() {
   }
   c.innerHTML = saleCart.map(function(it, idx) {
     const cat = it.category === 'enfant' ? '👶' : '👨';
-    const sizeLbl = it.category === 'enfant' && SIZES_KIDS_LABELS[it.size] ? it.size + ' (' + SIZES_KIDS_LABELS[it.size] + ')' : it.size;
+    const _sub = getSizeSubLabel(it.size, it.category, it.asianSizes);
+    const sizeLbl = _sub ? it.size + ' (' + _sub + ')' : it.size;
     return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">' +
       '<div style="font-size:13px; flex:1;">' +
         '<div style="color:#d4af37; font-weight:700;">' + cat + ' ' + it.team + '</div>' +
@@ -1072,7 +1114,8 @@ function renderResCart() {
   }
   c.innerHTML = resCart.map(function(it, idx) {
     const cat = it.category === 'enfant' ? '👶' : '👨';
-    const sizeLbl = it.category === 'enfant' && SIZES_KIDS_LABELS[it.size] ? it.size + ' (' + SIZES_KIDS_LABELS[it.size] + ')' : it.size;
+    const _sub = getSizeSubLabel(it.size, it.category, it.asianSizes);
+    const sizeLbl = _sub ? it.size + ' (' + _sub + ')' : it.size;
     return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">' +
       '<div style="font-size:13px; flex:1;">' +
         '<div style="color:#d4af37; font-weight:700;">' + cat + ' ' + it.team + '</div>' +
@@ -1150,6 +1193,7 @@ async function recordSale() {
           productId: it.productId,
           team: it.team,
           category: it.category,
+          asianSizes: it.asianSizes === true,
           size: it.size,
           price: pricePerUnit,
           qty: it.qty,
@@ -1239,6 +1283,7 @@ async function recordReservation() {
         productId: it.productId,
         team: it.team,
         category: it.category,
+        asianSizes: it.asianSizes === true,
         size: it.size,
         price: pricePerUnit,
         qty: it.qty,
@@ -1359,6 +1404,7 @@ async function confirmReservation(id) {
         const saleId = Date.now().toString() + '_' + i + '_' + Math.random().toString(36).slice(2,5);
         t.set(fb.doc(fb.db, 'sales', saleId), {
           productId: x.productId, team: x.team, category: x.category, size: x.size,
+          asianSizes: x.asianSizes === true,
           price: x.price, qty: x.qty, total: x.total, customer: x.customer,
           cost: x.cost || 0,
           note: 'Issue de reservation' + (x.note ? ' - ' + x.note : ''),
@@ -1450,14 +1496,15 @@ function renderStock() {
   list.innerHTML = entries.map(function(entry) {
     const id = entry[0], p = entry[1];
     const total = Object.values(p.stock || {}).reduce(function(a, b) { return a + (b || 0); }, 0);
-    const sizes = p.category === 'enfant' ? SIZES_KIDS : SIZES_MEN;
+    const sizes = getSizesForProduct(p.category, p.asianSizes);
     const cat = p.category === 'enfant' ? '👶' : '👨';
     const costInfo = p.cost ? ' - Achat ' + p.cost + 'EUR' : '';
     const sizesHtml = sizes.map(function(s) {
       const q = (p.stock || {})[s] || 0;
       const reserved = getReservedQty(id, s);
       const cls = q === 0 ? 'empty' : (q <= 2 ? 'low' : '');
-      const lbl = p.category === 'enfant' ? s + '<br><span style="font-size:9px">' + SIZES_KIDS_LABELS[s] + '</span>' : s;
+      const _sub = getSizeSubLabel(s, p.category, p.asianSizes);
+      const lbl = _sub ? s + '<br><span style="font-size:9px">' + _sub + '</span>' : s;
       const resBadge = reserved > 0 ? '<div class="size-reserved">' + reserved + ' res.</div>' : '';
       return '<div class="size-item ' + cls + '" onclick="event.stopPropagation(); openAdjust(\'' + id + '\',\'' + s + '\')">' +
         '<div class="size-label">' + lbl + '</div>' +
@@ -1474,6 +1521,7 @@ function renderStock() {
       '<div class="card-actions" style="margin-top:12px; display:none; gap:8px; flex-wrap:wrap;">' +
         '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editPrice(\'' + id + '\')">Prix vente</button>' +
         '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editCost(\'' + id + '\')">Prix achat</button>' +
+        (p.category === 'homme' ? '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); toggleAsianSizes(\'' + id + '\')">' + (p.asianSizes ? 'Tailles: Asia' : 'Tailles: FR') + '</button>' : '') +
         '<button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteProduct(\'' + id + '\')">Suppr.</button>' +
       '</div></div>';
   }).join('');
@@ -1490,7 +1538,8 @@ function openAdjust(productId, size) {
   const p = products[productId];
   const current = (p.stock || {})[size] || 0;
   const reserved = getReservedQty(productId, size);
-  const lbl = p.category === 'enfant' ? size + ' (' + SIZES_KIDS_LABELS[size] + ')' : size;
+  const _sub = getSizeSubLabel(size, p.category, p.asianSizes);
+  const lbl = _sub ? size + ' (' + _sub + ')' : size;
   const resInfo = reserved > 0 ? '<p style="color:#f59e0b; margin-bottom:8px; font-size:13px;">' + reserved + ' piece(s) reservee(s)</p>' : '';
   document.getElementById('adjustStockContent').innerHTML =
     '<p style="margin-bottom:12px;"><strong style="color:#d4af37;">' + p.name + '</strong> - Taille ' + lbl + '</p>' +
@@ -1555,6 +1604,21 @@ async function editCost(id) {
     await fb.setDoc(fb.doc(fb.db, 'products', id), Object.assign({}, p, { cost: v }));
     showToast('Prix d achat mis a jour');
   } catch (e) { showToast('Erreur', 'error'); }
+}
+
+async function toggleAsianSizes(id) {
+  const p = products[id];
+  if (!p) return;
+  const newVal = !(p.asianSizes === true);
+  const msg = newVal
+    ? 'Activer les tailles d\u00e9cal\u00e9es (Asia) pour ' + p.name + ' ?\n\nTailles affich\u00e9es : M, L, XL, 2XL, 3XL\nAvec correspondance FR : M=S FR, L=M FR, XL=L FR, 2XL=XL FR, 3XL=2XL FR\n\nAttention : les ventes existantes ne sont pas modifi\u00e9es.'
+    : 'D\u00e9sactiver les tailles d\u00e9cal\u00e9es pour ' + p.name + ' ?\n\nTailles affich\u00e9es : S, M, L, XL, 2XL\n\nAttention : si du stock existe sur la taille 3XL (Asia), il restera mais ne sera plus visible.';
+  if (!confirm(msg)) return;
+  try {
+    const fb = window.fb;
+    await fb.setDoc(fb.doc(fb.db, 'products', id), Object.assign({}, p, { asianSizes: newVal }));
+    showToast(newVal ? 'Tailles Asia activees' : 'Tailles FR activees');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
 async function deleteProduct(id) {
@@ -1624,7 +1688,8 @@ function renderSales() {
 
     const itemsHtml = items.map(function(s) {
       const cat = s.category === 'enfant' ? '👶' : '👨';
-      const sizeLbl = s.category === 'enfant' && SIZES_KIDS_LABELS[s.size] ? s.size + ' (' + SIZES_KIDS_LABELS[s.size] + ')' : s.size;
+      const _sub = getSizeSubLabel(s.size, s.category, s.asianSizes);
+      const sizeLbl = _sub ? s.size + ' (' + _sub + ')' : s.size;
       return '<div style="font-size:12px; color:#aaa; padding:4px 0; border-bottom:1px dashed rgba(212,175,55,0.1);">' +
         cat + ' ' + s.team + ' - Taille ' + sizeLbl + ' x ' + s.qty +
         '</div>';
@@ -1723,7 +1788,8 @@ function renderReservations() {
 
     const itemsHtml = items.map(function(r) {
       const cat = r.category === 'enfant' ? '👶' : '👨';
-      const sizeLbl = r.category === 'enfant' && SIZES_KIDS_LABELS[r.size] ? r.size + ' (' + SIZES_KIDS_LABELS[r.size] + ')' : r.size;
+      const _sub = getSizeSubLabel(r.size, r.category, r.asianSizes);
+      const sizeLbl = _sub ? r.size + ' (' + _sub + ')' : r.size;
       return '<div style="font-size:12px; color:#aaa; padding:4px 0; border-bottom:1px dashed rgba(212,175,55,0.1);">' +
         cat + ' ' + r.team + ' - Taille ' + sizeLbl + ' x ' + r.qty +
         '</div>';
@@ -1799,13 +1865,14 @@ function renderDashboard() {
     const p = e[1];
     Object.entries(p.stock || {}).forEach(function(es) {
       const s = es[0], q = es[1];
-      if (q > 0 && q <= 2) low.push({ name: p.name, size: s, qty: q, cat: p.category });
+      if (q > 0 && q <= 2) low.push({ name: p.name, size: s, qty: q, cat: p.category, asianSizes: p.asianSizes === true });
     });
   });
   document.getElementById('lowStock').innerHTML = low.length === 0
     ? '<div class="empty-state" style="padding:20px;">Tout va bien !</div>'
     : low.map(function(l) {
-        const sz = l.cat === 'enfant' && SIZES_KIDS_LABELS[l.size] ? l.size + ' (' + SIZES_KIDS_LABELS[l.size] + ')' : l.size;
+        const _sub = getSizeSubLabel(l.size, l.cat, l.asianSizes);
+        const sz = _sub ? l.size + ' (' + _sub + ')' : l.size;
         return '<div class="totals-row" style="background:rgba(245,158,11,0.15);"><span>' + l.name + ' - ' + sz + '</span><span>' + l.qty + ' restant</span></div>';
       }).join('');
 }
@@ -2072,6 +2139,7 @@ window.closeModal = closeModal;
 window.openAddItemModal = openAddItemModal;
 window.changeUser = changeUser;
 window.selectCategory = selectCategory;
+window.renderSizeStockInputs = renderSizeStockInputs;
 window.addProduct = addProduct;
 window.updateSizesForItem = updateSizesForItem;
 window.selectItemSize = selectItemSize;
@@ -2099,6 +2167,7 @@ window.saveAdjust = saveAdjust;
 window.editPrice = editPrice;
 window.editCost = editCost;
 window.deleteProduct = deleteProduct;
+window.toggleAsianSizes = toggleAsianSizes;
 window.exportData = exportData;
 window.exportReservations = exportReservations;
 window.exportCompta = exportCompta;

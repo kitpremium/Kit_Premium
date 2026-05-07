@@ -403,8 +403,6 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 
 <div id="comptaAchats" class="compta-pane" style="display:none;">
   <button class="btn" onclick="openModal('achatModal')">Nouvel achat stock</button>
-  <button class="btn btn-secondary" onclick="addInitialStock()">Enregistrer stock initial (770 EUR)</button>
-  <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">A faire UNE SEULE FOIS si vous l avez pas encore enregistre.</p>
   <div class="totals-row">
     <span>Total achats :</span>
     <span id="achatsTotal">0 EUR</span>
@@ -1871,24 +1869,6 @@ async function deleteAchat(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
-async function addInitialStock() {
-  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
-  if (!confirm('Enregistrer un achat de 770 EUR (stock initial Aliexpress, 100 maillots) ? Cela corrigera le bilan.')) return;
-  try {
-    const fb = window.fb;
-    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
-    await fb.setDoc(fb.doc(fb.db, 'purchases', id), {
-      description: 'Stock initial - 100 maillots',
-      amount: 770,
-      date: todayISO(),
-      supplier: 'Aliexpress',
-      note: 'Achat initial finance par les apports Hugo + Clement',
-      createdAt: new Date().toISOString()
-    });
-    showToast('Stock initial 770 EUR enregistre');
-  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
-}
-
 async function recalcAllSales() {
   if (!firebaseReady) return showToast('Cloud non connecte', 'error');
   if (!confirm('Recalculer le cout d achat de toutes les ventes existantes en utilisant le prix d achat actuel de chaque equipe ? Les ventes dont l equipe n existe plus seront mises a 7.70 EUR.')) return;
@@ -2124,7 +2104,6 @@ window.exportReservations = exportReservations;
 window.exportCompta = exportCompta;
 window.confirmReset = confirmReset;
 window.recalcAllSales = recalcAllSales;
-window.addInitialStock = addInitialStock;
 window.renderStock = renderStock;
 window.renderSales = renderSales;
 window.renderReservations = renderReservations;

@@ -353,6 +353,14 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
       <div class="stat-value" id="bilanCash">0 EUR</div>
     </div>
     <div class="stat-card green">
+      <div class="stat-label">Especes</div>
+      <div class="stat-value" id="bilanCashCash">0 EUR</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Virement</div>
+      <div class="stat-value" id="bilanCashTransfer">0 EUR</div>
+    </div>
+    <div class="stat-card green">
       <div class="stat-label">Apports</div>
       <div class="stat-value" id="bilanApports">0 EUR</div>
     </div>
@@ -378,7 +386,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   <div id="bilanByPartner"></div>
 
   <p style="text-align:center; color:#666; font-size:11px; margin-top:30px; line-height:1.6;">
-    Cash = Apports + Ventes - Achats stock<br>
+    Cash en caisse = Ventes encaissees - Achats stock<br>
+    (apports = argent investi au depart, deja depense en stock)<br>
     Benefice = CA Ventes - Cout des maillots vendus (et offerts)
   </p>
 </div>
@@ -394,6 +403,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 
 <div id="comptaAchats" class="compta-pane" style="display:none;">
   <button class="btn" onclick="openModal('achatModal')">Nouvel achat stock</button>
+  <button class="btn btn-secondary" onclick="addInitialStock()">Enregistrer stock initial (770 EUR)</button>
+  <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">A faire UNE SEULE FOIS si vous l avez pas encore enregistre.</p>
   <div class="totals-row">
     <span>Total achats :</span>
     <span id="achatsTotal">0 EUR</span>
@@ -491,6 +502,14 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 </div>
 
 <div class="form-group">
+  <label>Mode de paiement</label>
+  <div class="toggle-group">
+    <div class="toggle-btn success active" id="salePayCash" onclick="toggleSalePayment('cash')">Especes</div>
+    <div class="toggle-btn success" id="salePayTransfer" onclick="toggleSalePayment('transfer')">Virement</div>
+  </div>
+</div>
+
+<div class="form-group">
   <label>Nom client (optionnel)</label>
   <input type="text" id="saleCustomer" placeholder="Ex: Karim">
 </div>
@@ -541,6 +560,13 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   <div class="toggle-group">
     <div class="toggle-btn danger active" id="resStatusUnpaid" onclick="toggleResStatus('unpaid')">A payer</div>
     <div class="toggle-btn success" id="resStatusPaid" onclick="toggleResStatus('paid')">Paye</div>
+  </div>
+</div>
+<div class="form-group">
+  <label>Mode de paiement (quand paye)</label>
+  <div class="toggle-group">
+    <div class="toggle-btn success active" id="resPayCash" onclick="toggleResPayment('cash')">Especes</div>
+    <div class="toggle-btn success" id="resPayTransfer" onclick="toggleResPayment('transfer')">Virement</div>
   </div>
 </div>
 <div class="form-group">
@@ -681,6 +707,8 @@ let currentResFilter = 'active';
 let selectedItemSize = null;
 let selectedResSize = null;
 let resPaymentStatus = 'unpaid';
+let salePaymentMethod = 'cash';
+let resPaymentMethod = 'cash';
 let firebaseReady = false;
 let saleCart = [];
 let resCart = [];
@@ -795,6 +823,9 @@ function openModal(id) {
     document.getElementById('saleTotalPrice').value = '';
     document.getElementById('saleCustomer').value = '';
     document.getElementById('saleNote').value = '';
+    salePaymentMethod = 'cash';
+    document.getElementById('salePayCash').classList.add('active');
+    document.getElementById('salePayTransfer').classList.remove('active');
   }
   if (id === 'reservationModal') {
     resCart = [];
@@ -807,6 +838,9 @@ function openModal(id) {
     resPaymentStatus = 'unpaid';
     document.getElementById('resStatusUnpaid').classList.add('active');
     document.getElementById('resStatusPaid').classList.remove('active');
+    resPaymentMethod = 'cash';
+    document.getElementById('resPayCash').classList.add('active');
+    document.getElementById('resPayTransfer').classList.remove('active');
   }
   if (id === 'addItemModal') {
     populateTeams('itemTeam');
@@ -1128,7 +1162,8 @@ async function recordSale() {
           seller: user,
           date: dateISO,
           groupId: groupId,
-          isGift: isGift
+          isGift: isGift,
+          paymentMethod: salePaymentMethod
         });
       }
     });
@@ -1141,6 +1176,18 @@ async function recordSale() {
     console.error(e);
     showToast(e.message || 'Erreur', 'error');
   }
+}
+
+function toggleSalePayment(method) {
+  salePaymentMethod = method;
+  document.getElementById('salePayCash').classList.toggle('active', method === 'cash');
+  document.getElementById('salePayTransfer').classList.toggle('active', method === 'transfer');
+}
+
+function toggleResPayment(method) {
+  resPaymentMethod = method;
+  document.getElementById('resPayCash').classList.toggle('active', method === 'cash');
+  document.getElementById('resPayTransfer').classList.toggle('active', method === 'transfer');
 }
 
 function toggleResStatus(status) {
@@ -1203,6 +1250,7 @@ async function recordReservation() {
         phone: phone,
         note: note,
         paymentStatus: resPaymentStatus,
+        paymentMethod: resPaymentMethod,
         status: 'active',
         seller: user,
         date: dateISO,
@@ -1317,7 +1365,8 @@ async function confirmReservation(id) {
           cost: x.cost || 0,
           note: 'Issue de reservation' + (x.note ? ' - ' + x.note : ''),
           seller: x.seller, date: dateISO, fromReservation: x.id,
-          groupId: saleGroupId, isGift: false
+          groupId: saleGroupId, isGift: false,
+          paymentMethod: x.paymentMethod || 'cash'
         });
       }
     });
@@ -1584,6 +1633,8 @@ function renderSales() {
     }).join('');
 
     const giftBadge = isGift ? ' <span class="badge badge-unpaid">CADEAU</span>' : '';
+    const payMethod = first.paymentMethod || 'cash';
+    const payBadge = !isGift ? ' <span class="badge badge-paid" style="background:rgba(74,222,128,0.2); color:#4ade80;">' + (payMethod === 'transfer' ? 'Virement' : 'Especes') + '</span>' : '';
     const priceColor = isGift ? 'color:#f87171;' : '';
     const marginInfo = !isGift && groupCost > 0
       ? '<div class="sale-details" style="color:#4ade80;">Marge : ' + margin.toFixed(2) + ' EUR</div>'
@@ -1591,7 +1642,7 @@ function renderSales() {
 
     return '<div class="sale-item">' +
       '<div class="sale-row">' +
-        '<div class="sale-team">Vente ' + (items.length > 1 ? '(' + items.length + ' articles)' : '') + giftBadge + '</div>' +
+        '<div class="sale-team">Vente ' + (items.length > 1 ? '(' + items.length + ' articles)' : '') + giftBadge + payBadge + '</div>' +
         '<div class="sale-price" style="' + priceColor + '">' + groupTotal.toFixed(2) + ' EUR</div>' +
       '</div>' +
       itemsHtml +
@@ -1820,6 +1871,24 @@ async function deleteAchat(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
+async function addInitialStock() {
+  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
+  if (!confirm('Enregistrer un achat de 770 EUR (stock initial Aliexpress, 100 maillots) ? Cela corrigera le bilan.')) return;
+  try {
+    const fb = window.fb;
+    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await fb.setDoc(fb.doc(fb.db, 'purchases', id), {
+      description: 'Stock initial - 100 maillots',
+      amount: 770,
+      date: todayISO(),
+      supplier: 'Aliexpress',
+      note: 'Achat initial finance par les apports Hugo + Clement',
+      createdAt: new Date().toISOString()
+    });
+    showToast('Stock initial 770 EUR enregistre');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
 async function recalcAllSales() {
   if (!firebaseReady) return showToast('Cloud non connecte', 'error');
   if (!confirm('Recalculer le cout d achat de toutes les ventes existantes en utilisant le prix d achat actuel de chaque equipe ? Les ventes dont l equipe n existe plus seront mises a 7.70 EUR.')) return;
@@ -1845,7 +1914,22 @@ function renderCompta() {
   const totalAchats = purchases.reduce(function(a, p) { return a + (p.amount || 0); }, 0);
   const totalRevenue = sales.reduce(function(a, s) { return a + (s.total || 0); }, 0);
 
-  const cash = totalApports + totalRevenue - totalAchats;
+  // Cash reel = ventes encaissees - achats stock
+  // Les apports ne sont PAS du cash dispo : ils ont deja ete depenses pour acheter le stock initial
+  const cash = totalRevenue - totalAchats;
+
+  // Repartition cash par mode de paiement
+  // Especes recus = total des ventes especes (les achats stock peuvent etre deduits aussi en partie)
+  const revenueCash = sales.reduce(function(a, s) {
+    return a + ((s.paymentMethod === 'transfer') ? 0 : (s.total || 0));
+  }, 0);
+  const revenueTransfer = sales.reduce(function(a, s) {
+    return a + ((s.paymentMethod === 'transfer') ? (s.total || 0) : 0);
+  }, 0);
+  // Les achats stock par defaut diminuent les especes (le plus courant)
+  // mais on peut affiner avec un champ paymentMethod sur les achats aussi (a faire si besoin)
+  const cashCash = revenueCash - totalAchats;
+  const cashTransfer = revenueTransfer;
 
   const totalCost = sales.reduce(function(a, s) {
     return a + ((s.cost || 0) * (s.qty || 0));
@@ -1856,6 +1940,10 @@ function renderCompta() {
 
   const elCash = document.getElementById('bilanCash');
   if (elCash) elCash.textContent = cash.toFixed(2) + ' EUR';
+  const elCashCash = document.getElementById('bilanCashCash');
+  if (elCashCash) elCashCash.textContent = cashCash.toFixed(2) + ' EUR';
+  const elCashTransfer = document.getElementById('bilanCashTransfer');
+  if (elCashTransfer) elCashTransfer.textContent = cashTransfer.toFixed(2) + ' EUR';
   const elApp = document.getElementById('bilanApports');
   if (elApp) elApp.textContent = totalApports.toFixed(2) + ' EUR';
   const elRev = document.getElementById('bilanRevenue');
@@ -1923,13 +2011,14 @@ function renderCompta() {
 }
 
 function exportData() {
-  let csv = 'Date,Vendeur,Categorie,Equipe,Taille,Quantite,Prix unitaire,Cout unitaire,Total,Marge,Cadeau,Client,Note,GroupId\n';
+  let csv = 'Date,Vendeur,Categorie,Equipe,Taille,Quantite,Prix unitaire,Cout unitaire,Total,Marge,Cadeau,Paiement,Client,Note,GroupId\n';
   sales.forEach(function(s) {
     const d = new Date(s.date).toLocaleString('fr-FR');
     const margin = (s.cost || 0) > 0 ? ((s.price - (s.cost || 0)) * s.qty).toFixed(2) : '';
     const isGift = s.isGift === true ? 'oui' : 'non';
+    const payment = (s.paymentMethod === 'transfer') ? 'Virement' : 'Especes';
     csv += '"' + d + '","' + s.seller + '","' + s.category + '","' + s.team + '","' + s.size + '",' +
-      s.qty + ',' + s.price + ',' + (s.cost || 0) + ',' + s.total + ',' + margin + ',' + isGift + ',"' +
+      s.qty + ',' + s.price + ',' + (s.cost || 0) + ',' + s.total + ',' + margin + ',' + isGift + ',"' + payment + '","' +
       (s.customer || '') + '","' + (s.note || '').replace(/"/g, '""') + '","' + (s.groupId || '') + '"\n';
   });
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -2012,6 +2101,8 @@ window.removeFromResCart = removeFromResCart;
 window.setSalePrice = setSalePrice;
 window.setResPrice = setResPrice;
 window.toggleResStatus = toggleResStatus;
+window.toggleSalePayment = toggleSalePayment;
+window.toggleResPayment = toggleResPayment;
 window.recordSale = recordSale;
 window.recordReservation = recordReservation;
 window.confirmReservation = confirmReservation;
@@ -2033,6 +2124,7 @@ window.exportReservations = exportReservations;
 window.exportCompta = exportCompta;
 window.confirmReset = confirmReset;
 window.recalcAllSales = recalcAllSales;
+window.addInitialStock = addInitialStock;
 window.renderStock = renderStock;
 window.renderSales = renderSales;
 window.renderReservations = renderReservations;

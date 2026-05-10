@@ -402,7 +402,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   <div id="bilanByPartner"></div>
 
   <p style="text-align:center; color:#666; font-size:11px; margin-top:30px; line-height:1.6;">
-    Cash en caisse = Ventes encaissees - Achats stock<br>
+    Cash en caisse = Ventes encaissees - Achats reinvestis<br>
+    (les achats stock initial sont deja couverts par les apports)<br>
     Stock initial = achats finances par les apports (case "Reinvestissement" decochee)<br>
     Reinvesti = achats finances par les benefices (case "Reinvestissement" cochee)<br>
     Cumule gagne = Cash actuel + Reinvesti (ce que ton business a vraiment rapporte)<br>
@@ -2024,9 +2025,13 @@ function renderCompta() {
   const totalAchats = purchases.reduce(function(a, p) { return a + (p.amount || 0); }, 0);
   const totalRevenue = sales.reduce(function(a, s) { return a + (s.total || 0); }, 0);
 
-  // Cash reel = ventes encaissees - achats stock
-  // Les apports ne sont PAS du cash dispo : ils ont deja ete depenses pour acheter le stock initial
-  const cash = totalRevenue - totalAchats;
+  // Cash reel = ventes encaissees - achats reinvestis SEULEMENT
+  // Les achats "stock initial" sont finances par les apports, donc on les compte pas dans le cash
+  // (sinon on compterait les apports 2 fois : une fois dans Apports, une fois en cash negatif)
+  const totalAchatsReinv = purchases.reduce(function(a, p) {
+    return a + ((p.reinvested === true) ? (p.amount || 0) : 0);
+  }, 0);
+  const cash = totalRevenue - totalAchatsReinv;
 
   // Repartition cash par mode de paiement
   // Especes recus = total des ventes especes
@@ -2036,11 +2041,13 @@ function renderCompta() {
   const revenueTransfer = sales.reduce(function(a, s) {
     return a + ((s.paymentMethod === 'transfer') ? (s.total || 0) : 0);
   }, 0);
-  // Achats par mode de paiement (les anciens achats sans paymentMethod sont consideres especes par defaut)
+  // Achats reinvestis par mode de paiement (les non-reinvestis = stock initial finances par apports, ignores)
   const achatsCash = purchases.reduce(function(a, p) {
+    if (p.reinvested !== true) return a;
     return a + ((p.paymentMethod === 'transfer') ? 0 : (p.amount || 0));
   }, 0);
   const achatsTransfer = purchases.reduce(function(a, p) {
+    if (p.reinvested !== true) return a;
     return a + ((p.paymentMethod === 'transfer') ? (p.amount || 0) : 0);
   }, 0);
   const cashCash = revenueCash - achatsCash;

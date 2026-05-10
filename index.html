@@ -344,6 +344,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   <div class="compta-subtab active" onclick="switchComptaTab('bilan', this)">Bilan</div>
   <div class="compta-subtab" onclick="switchComptaTab('apports', this)">Apports</div>
   <div class="compta-subtab" onclick="switchComptaTab('achats', this)">Achats</div>
+  <div class="compta-subtab" onclick="switchComptaTab('transferts', this)">Transferts</div>
+  <div class="compta-subtab" onclick="switchComptaTab('prelevements', this)">Preleve</div>
 </div>
 
 <div id="comptaBilan" class="compta-pane">
@@ -427,6 +429,22 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <span id="achatsTotal">0 EUR</span>
   </div>
   <div id="achatsList"></div>
+</div>
+
+<div id="comptaTransferts" class="compta-pane" style="display:none;">
+  <button class="btn" onclick="openModal('transferModal')">Nouveau transfert (especes &harr; virement)</button>
+  <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">Quand tu d&eacute;poses des esp&egrave;ces sur le compte ou inversement.</p>
+  <div id="transfersList"></div>
+</div>
+
+<div id="comptaPrelevements" class="compta-pane" style="display:none;">
+  <button class="btn" onclick="openModal('prelevementModal')">Nouveau pr&eacute;l&egrave;vement perso</button>
+  <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">Quand toi ou Cl&eacute;ment prenez de l&#39;argent du business pour vous (salaire, plaisir...).</p>
+  <div class="totals-row">
+    <span>Total preleve :</span>
+    <span id="prelevementsTotal">0 EUR</span>
+  </div>
+  <div id="prelevementsList"></div>
 </div>
 ```
 
@@ -705,6 +723,68 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   </div>
 </div>
 
+<div class="modal" id="transferModal">
+  <div class="modal-content">
+    <div class="modal-title">Transfert entre caisses</div>
+    <div class="form-group">
+      <label>Sens du transfert</label>
+      <div class="toggle-group">
+        <div class="toggle-btn success active" id="transferDirCashToBank" onclick="toggleTransferDirection('cashToBank')">Especes &rarr; Virement</div>
+        <div class="toggle-btn success" id="transferDirBankToCash" onclick="toggleTransferDirection('bankToCash')">Virement &rarr; Especes</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Montant (EUR)</label>
+      <input type="number" id="transferAmount" step="0.01" placeholder="Ex: 25" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="transferDate">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="transferNote" placeholder="Ex: depot banque pour virement Alibaba">
+    </div>
+    <button class="btn" onclick="saveTransfer()">Valider</button>
+    <button class="btn btn-secondary" onclick="closeModal('transferModal')">Annuler</button>
+  </div>
+</div>
+
+<div class="modal" id="prelevementModal">
+  <div class="modal-content">
+    <div class="modal-title">Prelevement personnel</div>
+    <div class="form-group">
+      <label>Pour qui ?</label>
+      <select id="prelevementPartner">
+        <option value="Hugo">Hugo</option>
+        <option value="Clement">Clement</option>
+        <option value="Les deux">Les deux</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Montant (EUR)</label>
+      <input type="number" id="prelevementAmount" step="0.01" placeholder="Ex: 30" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label>Mode</label>
+      <div class="toggle-group">
+        <div class="toggle-btn success active" id="prelevementPayCash" onclick="togglePrelevementPayment('cash')">Especes</div>
+        <div class="toggle-btn success" id="prelevementPayTransfer" onclick="togglePrelevementPayment('transfer')">Virement</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="prelevementDate">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="prelevementNote" placeholder="Ex: salaire, plaisir, restaurant...">
+    </div>
+    <button class="btn" onclick="savePrelevement()">Valider</button>
+    <button class="btn btn-secondary" onclick="closeModal('prelevementModal')">Annuler</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -754,6 +834,10 @@ let resPaymentStatus = 'unpaid';
 let salePaymentMethod = 'cash';
 let resPaymentMethod = 'cash';
 let achatPaymentMethod = 'cash';
+let prelevementPaymentMethod = 'cash';
+let transferDirection = 'cashToBank';
+let transfers = [];
+let withdrawals = [];
 let firebaseReady = false;
 let saleCart = [];
 let resCart = [];
@@ -819,6 +903,20 @@ function initSync() {
     purchases.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
     safeRenderAll();
   }, function(err) { console.error('purchases', err); });
+
+  fb.onSnapshot(fb.collection(fb.db, 'transfers'), function(snap) {
+    transfers = [];
+    snap.forEach(function(d) { transfers.push(Object.assign({ id: d.id }, d.data())); });
+    transfers.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
+  }, function(err) { console.error('transfers', err); });
+
+  fb.onSnapshot(fb.collection(fb.db, 'withdrawals'), function(snap) {
+    withdrawals = [];
+    snap.forEach(function(d) { withdrawals.push(Object.assign({ id: d.id }, d.data())); });
+    withdrawals.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
+  }, function(err) { console.error('withdrawals', err); });
 }
 
 function safeRenderAll() {
@@ -850,7 +948,7 @@ function switchComptaTab(name, el) {
   document.querySelectorAll('.compta-subtab').forEach(function(t) { t.classList.remove('active'); });
   el.classList.add('active');
   document.querySelectorAll('.compta-pane').forEach(function(p) { p.style.display = 'none'; });
-  const map = { bilan: 'comptaBilan', apports: 'comptaApports', achats: 'comptaAchats' };
+  const map = { bilan: 'comptaBilan', apports: 'comptaApports', achats: 'comptaAchats', transferts: 'comptaTransferts', prelevements: 'comptaPrelevements' };
   document.getElementById(map[name]).style.display = 'block';
   renderCompta();
 }
@@ -938,6 +1036,24 @@ function openModal(id) {
     document.getElementById('achatPayTransfer').classList.remove('active');
     const reinvCb = document.getElementById('achatReinvested');
     if (reinvCb) reinvCb.checked = false;
+  }
+  if (id === 'transferModal') {
+    document.getElementById('transferAmount').value = '';
+    document.getElementById('transferNote').value = '';
+    document.getElementById('transferDate').value = todayISO();
+    transferDirection = 'cashToBank';
+    document.getElementById('transferDirCashToBank').classList.add('active');
+    document.getElementById('transferDirBankToCash').classList.remove('active');
+  }
+  if (id === 'prelevementModal') {
+    document.getElementById('prelevementAmount').value = '';
+    document.getElementById('prelevementNote').value = '';
+    document.getElementById('prelevementDate').value = todayISO();
+    const u = document.getElementById('currentUser').value;
+    if (u === 'Hugo' || u === 'Clement') document.getElementById('prelevementPartner').value = u;
+    prelevementPaymentMethod = 'cash';
+    document.getElementById('prelevementPayCash').classList.add('active');
+    document.getElementById('prelevementPayTransfer').classList.remove('active');
   }
   document.getElementById(id).classList.add('active');
 }
@@ -1275,6 +1391,18 @@ function toggleAchatPayment(method) {
   achatPaymentMethod = method;
   document.getElementById('achatPayCash').classList.toggle('active', method === 'cash');
   document.getElementById('achatPayTransfer').classList.toggle('active', method === 'transfer');
+}
+
+function toggleTransferDirection(dir) {
+  transferDirection = dir;
+  document.getElementById('transferDirCashToBank').classList.toggle('active', dir === 'cashToBank');
+  document.getElementById('transferDirBankToCash').classList.toggle('active', dir === 'bankToCash');
+}
+
+function togglePrelevementPayment(method) {
+  prelevementPaymentMethod = method;
+  document.getElementById('prelevementPayCash').classList.toggle('active', method === 'cash');
+  document.getElementById('prelevementPayTransfer').classList.toggle('active', method === 'transfer');
 }
 
 function toggleResStatus(status) {
@@ -2000,6 +2128,68 @@ async function deleteAchat(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
+async function saveTransfer() {
+  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
+  const amount = parseFloat(document.getElementById('transferAmount').value);
+  const date = document.getElementById('transferDate').value || todayISO();
+  const note = document.getElementById('transferNote').value.trim();
+  if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
+  try {
+    const fb = window.fb;
+    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await fb.setDoc(fb.doc(fb.db, 'transfers', id), {
+      amount: amount,
+      direction: transferDirection,
+      date: date,
+      note: note,
+      createdAt: new Date().toISOString()
+    });
+    closeModal('transferModal');
+    showToast('Transfert : ' + amount.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function deleteTransfer(id) {
+  if (!confirm('Supprimer ce transfert ?')) return;
+  try {
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'transfers', id));
+    showToast('Transfert supprime');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+async function savePrelevement() {
+  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
+  const partner = document.getElementById('prelevementPartner').value;
+  const amount = parseFloat(document.getElementById('prelevementAmount').value);
+  const date = document.getElementById('prelevementDate').value || todayISO();
+  const note = document.getElementById('prelevementNote').value.trim();
+  if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
+  try {
+    const fb = window.fb;
+    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await fb.setDoc(fb.doc(fb.db, 'withdrawals', id), {
+      partner: partner,
+      amount: amount,
+      paymentMethod: prelevementPaymentMethod,
+      date: date,
+      note: note,
+      createdAt: new Date().toISOString()
+    });
+    closeModal('prelevementModal');
+    showToast('Prelevement : ' + amount.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function deletePrelevement(id) {
+  if (!confirm('Supprimer ce prelevement ?')) return;
+  try {
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'withdrawals', id));
+    showToast('Prelevement supprime');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
 async function recalcAllSales() {
   if (!firebaseReady) return showToast('Cloud non connecte', 'error');
   if (!confirm('Recalculer le cout d achat de toutes les ventes existantes en utilisant le prix d achat actuel de chaque equipe ? Les ventes dont l equipe n existe plus seront mises a 7.70 EUR.')) return;
@@ -2025,23 +2215,22 @@ function renderCompta() {
   const totalAchats = purchases.reduce(function(a, p) { return a + (p.amount || 0); }, 0);
   const totalRevenue = sales.reduce(function(a, s) { return a + (s.total || 0); }, 0);
 
-  // Cash reel = ventes encaissees - achats reinvestis SEULEMENT
+  // Cash reel = ventes encaissees - achats reinvestis - prelevements personnels
   // Les achats "stock initial" sont finances par les apports, donc on les compte pas dans le cash
-  // (sinon on compterait les apports 2 fois : une fois dans Apports, une fois en cash negatif)
   const totalAchatsReinv = purchases.reduce(function(a, p) {
     return a + ((p.reinvested === true) ? (p.amount || 0) : 0);
   }, 0);
-  const cash = totalRevenue - totalAchatsReinv;
+  const totalWithdrawals = withdrawals.reduce(function(a, w) { return a + (w.amount || 0); }, 0);
+  const cash = totalRevenue - totalAchatsReinv - totalWithdrawals;
 
   // Repartition cash par mode de paiement
-  // Especes recus = total des ventes especes
   const revenueCash = sales.reduce(function(a, s) {
     return a + ((s.paymentMethod === 'transfer') ? 0 : (s.total || 0));
   }, 0);
   const revenueTransfer = sales.reduce(function(a, s) {
     return a + ((s.paymentMethod === 'transfer') ? (s.total || 0) : 0);
   }, 0);
-  // Achats reinvestis par mode de paiement (les non-reinvestis = stock initial finances par apports, ignores)
+  // Achats reinvestis par mode de paiement
   const achatsCash = purchases.reduce(function(a, p) {
     if (p.reinvested !== true) return a;
     return a + ((p.paymentMethod === 'transfer') ? 0 : (p.amount || 0));
@@ -2050,8 +2239,23 @@ function renderCompta() {
     if (p.reinvested !== true) return a;
     return a + ((p.paymentMethod === 'transfer') ? (p.amount || 0) : 0);
   }, 0);
-  const cashCash = revenueCash - achatsCash;
-  const cashTransfer = revenueTransfer - achatsTransfer;
+  // Prelevements par mode de paiement
+  const withdrawalsCash = withdrawals.reduce(function(a, w) {
+    return a + ((w.paymentMethod === 'transfer') ? 0 : (w.amount || 0));
+  }, 0);
+  const withdrawalsTransfer = withdrawals.reduce(function(a, w) {
+    return a + ((w.paymentMethod === 'transfer') ? (w.amount || 0) : 0);
+  }, 0);
+  // Transferts especes <-> virement
+  const transfersCashToBank = transfers.reduce(function(a, t) {
+    return a + ((t.direction === 'cashToBank') ? (t.amount || 0) : 0);
+  }, 0);
+  const transfersBankToCash = transfers.reduce(function(a, t) {
+    return a + ((t.direction === 'bankToCash') ? (t.amount || 0) : 0);
+  }, 0);
+  // Cash final par mode = ventes - achats reinv - prelevements +/- transferts
+  const cashCash = revenueCash - achatsCash - withdrawalsCash - transfersCashToBank + transfersBankToCash;
+  const cashTransfer = revenueTransfer - achatsTransfer - withdrawalsTransfer + transfersCashToBank - transfersBankToCash;
 
   const totalCost = sales.reduce(function(a, s) {
     return a + ((s.cost || 0) * (s.qty || 0));
@@ -2152,6 +2356,50 @@ function renderCompta() {
             '</div></div>';
         }).join('');
   }
+
+  // Render transfers list
+  const trList = document.getElementById('transfersList');
+  if (trList) {
+    trList.innerHTML = transfers.length === 0
+      ? '<div class="empty-state"><div class="icon">T</div><div>Aucun transfert.</div></div>'
+      : transfers.map(function(t) {
+          const arrow = (t.direction === 'cashToBank') ? 'Especes -> Virement' : 'Virement -> Especes';
+          return '<div class="sale-item">' +
+            '<div class="sale-row">' +
+              '<div class="sale-team">' + arrow + '</div>' +
+              '<div class="sale-price">' + (t.amount || 0).toFixed(2) + ' EUR</div>' +
+            '</div>' +
+            '<div class="sale-details">Date: ' + (t.date || '-') + '</div>' +
+            (t.note ? '<div class="sale-details">Note: ' + t.note + '</div>' : '') +
+            '<div class="sale-actions">' +
+              '<button class="btn btn-small btn-danger" onclick="deleteTransfer(\'' + t.id + '\')">Supprimer</button>' +
+            '</div></div>';
+        }).join('');
+  }
+
+  // Render prelevements list
+  const prelevTotal = withdrawals.reduce(function(a, w) { return a + (w.amount || 0); }, 0);
+  const prelevTotEl = document.getElementById('prelevementsTotal');
+  if (prelevTotEl) prelevTotEl.textContent = prelevTotal.toFixed(2) + ' EUR';
+  const prList = document.getElementById('prelevementsList');
+  if (prList) {
+    prList.innerHTML = withdrawals.length === 0
+      ? '<div class="empty-state"><div class="icon">P</div><div>Aucun prelevement.</div></div>'
+      : withdrawals.map(function(w) {
+          const payMethod = w.paymentMethod || 'cash';
+          const payBadge = ' <span class="badge badge-paid" style="background:rgba(74,222,128,0.2); color:#4ade80;">' + (payMethod === 'transfer' ? 'Virement' : 'Especes') + '</span>';
+          return '<div class="sale-item compta-out">' +
+            '<div class="sale-row">' +
+              '<div class="sale-team">' + (w.partner || '-') + payBadge + '</div>' +
+              '<div class="sale-price negative">-' + (w.amount || 0).toFixed(2) + ' EUR</div>' +
+            '</div>' +
+            '<div class="sale-details">Date: ' + (w.date || '-') + '</div>' +
+            (w.note ? '<div class="sale-details">Note: ' + w.note + '</div>' : '') +
+            '<div class="sale-actions">' +
+              '<button class="btn btn-small btn-danger" onclick="deletePrelevement(\'' + w.id + '\')">Supprimer</button>' +
+            '</div></div>';
+        }).join('');
+  }
 }
 
 function exportData() {
@@ -2218,7 +2466,7 @@ async function confirmReset() {
   try {
     const fb = window.fb;
     const batch = fb.writeBatch(fb.db);
-    const cols = ['products', 'sales', 'reservations', 'contributions', 'purchases'];
+    const cols = ['products', 'sales', 'reservations', 'contributions', 'purchases', 'transfers', 'withdrawals'];
     for (let i = 0; i < cols.length; i++) {
       const docs = await fb.getDocs(fb.collection(fb.db, cols[i]));
       docs.forEach(function(d) { batch.delete(d.ref); });
@@ -2251,6 +2499,12 @@ window.toggleResStatus = toggleResStatus;
 window.toggleSalePayment = toggleSalePayment;
 window.toggleResPayment = toggleResPayment;
 window.toggleAchatPayment = toggleAchatPayment;
+window.toggleTransferDirection = toggleTransferDirection;
+window.togglePrelevementPayment = togglePrelevementPayment;
+window.saveTransfer = saveTransfer;
+window.deleteTransfer = deleteTransfer;
+window.savePrelevement = savePrelevement;
+window.deletePrelevement = deletePrelevement;
 window.recordSale = recordSale;
 window.recordReservation = recordReservation;
 window.confirmReservation = confirmReservation;

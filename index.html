@@ -382,13 +382,31 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     </div>
   </div>
 
+  <h4 style="color:#d4af37; margin: 20px 0 12px;">Detail des achats stock</h4>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Stock initial (apports)</div>
+      <div class="stat-value" id="bilanStockInit">0 EUR</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Reinvesti (benefices)</div>
+      <div class="stat-value" id="bilanReinvest">0 EUR</div>
+    </div>
+    <div class="stat-card full warning">
+      <div class="stat-label">Cumule gagne (cash + reinvesti)</div>
+      <div class="stat-value" id="bilanCumulatedGain">0 EUR</div>
+    </div>
+  </div>
+
   <h4 style="color:#d4af37; margin: 20px 0 12px;">Apports par associe</h4>
   <div id="bilanByPartner"></div>
 
   <p style="text-align:center; color:#666; font-size:11px; margin-top:30px; line-height:1.6;">
     Cash en caisse = Ventes encaissees - Achats stock<br>
-    (apports = argent investi au depart, deja depense en stock)<br>
-    Benefice = CA Ventes - Cout des maillots vendus (et offerts)
+    Stock initial = achats finances par les apports (case "Reinvestissement" decochee)<br>
+    Reinvesti = achats finances par les benefices (case "Reinvestissement" cochee)<br>
+    Cumule gagne = Cash actuel + Reinvesti (ce que ton business a vraiment rapporte)<br>
+    Benefice net = CA Ventes - Cout des maillots vendus (et offerts)
   </p>
 </div>
 
@@ -656,6 +674,20 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
       <input type="number" id="achatAmount" step="0.01" placeholder="Ex: 250" inputmode="decimal">
     </div>
     <div class="form-group">
+      <label>Mode de paiement</label>
+      <div class="toggle-group">
+        <div class="toggle-btn success active" id="achatPayCash" onclick="toggleAchatPayment('cash')">Especes</div>
+        <div class="toggle-btn success" id="achatPayTransfer" onclick="toggleAchatPayment('transfer')">Virement</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="checkbox" id="achatReinvested" style="width:auto; margin:0;">
+        <span>R&eacute;investissement (financ&eacute; par les b&eacute;n&eacute;fices)</span>
+      </label>
+      <p style="font-size:11px; color:#888; margin-top:4px;">Coche si cet achat a &eacute;t&eacute; pay&eacute; avec l&#39;argent gagn&eacute; des ventes (pas avec les apports initiaux).</p>
+    </div>
+    <div class="form-group">
       <label>Date</label>
       <input type="date" id="achatDate">
     </div>
@@ -720,6 +752,7 @@ let selectedResSize = null;
 let resPaymentStatus = 'unpaid';
 let salePaymentMethod = 'cash';
 let resPaymentMethod = 'cash';
+let achatPaymentMethod = 'cash';
 let firebaseReady = false;
 let saleCart = [];
 let resCart = [];
@@ -899,6 +932,11 @@ function openModal(id) {
     document.getElementById('achatSupplier').value = '';
     document.getElementById('achatNote').value = '';
     document.getElementById('achatDate').value = todayISO();
+    achatPaymentMethod = 'cash';
+    document.getElementById('achatPayCash').classList.add('active');
+    document.getElementById('achatPayTransfer').classList.remove('active');
+    const reinvCb = document.getElementById('achatReinvested');
+    if (reinvCb) reinvCb.checked = false;
   }
   document.getElementById(id).classList.add('active');
 }
@@ -1230,6 +1268,12 @@ function toggleResPayment(method) {
   resPaymentMethod = method;
   document.getElementById('resPayCash').classList.toggle('active', method === 'cash');
   document.getElementById('resPayTransfer').classList.toggle('active', method === 'transfer');
+}
+
+function toggleAchatPayment(method) {
+  achatPaymentMethod = method;
+  document.getElementById('achatPayCash').classList.toggle('active', method === 'cash');
+  document.getElementById('achatPayTransfer').classList.toggle('active', method === 'transfer');
 }
 
 function toggleResStatus(status) {
@@ -1912,6 +1956,8 @@ async function saveAchat() {
   const date = document.getElementById('achatDate').value || todayISO();
   const supplier = document.getElementById('achatSupplier').value.trim();
   const note = document.getElementById('achatNote').value.trim();
+  const reinvCb = document.getElementById('achatReinvested');
+  const reinvested = !!(reinvCb && reinvCb.checked);
   if (!desc) return showToast('Description requise', 'error');
   if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
   try {
@@ -1920,10 +1966,27 @@ async function saveAchat() {
     await fb.setDoc(fb.doc(fb.db, 'purchases', id), {
       description: desc, amount: amount, date: date,
       supplier: supplier, note: note,
+      paymentMethod: achatPaymentMethod,
+      reinvested: reinvested,
       createdAt: new Date().toISOString()
     });
     closeModal('achatModal');
     showToast('Achat : ' + amount.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function toggleAchatReinvested(id) {
+  const p = purchases.find(function(x) { return x.id === id; });
+  if (!p) return;
+  const newVal = !(p.reinvested === true);
+  const msg = newVal
+    ? 'Marquer cet achat comme REINVESTISSEMENT (paye avec les benefices) ?'
+    : 'Marquer cet achat comme STOCK INITIAL (paye avec les apports) ?';
+  if (!confirm(msg)) return;
+  try {
+    const fb = window.fb;
+    await fb.setDoc(fb.doc(fb.db, 'purchases', id), Object.assign({}, p, { reinvested: newVal }));
+    showToast(newVal ? 'Marque reinvestissement' : 'Marque stock initial');
   } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
@@ -1966,17 +2029,22 @@ function renderCompta() {
   const cash = totalRevenue - totalAchats;
 
   // Repartition cash par mode de paiement
-  // Especes recus = total des ventes especes (les achats stock peuvent etre deduits aussi en partie)
+  // Especes recus = total des ventes especes
   const revenueCash = sales.reduce(function(a, s) {
     return a + ((s.paymentMethod === 'transfer') ? 0 : (s.total || 0));
   }, 0);
   const revenueTransfer = sales.reduce(function(a, s) {
     return a + ((s.paymentMethod === 'transfer') ? (s.total || 0) : 0);
   }, 0);
-  // Les achats stock par defaut diminuent les especes (le plus courant)
-  // mais on peut affiner avec un champ paymentMethod sur les achats aussi (a faire si besoin)
-  const cashCash = revenueCash - totalAchats;
-  const cashTransfer = revenueTransfer;
+  // Achats par mode de paiement (les anciens achats sans paymentMethod sont consideres especes par defaut)
+  const achatsCash = purchases.reduce(function(a, p) {
+    return a + ((p.paymentMethod === 'transfer') ? 0 : (p.amount || 0));
+  }, 0);
+  const achatsTransfer = purchases.reduce(function(a, p) {
+    return a + ((p.paymentMethod === 'transfer') ? (p.amount || 0) : 0);
+  }, 0);
+  const cashCash = revenueCash - achatsCash;
+  const cashTransfer = revenueTransfer - achatsTransfer;
 
   const totalCost = sales.reduce(function(a, s) {
     return a + ((s.cost || 0) * (s.qty || 0));
@@ -2001,6 +2069,24 @@ function renderCompta() {
   if (elProfit) elProfit.textContent = profit.toFixed(2) + ' EUR';
   const elROI = document.getElementById('bilanROI');
   if (elROI) elROI.textContent = roi.toFixed(1) + ' %';
+
+  // Stock initial vs Reinvesti (basé sur le flag reinvested de chaque achat)
+  const stockInit = purchases.reduce(function(a, p) {
+    return a + ((p.reinvested === true) ? 0 : (p.amount || 0));
+  }, 0);
+  const reinvAmount = purchases.reduce(function(a, p) {
+    return a + ((p.reinvested === true) ? (p.amount || 0) : 0);
+  }, 0);
+  // Cumule gagne = ce que ton business a produit = cash actuel + reinvesti
+  // (le reinvesti est de l'argent gagne qui s'est transforme en stock, donc compte aussi)
+  const cumulatedGain = cash + reinvAmount;
+
+  const elStockInit = document.getElementById('bilanStockInit');
+  if (elStockInit) elStockInit.textContent = stockInit.toFixed(2) + ' EUR';
+  const elReinv = document.getElementById('bilanReinvest');
+  if (elReinv) elReinv.textContent = reinvAmount.toFixed(2) + ' EUR';
+  const elCumul = document.getElementById('bilanCumulatedGain');
+  if (elCumul) elCumul.textContent = cumulatedGain.toFixed(2) + ' EUR';
 
   const byPartner = {};
   contributions.forEach(function(c) {
@@ -2043,14 +2129,18 @@ function renderCompta() {
     acList.innerHTML = purchases.length === 0
       ? '<div class="empty-state"><div class="icon">A</div><div>Aucun achat.</div></div>'
       : purchases.map(function(p) {
+          const payMethod = p.paymentMethod || 'cash';
+          const payBadge = ' <span class="badge badge-paid" style="background:rgba(74,222,128,0.2); color:#4ade80;">' + (payMethod === 'transfer' ? 'Virement' : 'Especes') + '</span>';
+          const reinvBadge = (p.reinvested === true) ? ' <span class="badge badge-paid" style="background:rgba(212,175,55,0.2); color:#d4af37;">Reinvest</span>' : '';
           return '<div class="sale-item compta-out">' +
             '<div class="sale-row">' +
-              '<div class="sale-team">' + (p.description || '-') + '</div>' +
+              '<div class="sale-team">' + (p.description || '-') + payBadge + reinvBadge + '</div>' +
               '<div class="sale-price negative">-' + (p.amount || 0).toFixed(2) + ' EUR</div>' +
             '</div>' +
             '<div class="sale-details">Date: ' + (p.date || '-') + (p.supplier ? ' - ' + p.supplier : '') + '</div>' +
             (p.note ? '<div class="sale-details">Note: ' + p.note + '</div>' : '') +
             '<div class="sale-actions">' +
+              '<button class="btn btn-small btn-secondary" onclick="toggleAchatReinvested(\'' + p.id + '\')">' + (p.reinvested === true ? 'Marquer apport' : 'Marquer reinvest') + '</button>' +
               '<button class="btn btn-small btn-danger" onclick="deleteAchat(\'' + p.id + '\')">Supprimer</button>' +
             '</div></div>';
         }).join('');
@@ -2097,12 +2187,14 @@ function exportReservations() {
 }
 
 function exportCompta() {
-  let csv = 'Type,Date,Description,Montant,Categorie/Partenaire,Note\n';
+  let csv = 'Type,Date,Description,Montant,Categorie/Partenaire,Paiement,Reinvestissement,Note\n';
   contributions.forEach(function(c) {
-    csv += '"Apport","' + (c.date || '') + '","Apport ' + (c.partner || '') + '",' + (c.amount || 0) + ',"' + (c.partner || '') + '","' + (c.note || '').replace(/"/g, '""') + '"\n';
+    csv += '"Apport","' + (c.date || '') + '","Apport ' + (c.partner || '') + '",' + (c.amount || 0) + ',"' + (c.partner || '') + '","","",' + '"' + (c.note || '').replace(/"/g, '""') + '"\n';
   });
   purchases.forEach(function(p) {
-    csv += '"Achat","' + (p.date || '') + '","' + (p.description || '') + '",-' + (p.amount || 0) + ',"' + (p.supplier || '') + '","' + (p.note || '').replace(/"/g, '""') + '"\n';
+    const payment = (p.paymentMethod === 'transfer') ? 'Virement' : 'Especes';
+    const reinv = (p.reinvested === true) ? 'oui' : 'non';
+    csv += '"Achat","' + (p.date || '') + '","' + (p.description || '') + '",-' + (p.amount || 0) + ',"' + (p.supplier || '') + '","' + payment + '","' + reinv + '","' + (p.note || '').replace(/"/g, '""') + '"\n';
   });
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -2151,6 +2243,7 @@ window.setResPrice = setResPrice;
 window.toggleResStatus = toggleResStatus;
 window.toggleSalePayment = toggleSalePayment;
 window.toggleResPayment = toggleResPayment;
+window.toggleAchatPayment = toggleAchatPayment;
 window.recordSale = recordSale;
 window.recordReservation = recordReservation;
 window.confirmReservation = confirmReservation;
@@ -2181,6 +2274,7 @@ window.saveApport = saveApport;
 window.deleteApport = deleteApport;
 window.saveAchat = saveAchat;
 window.deleteAchat = deleteAchat;
+window.toggleAchatReinvested = toggleAchatReinvested;
 
 setTimeout(function() {
   if (!firebaseReady) {

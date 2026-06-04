@@ -1708,14 +1708,18 @@ async function cancelReservation(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
-function editGroupItemsHtml(group) {
+function editGroupItemsHtml(group, type) {
   return group.map(function(x) {
     const cat = x.category === 'enfant' ? '👶' : '👨';
     const _sub = getSizeSubLabel(x.size, x.category, x.asianSizes);
     const sizeLbl = _sub ? x.size + ' (' + _sub + ')' : x.size;
-    return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:6px; font-size:13px;">' +
-      '<div style="color:#d4af37; font-weight:700;">' + cat + ' ' + x.team + '</div>' +
-      '<div style="color:#888; font-size:12px;">Taille ' + sizeLbl + ' x ' + x.qty + '</div>' +
+    const removeFn = (type === 'res') ? 'removeResItem' : 'removeSaleItem';
+    return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; gap:8px;">' +
+      '<div style="font-size:13px; min-width:0;">' +
+        '<div style="color:#d4af37; font-weight:700;">' + cat + ' ' + x.team + '</div>' +
+        '<div style="color:#888; font-size:12px;">Taille ' + sizeLbl + ' x ' + x.qty + '</div>' +
+      '</div>' +
+      '<button type="button" class="btn btn-small btn-danger" style="flex-shrink:0;" onclick="' + removeFn + '(\'' + x.id + '\')">Retirer</button>' +
       '</div>';
   }).join('');
 }
@@ -1729,7 +1733,7 @@ function openSaleEdit(saleId) {
   }
   editSaleIds = group.map(function(s) { return s.id; });
   const groupTotal = group.reduce(function(a, s) { return a + (s.total || 0); }, 0);
-  document.getElementById('saleEditItems').innerHTML = editGroupItemsHtml(group);
+  document.getElementById('saleEditItems').innerHTML = editGroupItemsHtml(group, 'sale');
   document.getElementById('saleEditTotalPrice').value = groupTotal.toFixed(2);
   document.getElementById('saleEditCustomer').value = sale.customer || '';
   document.getElementById('saleEditNote').value = sale.note || '';
@@ -1792,7 +1796,7 @@ function openResEdit(resId) {
   }
   editResIds = group.map(function(x) { return x.id; });
   const groupTotal = group.reduce(function(a, x) { return a + (x.total || 0); }, 0);
-  document.getElementById('resEditItems').innerHTML = editGroupItemsHtml(group);
+  document.getElementById('resEditItems').innerHTML = editGroupItemsHtml(group, 'res');
   document.getElementById('resEditTotalPrice').value = groupTotal.toFixed(2);
   document.getElementById('resEditCustomer').value = r.customer || '';
   document.getElementById('resEditPhone').value = r.phone || '';
@@ -1855,6 +1859,64 @@ async function saveResEdit() {
     editResIds = [];
     closeModal('resEditModal');
     showToast('Reservation modifiee : ' + totalPrice.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function removeSaleItem(saleId) {
+  const sale = sales.find(function(s) { return s.id === saleId; });
+  if (!sale) return;
+  const _sub = getSizeSubLabel(sale.size, sale.category, sale.asianSizes);
+  const sizeLbl = _sub ? sale.size + ' (' + _sub + ')' : sale.size;
+  if (!confirm('Retirer ' + sale.team + ' - taille ' + sizeLbl + ' de la vente ? Le stock sera restaure.')) return;
+  try {
+    const fb = window.fb;
+    await fb.runTransaction(fb.db, async function(t) {
+      const ref = fb.doc(fb.db, 'products', sale.productId);
+      const snap = await t.get(ref);
+      if (snap.exists()) {
+        const stock = Object.assign({}, snap.data().stock);
+        stock[sale.size] = (stock[sale.size] || 0) + (sale.qty || 0);
+        t.update(ref, { stock: stock });
+      }
+      t.delete(fb.doc(fb.db, 'sales', saleId));
+    });
+    // Mise a jour locale immediate (onSnapshot reconcilie ensuite)
+    const idx = sales.findIndex(function(s) { return s.id === saleId; });
+    if (idx !== -1) sales.splice(idx, 1);
+    editSaleIds = editSaleIds.filter(function(x) { return x !== saleId; });
+    showToast('Article retire, stock restaure');
+    const remaining = sales.filter(function(s) { return editSaleIds.indexOf(s.id) !== -1; });
+    if (remaining.length === 0) {
+      closeModal('saleEditModal');
+    } else {
+      document.getElementById('saleEditItems').innerHTML = editGroupItemsHtml(remaining, 'sale');
+      const newTotal = remaining.reduce(function(a, s) { return a + (s.total || 0); }, 0);
+      document.getElementById('saleEditTotalPrice').value = newTotal.toFixed(2);
+    }
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function removeResItem(resId) {
+  const r = reservations.find(function(x) { return x.id === resId; });
+  if (!r) return;
+  const _sub = getSizeSubLabel(r.size, r.category, r.asianSizes);
+  const sizeLbl = _sub ? r.size + ' (' + _sub + ')' : r.size;
+  if (!confirm('Retirer ' + r.team + ' - taille ' + sizeLbl + ' de la reservation ?')) return;
+  try {
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'reservations', resId));
+    const idx = reservations.findIndex(function(x) { return x.id === resId; });
+    if (idx !== -1) reservations.splice(idx, 1);
+    editResIds = editResIds.filter(function(x) { return x !== resId; });
+    showToast('Article retire de la reservation');
+    const remaining = reservations.filter(function(x) { return editResIds.indexOf(x.id) !== -1; });
+    if (remaining.length === 0) {
+      closeModal('resEditModal');
+    } else {
+      document.getElementById('resEditItems').innerHTML = editGroupItemsHtml(remaining, 'res');
+      const newTotal = remaining.reduce(function(a, x) { return a + (x.total || 0); }, 0);
+      document.getElementById('resEditTotalPrice').value = newTotal.toFixed(2);
+    }
   } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
@@ -2748,6 +2810,8 @@ window.setResEditPrice = setResEditPrice;
 window.toggleResEditStatus = toggleResEditStatus;
 window.toggleResEditPayment = toggleResEditPayment;
 window.saveResEdit = saveResEdit;
+window.removeSaleItem = removeSaleItem;
+window.removeResItem = removeResItem;
 window.filterStock = filterStock;
 window.filterSales = filterSales;
 window.filterReservations = filterReservations;

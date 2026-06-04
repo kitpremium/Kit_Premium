@@ -292,8 +292,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <input type="text" class="search-bar" id="searchStock" placeholder="Rechercher une equipe..." oninput="renderStock()">
     <div class="filter-bar">
       <div class="filter-chip active" onclick="filterStock('all', this)">Tout</div>
-      <div class="filter-chip" onclick="filterStock('enfant', this)">👶 Enfant</div>
-      <div class="filter-chip" onclick="filterStock('homme', this)">👨 Homme</div>
+      <div class="filter-chip" onclick="filterStock('enfant', this)">🧒 Enfant</div>
+      <div class="filter-chip" onclick="filterStock('homme', this)">🧔 Homme</div>
     </div>
     <button class="btn" onclick="openModal('addProductModal')">Ajouter une equipe / produit</button>
     <div id="stockList"></div>
@@ -482,8 +482,8 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <div class="form-group">
       <label>Categorie</label>
       <div class="category-tabs">
-        <div class="cat-tab active" data-cat="enfant" onclick="selectCategory('enfant', this)">👶 Enfant</div>
-        <div class="cat-tab" data-cat="homme" onclick="selectCategory('homme', this)">👨 Homme</div>
+        <div class="cat-tab active" data-cat="enfant" onclick="selectCategory('enfant', this)">🧒 Enfant</div>
+        <div class="cat-tab" data-cat="homme" onclick="selectCategory('homme', this)">🧔 Homme</div>
       </div>
     </div>
     <div class="form-group">
@@ -1201,6 +1201,13 @@ async function addProduct() {
   } catch (e) { console.error(e); showToast('Erreur ajout', 'error'); }
 }
 
+function catBadge(category) {
+  if (category === 'enfant') {
+    return '<span style="background:rgba(96,165,250,0.25); border:1px solid rgba(96,165,250,0.5); padding:1px 5px; border-radius:5px;">🧒</span>';
+  }
+  return '<span style="background:rgba(251,146,60,0.25); border:1px solid rgba(251,146,60,0.5); padding:1px 5px; border-radius:5px;">🧔</span>';
+}
+
 function populateTeams(selectId) {
   const sel = document.getElementById(selectId);
   sel.innerHTML = '<option value="">-- Choisir --</option>';
@@ -1208,8 +1215,9 @@ function populateTeams(selectId) {
     .sort(function(a,b) { return a[1].name.localeCompare(b[1].name); })
     .forEach(function(entry) {
       const id = entry[0], p = entry[1];
-      const cat = p.category === 'enfant' ? '👶' : '👨';
-      sel.innerHTML += '<option value="' + id + '">' + cat + ' ' + p.name + '</option>';
+      const emo = p.category === 'enfant' ? '🧒' : '🧔';
+      const word = p.category === 'enfant' ? 'Enfant' : 'Homme';
+      sel.innerHTML += '<option value="' + id + '">' + emo + ' ' + p.name + ' - ' + word + '</option>';
     });
 }
 
@@ -1324,7 +1332,7 @@ function renderSaleCart() {
     return;
   }
   c.innerHTML = saleCart.map(function(it, idx) {
-    const cat = it.category === 'enfant' ? '👶' : '👨';
+    const cat = catBadge(it.category);
     const _sub = getSizeSubLabel(it.size, it.category, it.asianSizes);
     const sizeLbl = _sub ? it.size + ' (' + _sub + ')' : it.size;
     return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">' +
@@ -1344,7 +1352,7 @@ function renderResCart() {
     return;
   }
   c.innerHTML = resCart.map(function(it, idx) {
-    const cat = it.category === 'enfant' ? '👶' : '👨';
+    const cat = catBadge(it.category);
     const _sub = getSizeSubLabel(it.size, it.category, it.asianSizes);
     const sizeLbl = _sub ? it.size + ' (' + _sub + ')' : it.size;
     return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">' +
@@ -1710,7 +1718,7 @@ async function cancelReservation(id) {
 
 function editGroupItemsHtml(group, type) {
   return group.map(function(x) {
-    const cat = x.category === 'enfant' ? '👶' : '👨';
+    const cat = catBadge(x.category);
     const _sub = getSizeSubLabel(x.size, x.category, x.asianSizes);
     const sizeLbl = _sub ? x.size + ' (' + _sub + ')' : x.size;
     const removeFn = (type === 'res') ? 'removeResItem' : 'removeSaleItem';
@@ -1958,7 +1966,7 @@ function renderStock() {
     const id = entry[0], p = entry[1];
     const total = Object.values(p.stock || {}).reduce(function(a, b) { return a + (b || 0); }, 0);
     const sizes = getSizesForProduct(p.category, p.asianSizes);
-    const cat = p.category === 'enfant' ? '👶' : '👨';
+    const cat = catBadge(p.category);
     const costInfo = p.cost ? ' - Achat ' + p.cost + 'EUR' : '';
     const sizesHtml = sizes.map(function(s) {
       const q = (p.stock || {})[s] || 0;
@@ -2148,7 +2156,7 @@ function renderSales() {
     const isGift = first.isGift === true || groupTotal === 0;
 
     const itemsHtml = items.map(function(s) {
-      const cat = s.category === 'enfant' ? '👶' : '👨';
+      const cat = catBadge(s.category);
       const _sub = getSizeSubLabel(s.size, s.category, s.asianSizes);
       const sizeLbl = _sub ? s.size + ' (' + _sub + ')' : s.size;
       return '<div style="font-size:12px; color:#aaa; padding:4px 0; border-bottom:1px dashed rgba(212,175,55,0.1);">' +
@@ -2249,7 +2257,7 @@ function renderReservations() {
     const phoneLink = first.phone ? '<a href="tel:' + first.phone + '" style="color:#4ade80; text-decoration:none;">' + first.phone + '</a>' : '';
 
     const itemsHtml = items.map(function(r) {
-      const cat = r.category === 'enfant' ? '👶' : '👨';
+      const cat = catBadge(r.category);
       const _sub = getSizeSubLabel(r.size, r.category, r.asianSizes);
       const sizeLbl = _sub ? r.size + ' (' + _sub + ')' : r.size;
       return '<div style="font-size:12px; color:#aaa; padding:4px 0; border-bottom:1px dashed rgba(212,175,55,0.1);">' +

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -279,17 +278,14 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
       </div>
     </div>
 
-```
-<h3 style="color:#d4af37; margin-bottom:12px;">Top equipes vendues</h3>
-<div id="topTeams"></div>
+    <h3 style="color:#d4af37; margin-bottom:12px;">Top equipes vendues</h3>
+    <div id="topTeams"></div>
 
-<h3 style="color:#d4af37; margin: 20px 0 12px;">Ventes par vendeur</h3>
-<div id="salesBySeller"></div>
+    <h3 style="color:#d4af37; margin: 20px 0 12px;">Ventes par vendeur</h3>
+    <div id="salesBySeller"></div>
 
-<h3 style="color:#d4af37; margin: 20px 0 12px;">Stock faible</h3>
-<div id="lowStock"></div>
-```
-
+    <h3 style="color:#d4af37; margin: 20px 0 12px;">Stock faible</h3>
+    <div id="lowStock"></div>
   </div>
 
   <div id="stock" class="section">
@@ -339,115 +335,112 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   <div id="compta" class="section">
     <h3 style="color:#d4af37; margin-bottom:12px;">Comptabilite</h3>
 
-```
-<div class="compta-subtabs">
-  <div class="compta-subtab active" onclick="switchComptaTab('bilan', this)">Bilan</div>
-  <div class="compta-subtab" onclick="switchComptaTab('apports', this)">Apports</div>
-  <div class="compta-subtab" onclick="switchComptaTab('achats', this)">Achats</div>
-  <div class="compta-subtab" onclick="switchComptaTab('transferts', this)">Transferts</div>
-  <div class="compta-subtab" onclick="switchComptaTab('prelevements', this)">Preleve</div>
-</div>
+    <div class="compta-subtabs">
+      <div class="compta-subtab active" onclick="switchComptaTab('bilan', this)">Bilan</div>
+      <div class="compta-subtab" onclick="switchComptaTab('apports', this)">Apports</div>
+      <div class="compta-subtab" onclick="switchComptaTab('achats', this)">Achats</div>
+      <div class="compta-subtab" onclick="switchComptaTab('transferts', this)">Transferts</div>
+      <div class="compta-subtab" onclick="switchComptaTab('prelevements', this)">Preleve</div>
+    </div>
 
-<div id="comptaBilan" class="compta-pane">
-  <div class="stats-grid">
-    <div class="stat-card full">
-      <div class="stat-label">Cash en caisse</div>
-      <div class="stat-value" id="bilanCash">0 EUR</div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-label">Especes</div>
-      <div class="stat-value" id="bilanCashCash">0 EUR</div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-label">Virement</div>
-      <div class="stat-value" id="bilanCashTransfer">0 EUR</div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-label">Apports</div>
-      <div class="stat-value" id="bilanApports">0 EUR</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">CA Ventes</div>
-      <div class="stat-value" id="bilanRevenue">0 EUR</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-label">Achats stock</div>
-      <div class="stat-value" id="bilanAchats">0 EUR</div>
-    </div>
-    <div class="stat-card warning">
-      <div class="stat-label">Benefice net</div>
-      <div class="stat-value" id="bilanProfit">0 EUR</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Retour sur invest.</div>
-      <div class="stat-value" id="bilanROI">0 %</div>
-    </div>
-  </div>
+    <div id="comptaBilan" class="compta-pane">
+      <div class="stats-grid">
+        <div class="stat-card full">
+          <div class="stat-label">Cash en caisse</div>
+          <div class="stat-value" id="bilanCash">0 EUR</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Especes</div>
+          <div class="stat-value" id="bilanCashCash">0 EUR</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Virement</div>
+          <div class="stat-value" id="bilanCashTransfer">0 EUR</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Apports</div>
+          <div class="stat-value" id="bilanApports">0 EUR</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">CA Ventes</div>
+          <div class="stat-value" id="bilanRevenue">0 EUR</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Achats stock</div>
+          <div class="stat-value" id="bilanAchats">0 EUR</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">Benefice net</div>
+          <div class="stat-value" id="bilanProfit">0 EUR</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Retour sur invest.</div>
+          <div class="stat-value" id="bilanROI">0 %</div>
+        </div>
+      </div>
 
-  <h4 style="color:#d4af37; margin: 20px 0 12px;">Detail des achats stock</h4>
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-label">Stock initial (apports)</div>
-      <div class="stat-value" id="bilanStockInit">0 EUR</div>
+      <h4 style="color:#d4af37; margin: 20px 0 12px;">Detail des achats stock</h4>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Stock initial (apports)</div>
+          <div class="stat-value" id="bilanStockInit">0 EUR</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Reinvesti (benefices)</div>
+          <div class="stat-value" id="bilanReinvest">0 EUR</div>
+        </div>
+        <div class="stat-card full warning">
+          <div class="stat-label">Cumule gagne (cash + reinvesti)</div>
+          <div class="stat-value" id="bilanCumulatedGain">0 EUR</div>
+        </div>
+      </div>
+
+      <h4 style="color:#d4af37; margin: 20px 0 12px;">Apports par associe</h4>
+      <div id="bilanByPartner"></div>
+
+      <p style="text-align:center; color:#666; font-size:11px; margin-top:30px; line-height:1.6;">
+        Cash en caisse = Ventes encaissees - Achats reinvestis<br>
+        (les achats stock initial sont deja couverts par les apports)<br>
+        Stock initial = achats finances par les apports (case "Reinvestissement" decochee)<br>
+        Reinvesti = achats finances par les benefices (case "Reinvestissement" cochee)<br>
+        Cumule gagne = Cash actuel + Reinvesti (ce que ton business a vraiment rapporte)<br>
+        Benefice net = CA Ventes - Cout des maillots vendus (et offerts)
+      </p>
     </div>
-    <div class="stat-card green">
-      <div class="stat-label">Reinvesti (benefices)</div>
-      <div class="stat-value" id="bilanReinvest">0 EUR</div>
+
+    <div id="comptaApports" class="compta-pane" style="display:none;">
+      <button class="btn" onclick="openModal('apportModal')">Nouvel apport</button>
+      <div class="totals-row">
+        <span>Total apports :</span>
+        <span id="apportsTotal">0 EUR</span>
+      </div>
+      <div id="apportsList"></div>
     </div>
-    <div class="stat-card full warning">
-      <div class="stat-label">Cumule gagne (cash + reinvesti)</div>
-      <div class="stat-value" id="bilanCumulatedGain">0 EUR</div>
+
+    <div id="comptaAchats" class="compta-pane" style="display:none;">
+      <button class="btn" onclick="openModal('achatModal')">Nouvel achat stock</button>
+      <div class="totals-row">
+        <span>Total achats :</span>
+        <span id="achatsTotal">0 EUR</span>
+      </div>
+      <div id="achatsList"></div>
     </div>
-  </div>
 
-  <h4 style="color:#d4af37; margin: 20px 0 12px;">Apports par associe</h4>
-  <div id="bilanByPartner"></div>
+    <div id="comptaTransferts" class="compta-pane" style="display:none;">
+      <button class="btn" onclick="openModal('transferModal')">Nouveau transfert (especes &harr; virement)</button>
+      <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">Quand tu d&eacute;poses des esp&egrave;ces sur le compte ou inversement.</p>
+      <div id="transfersList"></div>
+    </div>
 
-  <p style="text-align:center; color:#666; font-size:11px; margin-top:30px; line-height:1.6;">
-    Cash en caisse = Ventes encaissees - Achats reinvestis<br>
-    (les achats stock initial sont deja couverts par les apports)<br>
-    Stock initial = achats finances par les apports (case "Reinvestissement" decochee)<br>
-    Reinvesti = achats finances par les benefices (case "Reinvestissement" cochee)<br>
-    Cumule gagne = Cash actuel + Reinvesti (ce que ton business a vraiment rapporte)<br>
-    Benefice net = CA Ventes - Cout des maillots vendus (et offerts)
-  </p>
-</div>
-
-<div id="comptaApports" class="compta-pane" style="display:none;">
-  <button class="btn" onclick="openModal('apportModal')">Nouvel apport</button>
-  <div class="totals-row">
-    <span>Total apports :</span>
-    <span id="apportsTotal">0 EUR</span>
-  </div>
-  <div id="apportsList"></div>
-</div>
-
-<div id="comptaAchats" class="compta-pane" style="display:none;">
-  <button class="btn" onclick="openModal('achatModal')">Nouvel achat stock</button>
-  <div class="totals-row">
-    <span>Total achats :</span>
-    <span id="achatsTotal">0 EUR</span>
-  </div>
-  <div id="achatsList"></div>
-</div>
-
-<div id="comptaTransferts" class="compta-pane" style="display:none;">
-  <button class="btn" onclick="openModal('transferModal')">Nouveau transfert (especes &harr; virement)</button>
-  <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">Quand tu d&eacute;poses des esp&egrave;ces sur le compte ou inversement.</p>
-  <div id="transfersList"></div>
-</div>
-
-<div id="comptaPrelevements" class="compta-pane" style="display:none;">
-  <button class="btn" onclick="openModal('prelevementModal')">Nouveau pr&eacute;l&egrave;vement perso</button>
-  <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">Quand toi ou Cl&eacute;ment prenez de l&#39;argent du business pour vous (salaire, plaisir...).</p>
-  <div class="totals-row">
-    <span>Total preleve :</span>
-    <span id="prelevementsTotal">0 EUR</span>
-  </div>
-  <div id="prelevementsList"></div>
-</div>
-```
-
+    <div id="comptaPrelevements" class="compta-pane" style="display:none;">
+      <button class="btn" onclick="openModal('prelevementModal')">Nouveau pr&eacute;l&egrave;vement perso</button>
+      <p style="font-size:11px; color:#888; margin-top:-8px; margin-bottom:8px;">Quand toi ou Cl&eacute;ment prenez de l&#39;argent du business pour vous (salaire, plaisir...).</p>
+      <div class="totals-row">
+        <span>Total preleve :</span>
+        <span id="prelevementsTotal">0 EUR</span>
+      </div>
+      <div id="prelevementsList"></div>
+    </div>
   </div>
 
   <div id="manage" class="section">
@@ -526,46 +519,43 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <div class="modal-title">Nouvelle vente</div>
     <p style="font-size:12px; color:#888; margin-bottom:12px;">Ajoute autant de maillots que tu veux pour le meme client.</p>
 
-```
-<div id="saleCartItems" style="margin-bottom:12px;"></div>
+    <div id="saleCartItems" style="margin-bottom:12px;"></div>
 
-<button class="btn btn-secondary" onclick="openAddItemModal('sale')">+ Ajouter un maillot</button>
+    <button class="btn btn-secondary" onclick="openAddItemModal('sale')">+ Ajouter un maillot</button>
 
-<div class="form-group">
-  <label>Prix total de la vente (EUR)</label>
-  <input type="number" id="saleTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
-</div>
+    <div class="form-group">
+      <label>Prix total de la vente (EUR)</label>
+      <input type="number" id="saleTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
+    </div>
 
-<div class="form-group">
-  <label>Tarifs rapides</label>
-  <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
-    <button type="button" class="btn btn-small btn-secondary" onclick="setSalePrice(30)">30 EUR</button>
-    <button type="button" class="btn btn-small btn-secondary" onclick="setSalePrice(50)">50 EUR (x2)</button>
-    <button type="button" class="btn btn-small btn-secondary" onclick="setSalePrice(0)">Cadeau</button>
-  </div>
-  <p style="font-size:11px; color:#888; margin-top:6px;">Cadeau = prix 0 EUR mais le cout d achat reste compte en perte.</p>
-</div>
+    <div class="form-group">
+      <label>Tarifs rapides</label>
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+        <button type="button" class="btn btn-small btn-secondary" onclick="setSalePrice(30)">30 EUR</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="setSalePrice(50)">50 EUR (x2)</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="setSalePrice(0)">Cadeau</button>
+      </div>
+      <p style="font-size:11px; color:#888; margin-top:6px;">Cadeau = prix 0 EUR mais le cout d achat reste compte en perte.</p>
+    </div>
 
-<div class="form-group">
-  <label>Mode de paiement</label>
-  <div class="toggle-group">
-    <div class="toggle-btn success active" id="salePayCash" onclick="toggleSalePayment('cash')">Especes</div>
-    <div class="toggle-btn success" id="salePayTransfer" onclick="toggleSalePayment('transfer')">Virement</div>
-  </div>
-</div>
+    <div class="form-group">
+      <label>Mode de paiement</label>
+      <div class="toggle-group">
+        <div class="toggle-btn success active" id="salePayCash" onclick="toggleSalePayment('cash')">Especes</div>
+        <div class="toggle-btn success" id="salePayTransfer" onclick="toggleSalePayment('transfer')">Virement</div>
+      </div>
+    </div>
 
-<div class="form-group">
-  <label>Nom client (optionnel)</label>
-  <input type="text" id="saleCustomer" placeholder="Ex: Karim">
-</div>
-<div class="form-group">
-  <label>Note (optionnel)</label>
-  <input type="text" id="saleNote" placeholder="Ex: paye especes, livraison...">
-</div>
-<button class="btn" onclick="recordSale()">Valider la vente</button>
-<button class="btn btn-secondary" onclick="closeModal('saleModal')">Annuler</button>
-```
-
+    <div class="form-group">
+      <label>Nom client (optionnel)</label>
+      <input type="text" id="saleCustomer" placeholder="Ex: Karim">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="saleNote" placeholder="Ex: paye especes, livraison...">
+    </div>
+    <button class="btn" onclick="recordSale()">Valider la vente</button>
+    <button class="btn btn-secondary" onclick="closeModal('saleModal')">Annuler</button>
   </div>
 </div>
 
@@ -574,54 +564,51 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
     <div class="modal-title">Nouvelle reservation</div>
     <p style="font-size:12px; color:#888; margin-bottom:12px;">Ajoute autant de maillots que veut le client.</p>
 
-```
-<div id="resCartItems" style="margin-bottom:12px;"></div>
+    <div id="resCartItems" style="margin-bottom:12px;"></div>
 
-<button class="btn btn-secondary" onclick="openAddItemModal('res')">+ Ajouter un maillot</button>
+    <button class="btn btn-secondary" onclick="openAddItemModal('res')">+ Ajouter un maillot</button>
 
-<div class="form-group">
-  <label>Prix total de la reservation (EUR)</label>
-  <input type="number" id="resTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
-</div>
+    <div class="form-group">
+      <label>Prix total de la reservation (EUR)</label>
+      <input type="number" id="resTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
+    </div>
 
-<div class="form-group">
-  <label>Tarifs rapides</label>
-  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
-    <button type="button" class="btn btn-small btn-secondary" onclick="setResPrice(30)">30 EUR</button>
-    <button type="button" class="btn btn-small btn-secondary" onclick="setResPrice(50)">50 EUR (x2)</button>
-  </div>
-</div>
+    <div class="form-group">
+      <label>Tarifs rapides</label>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+        <button type="button" class="btn btn-small btn-secondary" onclick="setResPrice(30)">30 EUR</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="setResPrice(50)">50 EUR (x2)</button>
+      </div>
+    </div>
 
-<div class="form-group">
-  <label>Nom du client *</label>
-  <input type="text" id="resCustomer" placeholder="Ex: Karim Benali">
-</div>
-<div class="form-group">
-  <label>Telephone (optionnel)</label>
-  <input type="tel" id="resPhone" placeholder="Ex: 06 12 34 56 78">
-</div>
-<div class="form-group">
-  <label>Statut du paiement</label>
-  <div class="toggle-group">
-    <div class="toggle-btn danger active" id="resStatusUnpaid" onclick="toggleResStatus('unpaid')">A payer</div>
-    <div class="toggle-btn success" id="resStatusPaid" onclick="toggleResStatus('paid')">Paye</div>
-  </div>
-</div>
-<div class="form-group">
-  <label>Mode de paiement (quand paye)</label>
-  <div class="toggle-group">
-    <div class="toggle-btn success active" id="resPayCash" onclick="toggleResPayment('cash')">Especes</div>
-    <div class="toggle-btn success" id="resPayTransfer" onclick="toggleResPayment('transfer')">Virement</div>
-  </div>
-</div>
-<div class="form-group">
-  <label>Note (optionnel)</label>
-  <input type="text" id="resNote" placeholder="Ex: livraison samedi, a recuperer...">
-</div>
-<button class="btn" onclick="recordReservation()">Valider la reservation</button>
-<button class="btn btn-secondary" onclick="closeModal('reservationModal')">Annuler</button>
-```
-
+    <div class="form-group">
+      <label>Nom du client *</label>
+      <input type="text" id="resCustomer" placeholder="Ex: Karim Benali">
+    </div>
+    <div class="form-group">
+      <label>Telephone (optionnel)</label>
+      <input type="tel" id="resPhone" placeholder="Ex: 06 12 34 56 78">
+    </div>
+    <div class="form-group">
+      <label>Statut du paiement</label>
+      <div class="toggle-group">
+        <div class="toggle-btn danger active" id="resStatusUnpaid" onclick="toggleResStatus('unpaid')">A payer</div>
+        <div class="toggle-btn success" id="resStatusPaid" onclick="toggleResStatus('paid')">Paye</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Mode de paiement (quand paye)</label>
+      <div class="toggle-group">
+        <div class="toggle-btn success active" id="resPayCash" onclick="toggleResPayment('cash')">Especes</div>
+        <div class="toggle-btn success" id="resPayTransfer" onclick="toggleResPayment('transfer')">Virement</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="resNote" placeholder="Ex: livraison samedi, a recuperer...">
+    </div>
+    <button class="btn" onclick="recordReservation()">Valider la reservation</button>
+    <button class="btn btn-secondary" onclick="closeModal('reservationModal')">Annuler</button>
   </div>
 </div>
 
@@ -785,6 +772,90 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   </div>
 </div>
 
+<div class="modal" id="saleEditModal">
+  <div class="modal-content">
+    <div class="modal-title">Modifier la vente</div>
+    <p style="font-size:12px; color:#888; margin-bottom:8px;">Pour changer les articles ou tailles, annule la vente et refais-la. Ici tu peux ajuster le prix et les infos.</p>
+    <div id="saleEditItems" style="margin-bottom:12px;"></div>
+    <div class="form-group">
+      <label>Prix total de la vente (EUR)</label>
+      <input type="number" id="saleEditTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label>Tarifs rapides</label>
+      <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+        <button type="button" class="btn btn-small btn-secondary" onclick="setSaleEditPrice(30)">30 EUR</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="setSaleEditPrice(50)">50 EUR (x2)</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="setSaleEditPrice(0)">Cadeau</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Mode de paiement</label>
+      <div class="toggle-group">
+        <div class="toggle-btn success active" id="saleEditPayCash" onclick="toggleSaleEditPayment('cash')">Especes</div>
+        <div class="toggle-btn success" id="saleEditPayTransfer" onclick="toggleSaleEditPayment('transfer')">Virement</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Nom client (optionnel)</label>
+      <input type="text" id="saleEditCustomer" placeholder="Ex: Karim">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="saleEditNote" placeholder="Ex: paye especes...">
+    </div>
+    <button class="btn" onclick="saveSaleEdit()">Enregistrer les modifications</button>
+    <button class="btn btn-secondary" onclick="closeModal('saleEditModal')">Annuler</button>
+  </div>
+</div>
+
+<div class="modal" id="resEditModal">
+  <div class="modal-content">
+    <div class="modal-title">Modifier la reservation</div>
+    <p style="font-size:12px; color:#888; margin-bottom:8px;">Pour changer les articles ou tailles, annule la reservation et refais-la. Ici tu peux ajuster le prix et les infos.</p>
+    <div id="resEditItems" style="margin-bottom:12px;"></div>
+    <div class="form-group">
+      <label>Prix total de la reservation (EUR)</label>
+      <input type="number" id="resEditTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label>Tarifs rapides</label>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+        <button type="button" class="btn btn-small btn-secondary" onclick="setResEditPrice(30)">30 EUR</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="setResEditPrice(50)">50 EUR (x2)</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Nom du client *</label>
+      <input type="text" id="resEditCustomer" placeholder="Ex: Karim Benali">
+    </div>
+    <div class="form-group">
+      <label>Telephone (optionnel)</label>
+      <input type="tel" id="resEditPhone" placeholder="Ex: 06 12 34 56 78">
+    </div>
+    <div class="form-group">
+      <label>Statut du paiement</label>
+      <div class="toggle-group">
+        <div class="toggle-btn danger active" id="resEditStatusUnpaid" onclick="toggleResEditStatus('unpaid')">A payer</div>
+        <div class="toggle-btn success" id="resEditStatusPaid" onclick="toggleResEditStatus('paid')">Paye</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Mode de paiement (quand paye)</label>
+      <div class="toggle-group">
+        <div class="toggle-btn success active" id="resEditPayCash" onclick="toggleResEditPayment('cash')">Especes</div>
+        <div class="toggle-btn success" id="resEditPayTransfer" onclick="toggleResEditPayment('transfer')">Virement</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="resEditNote" placeholder="Ex: livraison samedi...">
+    </div>
+    <button class="btn" onclick="saveResEdit()">Enregistrer les modifications</button>
+    <button class="btn btn-secondary" onclick="closeModal('resEditModal')">Annuler</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -838,6 +909,11 @@ let prelevementPaymentMethod = 'cash';
 let transferDirection = 'cashToBank';
 let transfers = [];
 let withdrawals = [];
+let editSaleIds = [];
+let editSalePaymentMethod = 'cash';
+let editResIds = [];
+let editResPaymentStatus = 'unpaid';
+let editResPaymentMethod = 'cash';
 let firebaseReady = false;
 let saleCart = [];
 let resCart = [];
@@ -1632,6 +1708,156 @@ async function cancelReservation(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
+function editGroupItemsHtml(group) {
+  return group.map(function(x) {
+    const cat = x.category === 'enfant' ? '👶' : '👨';
+    const _sub = getSizeSubLabel(x.size, x.category, x.asianSizes);
+    const sizeLbl = _sub ? x.size + ' (' + _sub + ')' : x.size;
+    return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:6px; font-size:13px;">' +
+      '<div style="color:#d4af37; font-weight:700;">' + cat + ' ' + x.team + '</div>' +
+      '<div style="color:#888; font-size:12px;">Taille ' + sizeLbl + ' x ' + x.qty + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function openSaleEdit(saleId) {
+  const sale = sales.find(function(s) { return s.id === saleId; });
+  if (!sale) return showToast('Vente introuvable', 'error');
+  let group = [sale];
+  if (sale.groupId) {
+    group = sales.filter(function(s) { return s.groupId === sale.groupId; });
+  }
+  editSaleIds = group.map(function(s) { return s.id; });
+  const groupTotal = group.reduce(function(a, s) { return a + (s.total || 0); }, 0);
+  document.getElementById('saleEditItems').innerHTML = editGroupItemsHtml(group);
+  document.getElementById('saleEditTotalPrice').value = groupTotal.toFixed(2);
+  document.getElementById('saleEditCustomer').value = sale.customer || '';
+  document.getElementById('saleEditNote').value = sale.note || '';
+  editSalePaymentMethod = sale.paymentMethod || 'cash';
+  document.getElementById('saleEditPayCash').classList.toggle('active', editSalePaymentMethod === 'cash');
+  document.getElementById('saleEditPayTransfer').classList.toggle('active', editSalePaymentMethod === 'transfer');
+  document.getElementById('saleEditModal').classList.add('active');
+}
+
+function setSaleEditPrice(value) {
+  document.getElementById('saleEditTotalPrice').value = value;
+}
+
+function toggleSaleEditPayment(method) {
+  editSalePaymentMethod = method;
+  document.getElementById('saleEditPayCash').classList.toggle('active', method === 'cash');
+  document.getElementById('saleEditPayTransfer').classList.toggle('active', method === 'transfer');
+}
+
+async function saveSaleEdit() {
+  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
+  if (editSaleIds.length === 0) return showToast('Rien a modifier', 'error');
+  const totalStr = document.getElementById('saleEditTotalPrice').value;
+  if (totalStr === '' || totalStr === null) return showToast('Renseigne le prix total', 'error');
+  const totalPrice = parseFloat(totalStr);
+  if (isNaN(totalPrice) || totalPrice < 0) return showToast('Prix invalide', 'error');
+  const isGift = totalPrice === 0;
+  const customer = document.getElementById('saleEditCustomer').value.trim();
+  const note = document.getElementById('saleEditNote').value.trim();
+  const group = sales.filter(function(s) { return editSaleIds.indexOf(s.id) !== -1; });
+  const totalUnits = group.reduce(function(a, s) { return a + (s.qty || 0); }, 0);
+  const pricePerUnit = totalUnits > 0 ? (totalPrice / totalUnits) : 0;
+  try {
+    const fb = window.fb;
+    const batch = fb.writeBatch(fb.db);
+    for (let i = 0; i < group.length; i++) {
+      const s = group[i];
+      batch.update(fb.doc(fb.db, 'sales', s.id), {
+        price: pricePerUnit,
+        total: pricePerUnit * (s.qty || 0),
+        customer: customer,
+        note: note,
+        paymentMethod: editSalePaymentMethod,
+        isGift: isGift
+      });
+    }
+    await batch.commit();
+    editSaleIds = [];
+    closeModal('saleEditModal');
+    showToast(isGift ? 'Vente modifiee (cadeau)' : 'Vente modifiee : ' + totalPrice.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+function openResEdit(resId) {
+  const r = reservations.find(function(x) { return x.id === resId; });
+  if (!r) return showToast('Reservation introuvable', 'error');
+  let group = [r];
+  if (r.groupId) {
+    group = reservations.filter(function(x) { return x.groupId === r.groupId; });
+  }
+  editResIds = group.map(function(x) { return x.id; });
+  const groupTotal = group.reduce(function(a, x) { return a + (x.total || 0); }, 0);
+  document.getElementById('resEditItems').innerHTML = editGroupItemsHtml(group);
+  document.getElementById('resEditTotalPrice').value = groupTotal.toFixed(2);
+  document.getElementById('resEditCustomer').value = r.customer || '';
+  document.getElementById('resEditPhone').value = r.phone || '';
+  document.getElementById('resEditNote').value = r.note || '';
+  editResPaymentStatus = r.paymentStatus === 'paid' ? 'paid' : 'unpaid';
+  document.getElementById('resEditStatusUnpaid').classList.toggle('active', editResPaymentStatus === 'unpaid');
+  document.getElementById('resEditStatusPaid').classList.toggle('active', editResPaymentStatus === 'paid');
+  editResPaymentMethod = r.paymentMethod || 'cash';
+  document.getElementById('resEditPayCash').classList.toggle('active', editResPaymentMethod === 'cash');
+  document.getElementById('resEditPayTransfer').classList.toggle('active', editResPaymentMethod === 'transfer');
+  document.getElementById('resEditModal').classList.add('active');
+}
+
+function setResEditPrice(value) {
+  document.getElementById('resEditTotalPrice').value = value;
+}
+
+function toggleResEditStatus(status) {
+  editResPaymentStatus = status;
+  document.getElementById('resEditStatusUnpaid').classList.toggle('active', status === 'unpaid');
+  document.getElementById('resEditStatusPaid').classList.toggle('active', status === 'paid');
+}
+
+function toggleResEditPayment(method) {
+  editResPaymentMethod = method;
+  document.getElementById('resEditPayCash').classList.toggle('active', method === 'cash');
+  document.getElementById('resEditPayTransfer').classList.toggle('active', method === 'transfer');
+}
+
+async function saveResEdit() {
+  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
+  if (editResIds.length === 0) return showToast('Rien a modifier', 'error');
+  const totalStr = document.getElementById('resEditTotalPrice').value;
+  if (totalStr === '' || totalStr === null) return showToast('Renseigne le prix total', 'error');
+  const totalPrice = parseFloat(totalStr);
+  if (isNaN(totalPrice) || totalPrice < 0) return showToast('Prix invalide', 'error');
+  const customer = document.getElementById('resEditCustomer').value.trim();
+  if (!customer) return showToast('Nom du client requis', 'error');
+  const phone = document.getElementById('resEditPhone').value.trim();
+  const note = document.getElementById('resEditNote').value.trim();
+  const group = reservations.filter(function(x) { return editResIds.indexOf(x.id) !== -1; });
+  const totalUnits = group.reduce(function(a, x) { return a + (x.qty || 0); }, 0);
+  const pricePerUnit = totalUnits > 0 ? (totalPrice / totalUnits) : 0;
+  try {
+    const fb = window.fb;
+    const batch = fb.writeBatch(fb.db);
+    for (let i = 0; i < group.length; i++) {
+      const x = group[i];
+      batch.update(fb.doc(fb.db, 'reservations', x.id), {
+        price: pricePerUnit,
+        total: pricePerUnit * (x.qty || 0),
+        customer: customer,
+        phone: phone,
+        note: note,
+        paymentStatus: editResPaymentStatus,
+        paymentMethod: editResPaymentMethod
+      });
+    }
+    await batch.commit();
+    editResIds = [];
+    closeModal('resEditModal');
+    showToast('Reservation modifiee : ' + totalPrice.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
 function filterStock(f, el) {
   currentStockFilter = f;
   document.querySelectorAll('#stock .filter-chip').forEach(function(c) { c.classList.remove('active'); });
@@ -1886,6 +2112,7 @@ function renderSales() {
       '<div class="sale-details">Client: ' + (first.customer || '-') + ' - Vendeur: ' + first.seller + ' - ' + dateStr + '</div>' +
       (first.note ? '<div class="sale-details">Note: ' + first.note + '</div>' : '') +
       '<div class="sale-actions">' +
+        '<button class="btn btn-small btn-secondary" onclick="openSaleEdit(\'' + first.id + '\')">Modifier</button>' +
         '<button class="btn btn-small btn-danger" onclick="deleteSale(\'' + first.id + '\')">Annuler</button>' +
       '</div></div>';
   }).join('');
@@ -1972,6 +2199,7 @@ function renderReservations() {
     if (!isDone) {
       actions = '<button class="btn btn-small btn-success" onclick="confirmReservation(\'' + first.id + '\')">' + (isPaid ? 'Livrer' : 'Livrer + encaisser') + '</button>' +
         '<button class="btn btn-small btn-secondary" onclick="togglePaymentStatus(\'' + first.id + '\')">' + (isPaid ? 'A payer' : 'Marquer paye') + '</button>' +
+        '<button class="btn btn-small btn-secondary" onclick="openResEdit(\'' + first.id + '\')">Modifier</button>' +
         '<button class="btn btn-small btn-danger" onclick="cancelReservation(\'' + first.id + '\')">Annuler</button>';
     }
 
@@ -2511,6 +2739,15 @@ window.confirmReservation = confirmReservation;
 window.togglePaymentStatus = togglePaymentStatus;
 window.cancelReservation = cancelReservation;
 window.deleteSale = deleteSale;
+window.openSaleEdit = openSaleEdit;
+window.setSaleEditPrice = setSaleEditPrice;
+window.toggleSaleEditPayment = toggleSaleEditPayment;
+window.saveSaleEdit = saveSaleEdit;
+window.openResEdit = openResEdit;
+window.setResEditPrice = setResEditPrice;
+window.toggleResEditStatus = toggleResEditStatus;
+window.toggleResEditPayment = toggleResEditPayment;
+window.saveResEdit = saveResEdit;
 window.filterStock = filterStock;
 window.filterSales = filterSales;
 window.filterReservations = filterReservations;

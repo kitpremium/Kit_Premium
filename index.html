@@ -775,8 +775,9 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 <div class="modal" id="saleEditModal">
   <div class="modal-content">
     <div class="modal-title">Modifier la vente</div>
-    <p style="font-size:12px; color:#888; margin-bottom:8px;">Pour changer les articles ou tailles, annule la vente et refais-la. Ici tu peux ajuster le prix et les infos.</p>
+    <p style="font-size:12px; color:#888; margin-bottom:8px;">Pour changer une taille, retire l'article et rajoute-le. Tu peux ajuster le prix et les infos ici.</p>
     <div id="saleEditItems" style="margin-bottom:12px;"></div>
+    <button type="button" class="btn btn-secondary" style="margin-bottom:12px;" onclick="openAddItemModal('editSale')">+ Ajouter un article</button>
     <div class="form-group">
       <label>Prix total de la vente (EUR)</label>
       <input type="number" id="saleEditTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
@@ -812,8 +813,9 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
 <div class="modal" id="resEditModal">
   <div class="modal-content">
     <div class="modal-title">Modifier la reservation</div>
-    <p style="font-size:12px; color:#888; margin-bottom:8px;">Pour changer les articles ou tailles, annule la reservation et refais-la. Ici tu peux ajuster le prix et les infos.</p>
+    <p style="font-size:12px; color:#888; margin-bottom:8px;">Pour changer une taille, retire l'article et rajoute-le. Tu peux ajuster le prix et les infos ici.</p>
     <div id="resEditItems" style="margin-bottom:12px;"></div>
+    <button type="button" class="btn btn-secondary" style="margin-bottom:12px;" onclick="openAddItemModal('editRes')">+ Ajouter un article</button>
     <div class="form-group">
       <label>Prix total de la reservation (EUR)</label>
       <input type="number" id="resEditTotalPrice" step="0.01" placeholder="Total" inputmode="decimal">
@@ -1240,7 +1242,7 @@ function updateSizesForItem() {
   if (!id) { c.innerHTML = ''; return; }
   const p = products[id];
   const sizes = getSizesForProduct(p.category, p.asianSizes);
-  const cart = cartTarget === 'sale' ? saleCart : resCart;
+  const cart = (cartTarget === 'sale') ? saleCart : (cartTarget === 'res') ? resCart : [];
   c.innerHTML = sizes.map(function(s) {
     const qty = p.stock[s] || 0;
     const reserved = getReservedQty(id, s);
@@ -1262,6 +1264,10 @@ function selectItemSize(s, el) {
 }
 
 function addItemToCart() {
+  if (cartTarget === 'editSale' || cartTarget === 'editRes') {
+    addItemToEditGroup();
+    return;
+  }
   const id = document.getElementById('itemTeam').value;
   if (!id) return showToast('Choisis une equipe', 'error');
   if (!selectedItemSize) return showToast('Choisis une taille', 'error');
@@ -1294,6 +1300,88 @@ function addItemToCart() {
   } else {
     renderResCart();
     suggestResPrice();
+  }
+}
+
+function refreshSaleEditUI() {
+  const remaining = sales.filter(function(s) { return editSaleIds.indexOf(s.id) !== -1; });
+  if (remaining.length === 0) { closeModal('saleEditModal'); return; }
+  document.getElementById('saleEditItems').innerHTML = editGroupItemsHtml(remaining, 'sale');
+  const newTotal = remaining.reduce(function(a, s) { return a + (s.total || 0); }, 0);
+  document.getElementById('saleEditTotalPrice').value = newTotal.toFixed(2);
+}
+
+function refreshResEditUI() {
+  const remaining = reservations.filter(function(x) { return editResIds.indexOf(x.id) !== -1; });
+  if (remaining.length === 0) { closeModal('resEditModal'); return; }
+  document.getElementById('resEditItems').innerHTML = editGroupItemsHtml(remaining, 'res');
+  const newTotal = remaining.reduce(function(a, x) { return a + (x.total || 0); }, 0);
+  document.getElementById('resEditTotalPrice').value = newTotal.toFixed(2);
+}
+
+async function addItemToEditGroup() {
+  const id = document.getElementById('itemTeam').value;
+  if (!id) return showToast('Choisis une equipe', 'error');
+  if (!selectedItemSize) return showToast('Choisis une taille', 'error');
+  const qty = parseInt(document.getElementById('itemQty').value) || 1;
+  if (qty < 1) return showToast('Quantite invalide', 'error');
+  const p = products[id];
+  const isEditSale = cartTarget === 'editSale';
+  const arr = isEditSale ? sales : reservations;
+  const ids = isEditSale ? editSaleIds : editResIds;
+  const group = arr.filter(function(x) { return ids.indexOf(x.id) !== -1; });
+  if (group.length === 0) return showToast('Groupe introuvable', 'error');
+  const ref0 = group[0];
+  const groupId = ref0.groupId || (Date.now().toString() + Math.random().toString(36).slice(2,6));
+  const pricePerUnit = p.price || 0;
+  const newId = Date.now().toString() + '_' + Math.random().toString(36).slice(2,6);
+  try {
+    const fb = window.fb;
+    if (isEditSale) {
+      await fb.runTransaction(fb.db, async function(t) {
+        const pref = fb.doc(fb.db, 'products', id);
+        const snap = await t.get(pref);
+        if (!snap.exists()) throw new Error('NOPROD');
+        const stock = Object.assign({}, snap.data().stock);
+        const avail = (stock[selectedItemSize] || 0) - getReservedQty(id, selectedItemSize);
+        if (qty > avail) throw new Error('STOCK');
+        stock[selectedItemSize] = (stock[selectedItemSize] || 0) - qty;
+        t.update(pref, { stock: stock });
+        t.set(fb.doc(fb.db, 'sales', newId), {
+          productId: id, team: p.name, category: p.category, asianSizes: p.asianSizes === true,
+          size: selectedItemSize, price: pricePerUnit, qty: qty, total: pricePerUnit * qty,
+          cost: p.cost || 0, customer: ref0.customer || '', note: ref0.note || '',
+          seller: ref0.seller || '', date: ref0.date || todayISO(), groupId: groupId,
+          isGift: false, paymentMethod: ref0.paymentMethod || 'cash'
+        });
+      });
+      sales.push({ id: newId, productId: id, team: p.name, category: p.category, asianSizes: p.asianSizes === true, size: selectedItemSize, price: pricePerUnit, qty: qty, total: pricePerUnit * qty, cost: p.cost || 0, customer: ref0.customer || '', note: ref0.note || '', seller: ref0.seller || '', date: ref0.date || todayISO(), groupId: groupId, isGift: false, paymentMethod: ref0.paymentMethod || 'cash' });
+      editSaleIds.push(newId);
+      closeModal('addItemModal');
+      showToast('Article ajoute, stock decremente');
+      refreshSaleEditUI();
+    } else {
+      const stockQty = p.stock[selectedItemSize] || 0;
+      const reserved = getReservedQty(id, selectedItemSize);
+      if (qty > (stockQty - reserved)) return showToast('Stock insuffisant (dispo: ' + Math.max(0, stockQty - reserved) + ')', 'error');
+      await fb.setDoc(fb.doc(fb.db, 'reservations', newId), {
+        productId: id, team: p.name, category: p.category, asianSizes: p.asianSizes === true,
+        size: selectedItemSize, price: pricePerUnit, qty: qty, total: pricePerUnit * qty,
+        cost: p.cost || 0, customer: ref0.customer || '', phone: ref0.phone || '',
+        note: ref0.note || '', paymentStatus: ref0.paymentStatus || 'unpaid',
+        paymentMethod: ref0.paymentMethod || 'cash', status: 'active',
+        seller: ref0.seller || '', date: ref0.date || todayISO(), groupId: groupId
+      });
+      reservations.push({ id: newId, productId: id, team: p.name, category: p.category, asianSizes: p.asianSizes === true, size: selectedItemSize, price: pricePerUnit, qty: qty, total: pricePerUnit * qty, cost: p.cost || 0, customer: ref0.customer || '', phone: ref0.phone || '', note: ref0.note || '', paymentStatus: ref0.paymentStatus || 'unpaid', paymentMethod: ref0.paymentMethod || 'cash', status: 'active', seller: ref0.seller || '', date: ref0.date || todayISO(), groupId: groupId });
+      editResIds.push(newId);
+      closeModal('addItemModal');
+      showToast('Article ajoute a la reservation');
+      refreshResEditUI();
+    }
+  } catch (e) {
+    console.error(e);
+    if (String(e.message) === 'STOCK') showToast('Stock insuffisant', 'error');
+    else showToast('Erreur', 'error');
   }
 }
 

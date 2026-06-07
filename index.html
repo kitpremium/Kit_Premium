@@ -456,10 +456,17 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
           <div class="stat-value" id="caisseClement">0 EUR</div>
         </div>
       </div>
-      <button class="btn" style="margin-top:12px;" onclick="openModal('partnerTransferModal')">Transfert entre associes</button>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px;">
+        <button type="button" class="btn btn-small btn-secondary" onclick="adjustPartnerCash('Hugo')">Ajuster Hugo</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="adjustPartnerCash('Clement')">Ajuster Clement</button>
+      </div>
+      <p style="font-size:11px; color:#888; margin-top:6px; margin-bottom:12px;">Entre le montant reel compte : l'app corrige automatiquement l'ecart.</p>
+      <button class="btn" onclick="openModal('partnerTransferModal')">Transfert entre associes</button>
       <p style="font-size:11px; color:#888; margin-top:-4px; margin-bottom:12px;">Quand un associe donne du cash a l&#39;autre (ex: pour une commande fournisseur).</p>
       <h4 style="color:#d4af37; margin: 12px 0 8px;">Historique des transferts</h4>
       <div id="partnerTransfersList"></div>
+      <h4 style="color:#d4af37; margin: 16px 0 8px;">Ajustements de caisse</h4>
+      <div id="cashAdjustmentsList"></div>
       <div id="caisseDetail" style="margin-top:16px;"></div>
     </div>
   </div>
@@ -984,6 +991,7 @@ let transferDirection = 'cashToBank';
 let transfers = [];
 let withdrawals = [];
 let partnerTransfers = [];
+let cashAdjustments = [];
 let editSaleIds = [];
 let editSalePaymentMethod = 'cash';
 let editResIds = [];
@@ -1075,6 +1083,13 @@ function initSync() {
     partnerTransfers.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
     safeRenderAll();
   }, function(err) { console.error('partnerTransfers', err); });
+
+  fb.onSnapshot(fb.collection(fb.db, 'cashAdjustments'), function(snap) {
+    cashAdjustments = [];
+    snap.forEach(function(d) { cashAdjustments.push(Object.assign({ id: d.id }, d.data())); });
+    cashAdjustments.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
+  }, function(err) { console.error('cashAdjustments', err); });
 }
 
 function safeRenderAll() {
@@ -2703,6 +2718,35 @@ async function deletePartnerTransfer(id) {
   } catch (e) { showToast('Erreur', 'error'); }
 }
 
+async function adjustPartnerCash(partner) {
+  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
+  const current = computePartnerCash(partner);
+  const input = prompt('Montant reel en especes dans la caisse de ' + partner + ' (EUR) ?\n\nActuellement l app affiche : ' + current.toFixed(2) + ' EUR', current.toFixed(2));
+  if (input === null) return;
+  const real = parseFloat(String(input).replace(',', '.'));
+  if (isNaN(real)) return showToast('Montant invalide', 'error');
+  const delta = real - current;
+  if (Math.abs(delta) < 0.005) return showToast('Aucun changement');
+  try {
+    const fb = window.fb;
+    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await fb.setDoc(fb.doc(fb.db, 'cashAdjustments', id), {
+      partner: partner, amount: delta, date: todayISO(),
+      note: 'Ajustement manuel', createdAt: new Date().toISOString()
+    });
+    showToast('Caisse ' + partner + ' ajustee a ' + real.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function deleteCashAdjustment(id) {
+  if (!confirm('Supprimer cet ajustement ? La caisse reviendra au calcul automatique.')) return;
+  try {
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'cashAdjustments', id));
+    showToast('Ajustement supprime');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
 // Calcule le cash especes detenu par un associe
 function computePartnerCash(partner) {
   let cash = 0;
@@ -2727,6 +2771,10 @@ function computePartnerCash(partner) {
   partnerTransfers.forEach(function(t) {
     if (t.from === partner) cash -= (t.amount || 0);
     if (t.to === partner) cash += (t.amount || 0);
+  });
+  // +/- ajustements manuels de caisse
+  cashAdjustments.forEach(function(a) {
+    if (a.partner === partner) cash += (a.amount || 0);
   });
   return cash;
 }
@@ -2968,6 +3016,25 @@ function renderCompta() {
         }).join('');
   }
 
+  const caList = document.getElementById('cashAdjustmentsList');
+  if (caList) {
+    caList.innerHTML = cashAdjustments.length === 0
+      ? '<div class="empty-state"><div class="icon">A</div><div>Aucun ajustement.</div></div>'
+      : cashAdjustments.map(function(a) {
+          const isPlus = (a.amount || 0) >= 0;
+          const sign = isPlus ? '+' : '';
+          return '<div class="sale-item ' + (isPlus ? 'compta-in' : 'compta-out') + '">' +
+            '<div class="sale-row">' +
+              '<div class="sale-team">' + (a.partner || '-') + '</div>' +
+              '<div class="sale-price ' + (isPlus ? '' : 'negative') + '">' + sign + (a.amount || 0).toFixed(2) + ' EUR</div>' +
+            '</div>' +
+            '<div class="sale-details">Date: ' + (a.date || '-') + '</div>' +
+            '<div class="sale-actions">' +
+              '<button class="btn btn-small btn-danger" onclick="deleteCashAdjustment(\'' + a.id + '\')">Supprimer</button>' +
+            '</div></div>';
+        }).join('');
+  }
+
   const cd = document.getElementById('caisseDetail');
   if (cd) {
     function partnerLine(name) {
@@ -3045,7 +3112,7 @@ async function confirmReset() {
   try {
     const fb = window.fb;
     const batch = fb.writeBatch(fb.db);
-    const cols = ['products', 'sales', 'reservations', 'contributions', 'purchases', 'transfers', 'withdrawals', 'partnerTransfers'];
+    const cols = ['products', 'sales', 'reservations', 'contributions', 'purchases', 'transfers', 'withdrawals', 'partnerTransfers', 'cashAdjustments'];
     for (let i = 0; i < cols.length; i++) {
       const docs = await fb.getDocs(fb.collection(fb.db, cols[i]));
       docs.forEach(function(d) { batch.delete(d.ref); });
@@ -3086,6 +3153,8 @@ window.savePrelevement = savePrelevement;
 window.deletePrelevement = deletePrelevement;
 window.savePartnerTransfer = savePartnerTransfer;
 window.deletePartnerTransfer = deletePartnerTransfer;
+window.adjustPartnerCash = adjustPartnerCash;
+window.deleteCashAdjustment = deleteCashAdjustment;
 window.recordSale = recordSale;
 window.recordReservation = recordReservation;
 window.confirmReservation = confirmReservation;

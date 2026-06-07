@@ -342,6 +342,7 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
       <div class="compta-subtab" onclick="switchComptaTab('achats', this)">Achats</div>
       <div class="compta-subtab" onclick="switchComptaTab('transferts', this)">Transferts</div>
       <div class="compta-subtab" onclick="switchComptaTab('prelevements', this)">Preleve</div>
+      <div class="compta-subtab" onclick="switchComptaTab('caisses', this)">Caisses</div>
     </div>
 
     <div id="comptaBilan" class="compta-pane">
@@ -441,6 +442,25 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
         <span id="prelevementsTotal">0 EUR</span>
       </div>
       <div id="prelevementsList"></div>
+    </div>
+
+    <div id="comptaCaisses" class="compta-pane" style="display:none;">
+      <p style="font-size:12px; color:#888; margin-bottom:12px;">Cash (especes) que chaque associe a physiquement sur lui, selon ses ventes, ses achats et les transferts.</p>
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-label">Caisse Hugo (especes)</div>
+          <div class="stat-value" id="caisseHugo">0 EUR</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Caisse Clement (especes)</div>
+          <div class="stat-value" id="caisseClement">0 EUR</div>
+        </div>
+      </div>
+      <button class="btn" style="margin-top:12px;" onclick="openModal('partnerTransferModal')">Transfert entre associes</button>
+      <p style="font-size:11px; color:#888; margin-top:-4px; margin-bottom:12px;">Quand un associe donne du cash a l&#39;autre (ex: pour une commande fournisseur).</p>
+      <h4 style="color:#d4af37; margin: 12px 0 8px;">Historique des transferts</h4>
+      <div id="partnerTransfersList"></div>
+      <div id="caisseDetail" style="margin-top:16px;"></div>
     </div>
   </div>
 
@@ -545,6 +565,14 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
         <div class="toggle-btn success active" id="salePayCash" onclick="toggleSalePayment('cash')">Especes</div>
         <div class="toggle-btn success" id="salePayTransfer" onclick="toggleSalePayment('transfer')">Virement</div>
       </div>
+    </div>
+
+    <div class="form-group">
+      <label>Encaisse par (qui garde le cash)</label>
+      <select id="saleSeller">
+        <option value="Hugo">Hugo</option>
+        <option value="Clement">Clement</option>
+      </select>
     </div>
 
     <div class="form-group">
@@ -686,6 +714,14 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
         <div class="toggle-btn success active" id="achatPayCash" onclick="toggleAchatPayment('cash')">Especes</div>
         <div class="toggle-btn success" id="achatPayTransfer" onclick="toggleAchatPayment('transfer')">Virement</div>
       </div>
+    </div>
+    <div class="form-group">
+      <label>Paye par (deduit de sa caisse)</label>
+      <select id="achatPayer">
+        <option value="Commun">Commun (50/50)</option>
+        <option value="Hugo">Hugo</option>
+        <option value="Clement">Clement</option>
+      </select>
     </div>
     <div class="form-group">
       <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
@@ -859,6 +895,41 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   </div>
 </div>
 
+<div class="modal" id="partnerTransferModal">
+  <div class="modal-content">
+    <div class="modal-title">Transfert entre associes</div>
+    <p style="font-size:12px; color:#888; margin-bottom:12px;">Deplace du cash d'un associe a l'autre (ex: Hugo donne 600 EUR a Clement pour une commande).</p>
+    <div class="form-group">
+      <label>De qui</label>
+      <select id="ptFrom">
+        <option value="Hugo">Hugo</option>
+        <option value="Clement">Clement</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Vers qui</label>
+      <select id="ptTo">
+        <option value="Clement">Clement</option>
+        <option value="Hugo">Hugo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Montant (EUR)</label>
+      <input type="number" id="ptAmount" step="0.01" placeholder="Ex: 600" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="ptDate">
+    </div>
+    <div class="form-group">
+      <label>Note (optionnel)</label>
+      <input type="text" id="ptNote" placeholder="Ex: fonds commande Alibaba">
+    </div>
+    <button class="btn" onclick="savePartnerTransfer()">Valider</button>
+    <button class="btn btn-secondary" onclick="closeModal('partnerTransferModal')">Annuler</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -912,6 +983,7 @@ let prelevementPaymentMethod = 'cash';
 let transferDirection = 'cashToBank';
 let transfers = [];
 let withdrawals = [];
+let partnerTransfers = [];
 let editSaleIds = [];
 let editSalePaymentMethod = 'cash';
 let editResIds = [];
@@ -996,6 +1068,13 @@ function initSync() {
     withdrawals.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
     safeRenderAll();
   }, function(err) { console.error('withdrawals', err); });
+
+  fb.onSnapshot(fb.collection(fb.db, 'partnerTransfers'), function(snap) {
+    partnerTransfers = [];
+    snap.forEach(function(d) { partnerTransfers.push(Object.assign({ id: d.id }, d.data())); });
+    partnerTransfers.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+    safeRenderAll();
+  }, function(err) { console.error('partnerTransfers', err); });
 }
 
 function safeRenderAll() {
@@ -1027,7 +1106,7 @@ function switchComptaTab(name, el) {
   document.querySelectorAll('.compta-subtab').forEach(function(t) { t.classList.remove('active'); });
   el.classList.add('active');
   document.querySelectorAll('.compta-pane').forEach(function(p) { p.style.display = 'none'; });
-  const map = { bilan: 'comptaBilan', apports: 'comptaApports', achats: 'comptaAchats', transferts: 'comptaTransferts', prelevements: 'comptaPrelevements' };
+  const map = { bilan: 'comptaBilan', apports: 'comptaApports', achats: 'comptaAchats', transferts: 'comptaTransferts', prelevements: 'comptaPrelevements', caisses: 'comptaCaisses' };
   document.getElementById(map[name]).style.display = 'block';
   renderCompta();
 }
@@ -1061,6 +1140,9 @@ function openModal(id) {
     salePaymentMethod = 'cash';
     document.getElementById('salePayCash').classList.add('active');
     document.getElementById('salePayTransfer').classList.remove('active');
+    const _cu = document.getElementById('currentUser').value;
+    const _ss = document.getElementById('saleSeller');
+    if (_ss && (_cu === 'Hugo' || _cu === 'Clement')) _ss.value = _cu;
   }
   if (id === 'reservationModal') {
     resCart = [];
@@ -1115,6 +1197,8 @@ function openModal(id) {
     document.getElementById('achatPayTransfer').classList.remove('active');
     const reinvCb = document.getElementById('achatReinvested');
     if (reinvCb) reinvCb.checked = false;
+    const _payer = document.getElementById('achatPayer');
+    if (_payer) _payer.value = 'Commun';
   }
   if (id === 'transferModal') {
     document.getElementById('transferAmount').value = '';
@@ -1133,6 +1217,14 @@ function openModal(id) {
     prelevementPaymentMethod = 'cash';
     document.getElementById('prelevementPayCash').classList.add('active');
     document.getElementById('prelevementPayTransfer').classList.remove('active');
+  }
+  if (id === 'partnerTransferModal') {
+    document.getElementById('ptAmount').value = '';
+    document.getElementById('ptNote').value = '';
+    document.getElementById('ptDate').value = todayISO();
+    const u = document.getElementById('currentUser').value;
+    if (u === 'Hugo') { document.getElementById('ptFrom').value = 'Hugo'; document.getElementById('ptTo').value = 'Clement'; }
+    else if (u === 'Clement') { document.getElementById('ptFrom').value = 'Clement'; document.getElementById('ptTo').value = 'Hugo'; }
   }
   document.getElementById(id).classList.add('active');
 }
@@ -1466,6 +1558,7 @@ async function recordSale() {
   if (isNaN(totalPrice) || totalPrice < 0) return showToast('Prix invalide', 'error');
 
   const isGift = totalPrice === 0;
+  const seller = document.getElementById('saleSeller').value || user;
   const customer = document.getElementById('saleCustomer').value.trim();
   const note = document.getElementById('saleNote').value.trim();
   const cartCopy = saleCart.slice();
@@ -1529,7 +1622,7 @@ async function recordSale() {
           cost: it.cost || 0,
           customer: customer,
           note: note,
-          seller: user,
+          seller: seller,
           date: dateISO,
           groupId: groupId,
           isGift: isGift,
@@ -1754,7 +1847,7 @@ async function confirmReservation(id) {
           price: x.price, qty: x.qty, total: x.total, customer: x.customer,
           cost: x.cost || 0,
           note: 'Issue de reservation' + (x.note ? ' - ' + x.note : ''),
-          seller: x.seller, date: dateISO, fromReservation: x.id,
+          seller: document.getElementById('currentUser').value || x.seller, date: dateISO, fromReservation: x.id,
           groupId: saleGroupId, isGift: false,
           paymentMethod: x.paymentMethod || 'cash'
         });
@@ -2474,6 +2567,8 @@ async function saveAchat() {
   const note = document.getElementById('achatNote').value.trim();
   const reinvCb = document.getElementById('achatReinvested');
   const reinvested = !!(reinvCb && reinvCb.checked);
+  const payerEl = document.getElementById('achatPayer');
+  const payer = payerEl ? payerEl.value : 'Commun';
   if (!desc) return showToast('Description requise', 'error');
   if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
   try {
@@ -2484,6 +2579,7 @@ async function saveAchat() {
       supplier: supplier, note: note,
       paymentMethod: achatPaymentMethod,
       reinvested: reinvested,
+      payer: payer,
       createdAt: new Date().toISOString()
     });
     closeModal('achatModal');
@@ -2575,6 +2671,64 @@ async function deletePrelevement(id) {
     await fb.deleteDoc(fb.doc(fb.db, 'withdrawals', id));
     showToast('Prelevement supprime');
   } catch (e) { showToast('Erreur', 'error'); }
+}
+
+async function savePartnerTransfer() {
+  if (!firebaseReady) return showToast('Cloud non connecte', 'error');
+  const from = document.getElementById('ptFrom').value;
+  const to = document.getElementById('ptTo').value;
+  const amount = parseFloat(document.getElementById('ptAmount').value);
+  const date = document.getElementById('ptDate').value || todayISO();
+  const note = document.getElementById('ptNote').value.trim();
+  if (from === to) return showToast('Choisis deux associes differents', 'error');
+  if (!amount || amount <= 0) return showToast('Montant invalide', 'error');
+  try {
+    const fb = window.fb;
+    const id = Date.now().toString() + Math.random().toString(36).slice(2,6);
+    await fb.setDoc(fb.doc(fb.db, 'partnerTransfers', id), {
+      from: from, to: to, amount: amount, date: date, note: note,
+      createdAt: new Date().toISOString()
+    });
+    closeModal('partnerTransferModal');
+    showToast(from + ' -> ' + to + ' : ' + amount.toFixed(2) + ' EUR');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+async function deletePartnerTransfer(id) {
+  if (!confirm('Supprimer ce transfert ?')) return;
+  try {
+    const fb = window.fb;
+    await fb.deleteDoc(fb.doc(fb.db, 'partnerTransfers', id));
+    showToast('Transfert supprime');
+  } catch (e) { showToast('Erreur', 'error'); }
+}
+
+// Calcule le cash especes detenu par un associe
+function computePartnerCash(partner) {
+  let cash = 0;
+  // + ventes especes encaissees par lui
+  sales.forEach(function(s) {
+    if (s.paymentMethod !== 'transfer' && s.seller === partner) cash += (s.total || 0);
+  });
+  // - prelevements perso en especes (Les deux = 50/50)
+  withdrawals.forEach(function(w) {
+    if ((w.paymentMethod || 'cash') === 'transfer') return;
+    if (w.partner === partner) cash -= (w.amount || 0);
+    else if (w.partner === 'Les deux') cash -= (w.amount || 0) / 2;
+  });
+  // - achats en especes payes par lui (Commun = 50/50)
+  purchases.forEach(function(p) {
+    if ((p.paymentMethod || 'cash') === 'transfer') return;
+    const payer = p.payer || 'Commun';
+    if (payer === partner) cash -= (p.amount || 0);
+    else if (payer === 'Commun') cash -= (p.amount || 0) / 2;
+  });
+  // -/+ transferts entre associes
+  partnerTransfers.forEach(function(t) {
+    if (t.from === partner) cash -= (t.amount || 0);
+    if (t.to === partner) cash += (t.amount || 0);
+  });
+  return cash;
 }
 
 async function recalcAllSales() {
@@ -2787,6 +2941,44 @@ function renderCompta() {
             '</div></div>';
         }).join('');
   }
+
+  // Caisses par associe
+  const hugoCash = computePartnerCash('Hugo');
+  const clementCash = computePartnerCash('Clement');
+  const elH = document.getElementById('caisseHugo');
+  if (elH) elH.textContent = hugoCash.toFixed(2) + ' EUR';
+  const elC = document.getElementById('caisseClement');
+  if (elC) elC.textContent = clementCash.toFixed(2) + ' EUR';
+
+  const ptList = document.getElementById('partnerTransfersList');
+  if (ptList) {
+    ptList.innerHTML = partnerTransfers.length === 0
+      ? '<div class="empty-state"><div class="icon">T</div><div>Aucun transfert entre associes.</div></div>'
+      : partnerTransfers.map(function(t) {
+          return '<div class="sale-item">' +
+            '<div class="sale-row">' +
+              '<div class="sale-team">' + (t.from || '?') + ' -> ' + (t.to || '?') + '</div>' +
+              '<div class="sale-price">' + (t.amount || 0).toFixed(2) + ' EUR</div>' +
+            '</div>' +
+            '<div class="sale-details">Date: ' + (t.date || '-') + '</div>' +
+            (t.note ? '<div class="sale-details">Note: ' + t.note + '</div>' : '') +
+            '<div class="sale-actions">' +
+              '<button class="btn btn-small btn-danger" onclick="deletePartnerTransfer(\'' + t.id + '\')">Supprimer</button>' +
+            '</div></div>';
+        }).join('');
+  }
+
+  const cd = document.getElementById('caisseDetail');
+  if (cd) {
+    function partnerLine(name) {
+      const ventes = sales.reduce(function(a,s){ return a + ((s.paymentMethod !== 'transfer' && s.seller === name) ? (s.total||0) : 0); }, 0);
+      return '<div style="background:#0f1419; border:1px solid rgba(212,175,55,0.2); border-radius:8px; padding:10px; margin-bottom:8px;">' +
+        '<div style="color:#d4af37; font-weight:700; margin-bottom:4px;">' + name + '</div>' +
+        '<div style="font-size:12px; color:#9ca3af;">Ventes especes encaissees : ' + ventes.toFixed(2) + ' EUR</div>' +
+        '</div>';
+    }
+    cd.innerHTML = '<h4 style="color:#d4af37; margin: 4px 0 8px;">Detail ventes especes</h4>' + partnerLine('Hugo') + partnerLine('Clement');
+  }
 }
 
 function exportData() {
@@ -2853,7 +3045,7 @@ async function confirmReset() {
   try {
     const fb = window.fb;
     const batch = fb.writeBatch(fb.db);
-    const cols = ['products', 'sales', 'reservations', 'contributions', 'purchases', 'transfers', 'withdrawals'];
+    const cols = ['products', 'sales', 'reservations', 'contributions', 'purchases', 'transfers', 'withdrawals', 'partnerTransfers'];
     for (let i = 0; i < cols.length; i++) {
       const docs = await fb.getDocs(fb.collection(fb.db, cols[i]));
       docs.forEach(function(d) { batch.delete(d.ref); });
@@ -2892,6 +3084,8 @@ window.saveTransfer = saveTransfer;
 window.deleteTransfer = deleteTransfer;
 window.savePrelevement = savePrelevement;
 window.deletePrelevement = deletePrelevement;
+window.savePartnerTransfer = savePartnerTransfer;
+window.deletePartnerTransfer = deletePartnerTransfer;
 window.recordSale = recordSale;
 window.recordReservation = recordReservation;
 window.confirmReservation = confirmReservation;

@@ -677,6 +677,13 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
   </div>
 </div>
 
+<div class="modal" id="restockModal">
+  <div class="modal-content">
+    <div class="modal-title">Reassort (ajouter du stock)</div>
+    <div id="restockContent"></div>
+  </div>
+</div>
+
 <div class="modal" id="apportModal">
   <div class="modal-content">
     <div class="modal-title">Nouvel apport</div>
@@ -840,6 +847,13 @@ input, textarea, select { -webkit-user-select: text; user-select: text; }
         <div class="toggle-btn success active" id="saleEditPayCash" onclick="toggleSaleEditPayment('cash')">Especes</div>
         <div class="toggle-btn success" id="saleEditPayTransfer" onclick="toggleSaleEditPayment('transfer')">Virement</div>
       </div>
+    </div>
+    <div class="form-group">
+      <label>Encaisse par (vendeur)</label>
+      <select id="saleEditSeller">
+        <option value="Hugo">Hugo</option>
+        <option value="Clement">Clement</option>
+      </select>
     </div>
     <div class="form-group">
       <label>Nom client (optionnel)</label>
@@ -1942,6 +1956,8 @@ function openSaleEdit(saleId) {
   document.getElementById('saleEditTotalPrice').value = groupTotal.toFixed(2);
   document.getElementById('saleEditCustomer').value = sale.customer || '';
   document.getElementById('saleEditNote').value = sale.note || '';
+  const _ses = document.getElementById('saleEditSeller');
+  if (_ses) _ses.value = (sale.seller === 'Clement') ? 'Clement' : 'Hugo';
   editSalePaymentMethod = sale.paymentMethod || 'cash';
   document.getElementById('saleEditPayCash').classList.toggle('active', editSalePaymentMethod === 'cash');
   document.getElementById('saleEditPayTransfer').classList.toggle('active', editSalePaymentMethod === 'transfer');
@@ -1968,6 +1984,8 @@ async function saveSaleEdit() {
   const isGift = totalPrice === 0;
   const customer = document.getElementById('saleEditCustomer').value.trim();
   const note = document.getElementById('saleEditNote').value.trim();
+  const _ses = document.getElementById('saleEditSeller');
+  const seller = _ses ? _ses.value : null;
   const group = sales.filter(function(s) { return editSaleIds.indexOf(s.id) !== -1; });
   const totalUnits = group.reduce(function(a, s) { return a + (s.qty || 0); }, 0);
   const pricePerUnit = totalUnits > 0 ? (totalPrice / totalUnits) : 0;
@@ -1976,14 +1994,16 @@ async function saveSaleEdit() {
     const batch = fb.writeBatch(fb.db);
     for (let i = 0; i < group.length; i++) {
       const s = group[i];
-      batch.update(fb.doc(fb.db, 'sales', s.id), {
+      const upd = {
         price: pricePerUnit,
         total: pricePerUnit * (s.qty || 0),
         customer: customer,
         note: note,
         paymentMethod: editSalePaymentMethod,
         isGift: isGift
-      });
+      };
+      if (seller) upd.seller = seller;
+      batch.update(fb.doc(fb.db, 'sales', s.id), upd);
     }
     await batch.commit();
     editSaleIds = [];
@@ -2185,6 +2205,7 @@ function renderStock() {
       '</div>' +
       '<div class="sizes-grid">' + sizesHtml + '</div>' +
       '<div class="card-actions" style="margin-top:12px; display:none; gap:8px; flex-wrap:wrap;">' +
+        '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); openRestock(\'' + id + '\')">+ Reassort</button>' +
         '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editPrice(\'' + id + '\')">Prix vente</button>' +
         '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); editCost(\'' + id + '\')">Prix achat</button>' +
         (p.category === 'homme' ? '<button class="btn btn-small btn-secondary" onclick="event.stopPropagation(); toggleAsianSizes(\'' + id + '\')">' + (p.asianSizes ? 'Tailles: Asia' : 'Tailles: FR') + '</button>' : '') +
@@ -2243,6 +2264,59 @@ async function saveAdjust(productId, size) {
     });
     closeModal('adjustStockModal');
     showToast('Stock mis a jour');
+  } catch (e) { console.error(e); showToast('Erreur', 'error'); }
+}
+
+function openRestock(productId) {
+  const p = products[productId];
+  if (!p) return;
+  const sizes = getSizesForProduct(p.category, p.asianSizes);
+  let rows = '';
+  sizes.forEach(function(s) {
+    const _sub = getSizeSubLabel(s, p.category, p.asianSizes);
+    const lbl = _sub ? s + ' (' + _sub + ')' : s;
+    const current = (p.stock || {})[s] || 0;
+    rows += '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px;">' +
+      '<div style="font-size:14px;"><span style="color:#d4af37; font-weight:700;">' + lbl + '</span> <span style="color:#888; font-size:12px;">(actuel: ' + current + ')</span></div>' +
+      '<input type="number" id="restock_' + s + '" value="0" min="0" inputmode="numeric" style="width:90px;">' +
+      '</div>';
+  });
+  document.getElementById('restockContent').innerHTML =
+    '<p style="margin-bottom:12px;"><strong style="color:#d4af37;">' + p.name + '</strong></p>' +
+    '<p style="font-size:12px; color:#888; margin-bottom:12px;">Indique combien de pieces tu AJOUTES par taille (nouvelle livraison). Ca s\'ajoute au stock actuel.</p>' +
+    rows +
+    '<button class="btn" style="margin-top:8px;" onclick="saveRestock(\'' + productId + '\')">Ajouter au stock</button>' +
+    '<button class="btn btn-secondary" onclick="closeModal(\'restockModal\')">Annuler</button>';
+  openModal('restockModal');
+}
+
+async function saveRestock(productId) {
+  const p = products[productId];
+  if (!p) return;
+  const sizes = getSizesForProduct(p.category, p.asianSizes);
+  const toAdd = {};
+  let totalAdded = 0;
+  sizes.forEach(function(s) {
+    const el = document.getElementById('restock_' + s);
+    const n = el ? (parseInt(el.value) || 0) : 0;
+    if (n > 0) { toAdd[s] = n; totalAdded += n; }
+  });
+  if (totalAdded === 0) return showToast('Rien a ajouter', 'error');
+  try {
+    const fb = window.fb;
+    const ref = fb.doc(fb.db, 'products', productId);
+    await fb.runTransaction(fb.db, async function(t) {
+      const snap = await t.get(ref);
+      if (!snap.exists()) throw new Error('Introuvable');
+      const data = snap.data();
+      const newStock = Object.assign({}, data.stock);
+      Object.keys(toAdd).forEach(function(s) {
+        newStock[s] = (newStock[s] || 0) + toAdd[s];
+      });
+      t.update(ref, { stock: newStock });
+    });
+    closeModal('restockModal');
+    showToast('+' + totalAdded + ' piece(s) ajoutee(s)');
   } catch (e) { console.error(e); showToast('Erreur', 'error'); }
 }
 
@@ -3179,6 +3253,8 @@ window.toggleCard = toggleCard;
 window.openAdjust = openAdjust;
 window.adjustQuick = adjustQuick;
 window.saveAdjust = saveAdjust;
+window.openRestock = openRestock;
+window.saveRestock = saveRestock;
 window.editPrice = editPrice;
 window.editCost = editCost;
 window.deleteProduct = deleteProduct;
